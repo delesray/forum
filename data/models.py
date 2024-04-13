@@ -8,7 +8,7 @@ class User(BaseModel):
     email: str
     first_name: str
     last_name: str
-    is_admin: bool = False
+    is_admin: bool | None = None
 
     @classmethod
     def from_query(cls, user_id, username, email, first_name, last_name, is_admin):

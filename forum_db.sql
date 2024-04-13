@@ -20,8 +20,8 @@ USE `forum` ;
 CREATE TABLE IF NOT EXISTS `forum`.`categories` (
   `category_id` INT(11) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
-  `is_locked` TINYINT(2) NULL DEFAULT 0,
-  `is_private` TINYINT(2) NULL DEFAULT 0,
+  `is_locked` TINYINT(2) NOT NULL DEFAULT 0,
+  `is_private` TINYINT(2) NOT NULL DEFAULT 0,
   PRIMARY KEY (`category_id`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
 ENGINE = InnoDB
@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS `forum`.`users` (
   `last_name` VARCHAR(45) NOT NULL,
   `is_admin` TINYINT(2) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`),
-  UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE)
+  UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
@@ -76,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `forum`.`topics` (
   `topic_id` INT(11) NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(45) NOT NULL,
   `user_id` INT(11) NOT NULL,
-  `is_locked` TINYINT(2) NULL DEFAULT 0,
+  `is_locked` TINYINT(2) NOT NULL DEFAULT 0,
   `best_reply_id` INT(11) NULL DEFAULT NULL,
   `category_id` INT(11) NOT NULL,
   PRIMARY KEY (`topic_id`),

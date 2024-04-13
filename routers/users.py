@@ -15,3 +15,12 @@ def get_all():
 def get_user_by_id(id: int):
     user = users_services.get_by_id(id)
     return user
+
+
+@users_router.post('/')
+def create_order(user: User):
+    # if not user.email == 'correct':
+    #     return Response(status_code=400, content='')
+
+    msg = users_services.register(user)
+    return msg
