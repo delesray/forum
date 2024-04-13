@@ -23,10 +23,16 @@ def get_by_id(id):
 def register(user: User):
     """
     Creates user without is_admin
+    Handles unique columns violations with try/except in queries
     """
-    generated_id = insert_query(
+    data = insert_query(
         'INSERT INTO users(username,email,first_name,last_name) VALUES(?,?,?,?)',
         (user.username, user.email, user.first_name, user.last_name)
     )
+    if isinstance(data, int):
+        generated_id = data
+        return f'User {generated_id} was successfully created!'
 
-    return f'User {generated_id} was successfully created!!'
+    data = data.msg.split()
+    entity = data[-1][1:-1].split('_')[0]
+    return f'Such {entity} already exists!'
