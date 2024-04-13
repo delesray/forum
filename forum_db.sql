@@ -34,9 +34,10 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `forum`.`users` (
   `user_id` INT(11) NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(45) NOT NULL,
-  `is_admin` TINYINT(2) NULL DEFAULT 0,
+  `email` VARCHAR(45) NOT NULL,
   `first_name` VARCHAR(45) NOT NULL,
   `last_name` VARCHAR(45) NOT NULL,
+  `is_admin` TINYINT(2) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`),
   UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE)
 ENGINE = InnoDB
