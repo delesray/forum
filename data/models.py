@@ -20,3 +20,21 @@ class User(BaseModel):
             last_name=last_name,
             is_admin=is_admin
         )
+        
+class Topic(BaseModel):
+    topic_id: int | None = None
+    title: str
+    is_locked: bool
+    category_id: int 
+    user_id: int
+    best_reply: int
+    
+    
+    
+class Message(BaseModel):
+    message_id: int | None = None
+    text: str
+    timestamp: date
+    sender_id: int
+    receiver_id: int
+    

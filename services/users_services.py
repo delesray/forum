@@ -30,3 +30,9 @@ def register(user: User):
     )
 
     return f'User {generated_id} was successfully created!!'
+
+def is_authenticated(token: str) -> bool:
+    pass
+
+def from_token(token: str) -> User | None:
+    pass
