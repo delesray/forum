@@ -1,4 +1,4 @@
-from data.models import User
+from data.models import User, StatusCode
 from data.database import read_query, update_query, insert_query
 from helpers import helpers
 
@@ -26,16 +26,19 @@ def register(user: User):
     Creates user without is_admin
     Handles unique columns violations with try/except in queries
     """
+    # if user.email is not 'correct':
+    #     return Response(status_code=400, content='')
+
     data = insert_query(
         'INSERT INTO users(username,email,first_name,last_name) VALUES(?,?,?,?)',
         (user.username, user.email, user.first_name, user.last_name)
     )
     if not isinstance(data, int):
         error_msg = helpers.humanize_error_msg(data)
-        return error_msg, 400
+        return error_msg, StatusCode.BAD_REQUEST
 
     generated_id = data
-    return f'User {generated_id} was successfully created!', 200
+    return f'User {generated_id} was successfully created!', StatusCode.OK
 
 
 def update(old: User, new: User):
@@ -64,6 +67,6 @@ def update(old: User, new: User):
 
     if data is not True:
         error_msg = helpers.humanize_error_msg(data)
-        return error_msg, 400
+        return error_msg, StatusCode.BAD_REQUEST
 
-    return merged, 200
+    return merged.__dict__, StatusCode.OK
