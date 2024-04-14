@@ -47,5 +47,3 @@ class Category(BaseModel):
             is_locked=is_locked,
             is_private=is_private,
         )
-
-
