@@ -12,13 +12,16 @@ def get_all():
     return users
 
 
-def get_by_id(id):
+def get_by_id(user_id):
     data = read_query(
         '''SELECT user_id, username, email, first_name, last_name, is_admin
-        FROM users WHERE user_id = ?''', (id,))
+        FROM users WHERE user_id = ?''', (user_id,))
 
-    user = [User.from_query(*row) for row in data][0]
-    return user
+    user = [User.from_query(*row) for row in data]
+    if not user:
+        return None
+
+    return user[0]
 
 
 def register(user: User):

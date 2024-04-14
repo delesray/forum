@@ -12,8 +12,16 @@ def get_all():
     return categories
 
 
-def get_by_id(id):
-    return None
+def get_by_id(category_id):
+    data = read_query(
+        '''SELECT category_id, name, is_locked, is_private
+        FROM categories WHERE category_id = ?''', (category_id,))
+
+    category = [Category.from_query(*row) for row in data]
+    if not category:
+        return None
+
+    return category[0]
 
 
 def create(category):

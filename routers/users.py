@@ -11,9 +11,11 @@ def get_all_users():
     return users
 
 
-@users_router.get('/{id}')
-def get_user_by_id(id: int):
-    user = users_services.get_by_id(id)
+@users_router.get('/{user_id}')
+def get_user_by_id(user_id: int):
+    user = users_services.get_by_id(user_id)
+    if not user:
+        return Response(status_code=404, content=f"User with id:{user_id} does\'t exist!")
     return user
 
 
@@ -23,16 +25,16 @@ def register_user(user: User):
     return Response(status_code=code, content=result)
 
 
-@users_router.put('/{id}', status_code=200)
-def update_user(id: int, user: User):
-    existing_user = users_services.get_by_id(id)
+@users_router.put('/{user_id}', status_code=200)
+def update_user(user_id: int, user: User):
+    existing_user = users_services.get_by_id(user_id)
     if not existing_user:
-        return Response(status_code=404, content=f"User with id:{id} does\'t exist!")
+        return Response(status_code=404, content=f"User with id:{user_id} does\'t exist!")
 
     result, code = users_services.update(existing_user, user)
     return result
 
-# @users_router.delete('/{id}', status_code=204)
+# @users_router.delete('/{user_id}', status_code=204)
 # def delete_user_by_id(id: int):
 #     existing_user =  users_services.get_by_id(id)
 #     if not existing_user:
