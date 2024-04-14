@@ -37,7 +37,10 @@ def insert_query(sql: str, sql_params=()) -> int:
 def update_query(sql: str, sql_params=()) -> bool:
     with _get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute(sql, sql_params)
-        conn.commit()
+        try:
+            cursor.execute(sql, sql_params)
+            conn.commit()
+        except mariadb.Error as e:
+            return e
 
-    return True
+        return True
