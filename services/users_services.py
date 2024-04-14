@@ -74,3 +74,9 @@ def update(old: User, new: User):
         return error_msg, StatusCode.BAD_REQUEST
 
     return merged.__dict__, StatusCode.OK
+
+def is_authenticated(token: str) -> bool:
+    pass
+
+def from_token(token: str) -> User | None:
+    pass
