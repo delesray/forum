@@ -53,8 +53,8 @@ def update(old: User, new: User):
     request_sent_from_admin = True  # no authorization logic yet
 
     new_admin_status = old.is_admin
-    if request_sent_from_admin and new.is_admin:
-        new_admin_status = new.is_admin
+    if request_sent_from_admin:
+        new_admin_status = new.is_admin if new.is_admin is not None else old.is_admin
 
     merged = User(
         user_id=old.user_id,
