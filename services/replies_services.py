@@ -12,9 +12,9 @@ def get_all(id: int):
 
 
 def create_reply(id: int, reply: Reply):
-    insert_query(
-            'INSERT INTO replies(reply_id, text, user_id, topic_id) VALUES(?,?,?,?)',
-            (reply.reply_id, reply.text, reply.user_id, reply.topic_id)
+    reply_id = insert_query(
+            'INSERT INTO replies(text, user_id, topic_id) VALUES(?,?,?)',
+            (reply.text, reply.user_id, reply.topic_id)
         )
     
-    return f'Reply with {reply.id} successfully added'
+    return f'Reply with id {reply_id} successfully added'
