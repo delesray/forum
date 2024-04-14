@@ -28,6 +28,7 @@ def register(user: User):
     """
     Creates user without is_admin
     Handles unique columns violations with try/except in queries
+    todo check what happens if mariadb returns another error type
     """
     # if user.email is not 'correct':
     #     return Response(status_code=400, content='')

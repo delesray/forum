@@ -25,7 +25,20 @@ def get_by_id(category_id):
 
 
 def create(category):
-    return None
+    """
+    Creates category without
+    Handles unique columns violations with try/except in queries
+    """
+    data = insert_query(
+        'INSERT INTO categories(name) VALUES(?)',
+        (category.name,)
+    )
+    if not isinstance(data, int):
+        error_msg = helpers.humanize_error_msg(data)
+        return error_msg, StatusCode.BAD_REQUEST
+
+    generated_id = data
+    return f'Category {generated_id} was successfully created!', StatusCode.OK
 
 
 def update(old, new):
