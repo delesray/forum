@@ -29,6 +29,7 @@ def create(category):
     Creates category without
     Handles unique columns violations with try/except in queries
     """
+    request_sent_from_admin = True
     data = insert_query(
         'INSERT INTO categories(name) VALUES(?)',
         (category.name,)
@@ -55,7 +56,7 @@ def update(old: Category, new: Category):
 
     merged = Category(
         category_id=old.category_id,
-        name=new.name or old.name,
+        name=new.name or old.name,  # only admin changes name
         is_locked=new_is_locked,
         is_private=new_is_private
     )
