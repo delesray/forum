@@ -31,3 +31,21 @@ class User(BaseModel):
             last_name=last_name,
             is_admin=is_admin
         )
+
+
+class Category(BaseModel):
+    category_id: int | None = None
+    name: str
+    is_locked: bool | None = None
+    is_private: bool | None = None
+
+    @classmethod
+    def from_query(cls, category_id, name, is_locked, is_private):
+        return cls(
+            category_id=category_id,
+            name=name,
+            is_locked=is_locked,
+            is_private=is_private,
+        )
+
+
