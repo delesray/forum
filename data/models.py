@@ -37,24 +37,22 @@ class User(BaseModel):
 class Topic(BaseModel):
     topic_id: int | None = None
     title: str
-    user_id: int | None = None
+    user_id: int 
     is_locked: bool | None = None
-    best_reply: int | None = None
+    best_reply_id: int | None = None
     category_id: int 
     
     @classmethod
-    def from_query(cls, topic_id, title, user_id, is_locked, best_reply, category_id):
+    def from_query(cls, topic_id, title, user_id, is_locked, best_reply_id, category_id):
         return cls(
             topic_id=topic_id,
             title=title,
             user_id=user_id,
             is_locked=is_locked,
-            best_reply=best_reply,
+            best_reply_id=best_reply_id,
             category_id=category_id
         )
-
-    
-    
+  
     
     
 class Message(BaseModel):
@@ -78,6 +76,36 @@ class Category(BaseModel):
             name=name,
             is_locked=is_locked,
             is_private=is_private,
+        )
+
+class Reply(BaseModel):
+    reply_id: int | None = None
+    text: str
+    user_id: int
+    topic_id: int
+
+
+    @classmethod
+    def from_query(cls, reply_id, text, user_id, topic_id):
+        return cls(
+            reply_id=reply_id,
+            text=text,
+            user_id=user_id,
+            topic_id=topic_id
+        )
+        
+class Vote(BaseModel):
+    user_id: int
+    reply_id: int
+    type: bool
+
+
+    @classmethod
+    def from_query(cls, user_id, reply_id, type):
+        return cls(
+            user_id=user_id,
+            reply_id=reply_id,
+            type=type
         )
 
 

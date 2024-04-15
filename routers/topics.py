@@ -11,13 +11,13 @@ topics_router = APIRouter(prefix='/topics')
 #pagination for the get_all_topics endpoint to be implemented 
 @topics_router.get('/')
 def get_all_topics(
-    sort: str | None = None,
-    sort_by: str | None = None,
-    search: str | None = None
+    sort: str = None or None,
+    sort_by: str = None or None,
+    search: str = None or None
     ):
 
     topics = topics_services.get_all(search)
-    if sort and (sort == 'asc' or sort == 'desc'):
+    if sort and (sort == 'asc' or sort == 'desc') and sort_by:
         return topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc')
     else:
         return topics
