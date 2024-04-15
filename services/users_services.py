@@ -53,13 +53,13 @@ def update(old: User, new: User):
     request_sent_from_admin = True  # no authorization logic yet
 
     new_admin_status = old.is_admin
-    if request_sent_from_admin and new.is_admin:
-        new_admin_status = new.is_admin
+    if request_sent_from_admin:
+        new_admin_status = new.is_admin if new.is_admin is not None else old.is_admin
 
     merged = User(
         user_id=old.user_id,
-        username=new.username or old.username,
-        email=new.email or old.email,
+        username=old.username,  # cannot update username
+        email=old.email,  # cannot update email
         first_name=new.first_name or old.first_name,
         last_name=new.last_name or old.last_name,
         is_admin=new_admin_status
@@ -73,10 +73,12 @@ def update(old: User, new: User):
         error_msg = helpers.humanize_error_msg(data)
         return error_msg, StatusCode.BAD_REQUEST
 
-    return merged.__dict__, StatusCode.OK
+    return merged, StatusCode.OK
 
-# def is_authenticated(token: str) -> bool:
-#     pass
 
-# def from_token(token: str) -> User | None:
-#     pass
+def is_authenticated(token: str) -> bool:
+    pass
+
+
+def from_token(token: str) -> User | None:
+    pass

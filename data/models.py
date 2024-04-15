@@ -21,6 +21,7 @@ class User(BaseModel):
     last_name: str
     is_admin: bool | None = None
 
+
     @classmethod
     def from_query(cls, user_id, username, email, first_name, last_name, is_admin):
         return cls(
@@ -31,6 +32,7 @@ class User(BaseModel):
             last_name=last_name,
             is_admin=is_admin
         )        
+
 
 class Topic(BaseModel):
     topic_id: int | None = None
@@ -60,7 +62,6 @@ class Message(BaseModel):
     text: str
     sender_id: int
     receiver_id: int
-    
 
 
 class Category(BaseModel):
@@ -68,6 +69,7 @@ class Category(BaseModel):
     name: str
     is_locked: bool | None = None
     is_private: bool | None = None
+
 
     @classmethod
     def from_query(cls, category_id, name, is_locked, is_private):
