@@ -35,17 +35,29 @@ class User(BaseModel):
 class Topic(BaseModel):
     topic_id: int | None = None
     title: str
-    is_locked: bool
+    user_id: int | None = None
+    is_locked: bool | None = None
+    best_reply: int | None = None
     category_id: int 
-    user_id: int
-    best_reply: int
+    
+    @classmethod
+    def from_query(cls, topic_id, title, user_id, is_locked, best_reply, category_id):
+        return cls(
+            topic_id=topic_id,
+            title=title,
+            user_id=user_id,
+            is_locked=is_locked,
+            best_reply=best_reply,
+            category_id=category_id
+        )
+
+    
     
     
     
 class Message(BaseModel):
     message_id: int | None = None
     text: str
-    timestamp: date
     sender_id: int
     receiver_id: int
     
@@ -65,3 +77,7 @@ class Category(BaseModel):
             is_locked=is_locked,
             is_private=is_private,
         )
+
+
+
+    

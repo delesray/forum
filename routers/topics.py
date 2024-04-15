@@ -1,34 +1,56 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from data.models import Topic, User
-from services import topics_services
+from services import topics_services, replies_services
 from pydantic import BaseModel
 from common.auth import get_user_or_raise_401
 
-class TopicWithRepliesResponseModel(BaseModel):
-    pass
+
 
 topics_router = APIRouter(prefix='/topics')
 
+#pagination for the get_all_topics endpoint to be implemented 
 @topics_router.get('/')
-def get_topics():
-    pass
-    #topics = topics_services.get_all()
-    #return topics
+def get_all_topics(
+    sort: str | None = None,
+    sort_by: str | None = None,
+    search: str | None = None
+    ):
+
+    topics = topics_services.get_all(search)
+    if sort and (sort == 'asc' or sort == 'desc'):
+        return topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc')
+    else:
+        return topics
 
 
-@topics_router.get('/{id}')
-def get_topic_by_id(id: int):
-    pass
-    #topic = topics_services.get_by_id(id)
-    #return TopicWithRepliesResponseModel()
+@topics_router.get('/{topic_id}')
+def get_topic_by_id(topic_id: int):
+    topic = topics_services.get_by_id(topic_id)
+    if not topic:
+        return Response(status_code=404, content=f"Topic with id:{topic_id} does\'t exist!")
+    replies = replies_services.get_all(topic_id)
+    
+    topic_with_replies = {
+        "topic": topic,
+        "replies": replies if replies else []
+    }
+    
+    return topic_with_replies
+   
 
+@topics_router.post('/')                                   
+def create_topic(topic: Topic):  #def create_topic(topic: Topic, current_user: User = Depends(get_user_or_raise_401)):
+    result, code = topics_services.create(topic)
+    return Response(status_code=code, content=result)
 
-@topics_router.post('/')
-def create_topic(topic: Topic, current_user: User = Depends(get_user_or_raise_401)):
-    pass
     
 
-@topics_router.put('/{id}')
-def update_topic(id: int, topic: Topic):
-    pass
+@topics_router.put('/{topic_id}', status_code=200)
+def update_topic(topic_id: int, topic: Topic):
+    existing_topic = topics_services.get_by_id(topic_id)
+    if not existing_topic:
+        return Response(status_code=404, content=f"Topic with id:{topic_id} does\'t exist!")
+
+    result, code = topics_services.update(existing_topic, topic)
+    return result
 
