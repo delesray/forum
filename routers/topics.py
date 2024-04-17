@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from common.auth import get_user_or_raise_401
 
 
-
 topics_router = APIRouter(prefix='/topics')
 
 #pagination for the get_all_topics endpoint to be implemented 
@@ -43,7 +42,6 @@ def create_topic(topic: Topic):  #def create_topic(topic: Topic, current_user: U
     result, code = topics_services.create(topic)
     return Response(status_code=code, content=result)
 
-    
 
 @topics_router.put('/{topic_id}', status_code=200)
 def update_topic(topic_id: int, topic: Topic):
@@ -53,4 +51,3 @@ def update_topic(topic_id: int, topic: Topic):
 
     result, code = topics_services.update(existing_topic, topic)
     return result
-

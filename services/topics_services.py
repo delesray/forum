@@ -49,6 +49,12 @@ def create(topic: Topic):
 
 
 def update(old: Topic, new: Topic):
+    # TODO
+    # a user should not be able to change topic_id, user_id (author of the topic)
+    # a user with write access can change title, is_locked
+    # author can choose / change best reply
+    # can category be changed?
+
     merged = Topic(
         topic_id=old.topic_id,
         title=new.title or old.title,
