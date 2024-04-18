@@ -3,6 +3,7 @@ from data.database import read_query, update_query, insert_query
 from helpers import helpers
 
 def get_all(search: str = None):
+    # will be changed
     if search is None:
         data = read_query(
             '''SELECT topic_id, title, user_id, is_locked, best_reply_id, category_id
@@ -48,32 +49,30 @@ def create(topic: Topic):
 
 
 
-def update(old: Topic, new: Topic):
+def update_status(topic_id, status):
     # TODO
     # a user should not be able to change topic_id, user_id (author of the topic)
     # a user with write access can change title, is_locked
     # author can choose / change best reply
     # can category be changed?
 
-    merged = Topic(
-        topic_id=old.topic_id,
-        title=new.title or old.title,
-        user_id= old.user_id,
-        is_locked=new.is_locked or old.is_locked,
-        best_reply_id=new.best_reply_id or old.best_reply_id,
-        category_id=old.category_id
-    )
-     
-    data = update_query(
-        'UPDATE topics SET title = ?, user_id = ?, is_locked = ?, best_reply_id = ?, category_id = ? WHERE topic_id = ?',
-        (merged.title, merged.user_id, merged.is_locked, merged.best_reply_id, merged.category_id, merged.topic_id)
-    )
+    update_query(
+        '''UPDATE topics SET
+           is_locked = ?
+           WHERE topic_id = ? 
+        ''',
+        (status_to_db_format(status), topic_id))
 
-    if data is not True:
-        error_msg = helpers.humanize_error_msg(data)
-        return error_msg, StatusCode.BAD_REQUEST
+    return f"Project status updated to {status}"
 
-    return merged.__dict__, StatusCode.OK
+
+def update_title(topic_id, title):
+    pass
+
+
+def update_best_reply(topic_id, best_reply):
+    pass
+
 
 
 
@@ -82,3 +81,13 @@ def custom_sort(topics: list[Topic], *, attribute='title', reverse=False):
         topics,
         key=lambda t: getattr(t, attribute),
         reverse=reverse)
+
+
+def status_to_db_format(status: str) -> int:
+    if status == 'open':
+            status_val = 0
+    else:
+            status_val = 1
+            
+    return status_val
+    

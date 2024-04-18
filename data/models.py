@@ -38,17 +38,17 @@ class Topic(BaseModel):
     topic_id: int | None = None
     title: str
     user_id: int 
-    is_locked: bool | None = None
-    best_reply_id: int | None = None
+    status: str = 'open'
+    best_reply_id: int | None = None 
     category_id: int 
     
     @classmethod
-    def from_query(cls, topic_id, title, user_id, is_locked, best_reply_id, category_id):
+    def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
         return cls(
             topic_id=topic_id,
             title=title,
             user_id=user_id,
-            is_locked=is_locked,
+            status='locked' if status==1 else 'open',
             best_reply_id=best_reply_id,
             category_id=category_id
         )
