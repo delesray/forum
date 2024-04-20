@@ -1,14 +1,16 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Header, Response
 from data.models import User
 from services import users_services
 from data.models import LoginData
 from common.responses import BadRequest
+from common.auth import get_user_or_raise_401
 
 users_router = APIRouter(prefix='/users')
 
 
 @users_router.get('/')
 def get_all_users():
+
     users = users_services.get_all()
     return users
 
@@ -27,7 +29,7 @@ def register_user(user: User):
     if isinstance(result, int):
         return f"User with id: {result} registered"
     return BadRequest(result.msg)
-g
+
 
 @users_router.post('/login')
 def login(data: LoginData):
@@ -39,19 +41,24 @@ def login(data: LoginData):
     return BadRequest('Invalid login data')
 
 
-@users_router.put('/{user_id}', status_code=200)
-def update_user(user_id: int, user: User):
-    existing_user = users_services.get_by_id(user_id)
-    if not existing_user:
-        return Response(status_code=404, content=f"User with id:{user_id} does\'t exist!")
+@users_router.put('/', status_code=200)
+def update_user(user: User, x_token: str = Header()):
+    existing_user = get_user_or_raise_401(x_token)
 
-    result, code = users_services.update(existing_user, user)
+    if not user:
+        return BadRequest('Login required')
+
+    result = users_services.update(existing_user, user)
     return result
 
-# @users_router.delete('/{user_id}', status_code=204)
-# def delete_user_by_id(id: int):
-#     existing_user =  users_services.get_by_id(id)
-#     if not existing_user:
-#         return Response(status_code=404, content=f"User with id:{id} does\'t exist!")
-#
-#     users_services.delete(existing_user)
+
+@users_router.delete('/', status_code=204)
+def delete_user_by_id(password: str, x_token: str = Header()):
+    existing_user = get_user_or_raise_401(x_token)
+
+    # pass should be hashed
+    if existing_user.password != password:
+        return BadRequest('Incorrect password')
+    
+    users_services.delete(existing_user.user_id)
+
