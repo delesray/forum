@@ -1,6 +1,5 @@
-from data.models import Topic, StatusCode
+from data.models import Topic
 from data.database import read_query, update_query, insert_query
-from helpers import helpers
 #from mariadb import IntegrityError
 from fastapi import HTTPException
 

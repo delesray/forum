@@ -1,6 +1,5 @@
-from data.models import Category, StatusCode
+from data.models import Category
 from data.database import read_query, update_query, insert_query
-from helpers import helpers
 
 
 def get_all():

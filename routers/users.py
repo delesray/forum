@@ -23,9 +23,11 @@ def get_user_by_id(user_id: int):
 
 @users_router.post('/register')
 def register_user(user: User):
-    result, code = users_services.register(user)
-    return Response(status_code=code, content=result)
-
+    result = users_services.register(user)
+    if isinstance(result, int):
+        return f"User with id: {result} registered"
+    return BadRequest(result.msg)
+g
 
 @users_router.post('/login')
 def login(data: LoginData):
@@ -34,8 +36,7 @@ def login(data: LoginData):
     if user:
         token = users_services.create_token(user)
         return {'token': token}
-    else:
-        return BadRequest('Invalid login data')
+    return BadRequest('Invalid login data')
 
 
 @users_router.put('/{user_id}', status_code=200)

@@ -1,14 +1,13 @@
-from data.models import User, StatusCode
+from data.models import User
 from data.database import read_query, update_query, insert_query
-from helpers import helpers
-
+from mariadb import IntegrityError
 
 _SEPARATOR = ';'
 
 
 def get_all():
     data = read_query(
-        '''SELECT user_id, username, email, first_name, last_name, is_admin
+        '''SELECT user_id, username,password, email, first_name, last_name, is_admin
         FROM users''')
 
     users = [User.from_query(*row) for row in data]
@@ -44,16 +43,14 @@ def register(user: User):
     # if user.email is not 'correct':
     #     return Response(status_code=400, content='')
 
-    data = insert_query(
-        'INSERT INTO users(username,password, email,first_name,last_name) VALUES(?,?,?,?,?)',
-        (user.username, user.password, user.email, user.first_name, user.last_name)
-    )
-    if not isinstance(data, int):
-        error_msg = helpers.humanize_error_msg(data)
-        return error_msg, StatusCode.BAD_REQUEST
-
-    generated_id = data
-    return f'User {generated_id} was successfully created!', StatusCode.OK
+    try:
+        generated_id = insert_query(
+            'INSERT INTO users(username,password, email) VALUES(?,?,?)',
+            (user.username, user.password, user.email,)
+        )
+        return generated_id
+    except IntegrityError as e:
+        return e
 
 
 def try_login(username: str, password: str):
@@ -87,11 +84,7 @@ def update(old: User, new: User):
         (merged.username, merged.email, merged.first_name, merged.last_name, merged.is_admin, merged.user_id)
     )
 
-    if data is not True:
-        error_msg = helpers.humanize_error_msg(data)
-        return error_msg, StatusCode.BAD_REQUEST
-
-    return merged, StatusCode.OK
+    # todo
 
 
 def is_authenticated(token: str) -> bool:

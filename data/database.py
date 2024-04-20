@@ -25,11 +25,8 @@ def read_query(sql: str, sql_params=()):
 def insert_query(sql: str, sql_params=()) -> int:
     with _get_connection() as conn:
         cursor = conn.cursor()
-        try:
-            cursor.execute(sql, sql_params)
-            conn.commit()
-        except mariadb.Error as e:
-            return e
+        cursor.execute(sql, sql_params)
+        conn.commit()
 
         return cursor.lastrowid
 
@@ -37,10 +34,7 @@ def insert_query(sql: str, sql_params=()) -> int:
 def update_query(sql: str, sql_params=()) -> bool:
     with _get_connection() as conn:
         cursor = conn.cursor()
-        try:
-            cursor.execute(sql, sql_params)
-            conn.commit()
-        except mariadb.Error as e:
-            return e
+        cursor.execute(sql, sql_params)
+        conn.commit()
 
         return True
