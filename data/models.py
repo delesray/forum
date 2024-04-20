@@ -16,6 +16,7 @@ class StatusCode:
 class User(BaseModel):
     user_id: int | None = None
     username: str
+    password: str
     email: str
     first_name: str
     last_name: str
@@ -23,10 +24,11 @@ class User(BaseModel):
 
 
     @classmethod
-    def from_query(cls, user_id, username, email, first_name, last_name, is_admin):
+    def from_query(cls, user_id, username, password, email, first_name, last_name, is_admin):
         return cls(
             user_id=user_id,
             username=username,
+            password=password,
             email=email,
             first_name=first_name,
             last_name=last_name,
@@ -114,3 +116,7 @@ class TopicUpdate(BaseModel):
     status: str | None = None
     best_reply_id: int | None = None
     
+
+class LoginData(BaseModel):
+    username: str
+    password: str

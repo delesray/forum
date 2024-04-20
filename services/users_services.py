@@ -3,6 +3,9 @@ from data.database import read_query, update_query, insert_query
 from helpers import helpers
 
 
+_SEPARATOR = ';'
+
+
 def get_all():
     data = read_query(
         '''SELECT user_id, username, email, first_name, last_name, is_admin
@@ -24,6 +27,14 @@ def get_by_id(user_id):
     return user[0]
 
 
+def find_by_username(username: str):
+    data = read_query(
+        'SELECT user_id, username, password, email, first_name, last_name, is_admin FROM users WHERE username = ?',
+        (username,))
+
+    return next((User.from_query(*row) for row in data), None)
+
+
 def register(user: User):
     """
     Creates user without is_admin
@@ -34,8 +45,8 @@ def register(user: User):
     #     return Response(status_code=400, content='')
 
     data = insert_query(
-        'INSERT INTO users(username,email,first_name,last_name) VALUES(?,?,?,?)',
-        (user.username, user.email, user.first_name, user.last_name)
+        'INSERT INTO users(username,password, email,first_name,last_name) VALUES(?,?,?,?,?)',
+        (user.username, user.password, user.email, user.first_name, user.last_name)
     )
     if not isinstance(data, int):
         error_msg = helpers.humanize_error_msg(data)
@@ -43,6 +54,13 @@ def register(user: User):
 
     generated_id = data
     return f'User {generated_id} was successfully created!', StatusCode.OK
+
+
+def try_login(username: str, password: str):
+    user = find_by_username(username)
+
+    # password = _hash_password(password)
+    return user if user and user.password == password else None
 
 
 def update(old: User, new: User):
@@ -82,3 +100,7 @@ def is_authenticated(token: str) -> bool:
 
 def from_token(token: str) -> User | None:
     pass
+
+
+def create_token(user: User):
+    return f'{user.user_id}{_SEPARATOR}{user.username}{_SEPARATOR}{user.is_admin}'

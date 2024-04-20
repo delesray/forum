@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Response
 from data.models import User
 from services import users_services
+from data.models import LoginData
+from common.responses import BadRequest
 
 users_router = APIRouter(prefix='/users')
 
@@ -19,10 +21,21 @@ def get_user_by_id(user_id: int):
     return user
 
 
-@users_router.post('/')
+@users_router.post('/register')
 def register_user(user: User):
     result, code = users_services.register(user)
     return Response(status_code=code, content=result)
+
+
+@users_router.post('/login')
+def login(data: LoginData):
+    user = users_services.try_login(data.username, data.password)
+
+    if user:
+        token = users_services.create_token(user)
+        return {'token': token}
+    else:
+        return BadRequest('Invalid login data')
 
 
 @users_router.put('/{user_id}', status_code=200)
