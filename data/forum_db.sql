@@ -134,7 +134,7 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `forum`.`users_categories_permissions` (
   `users_user_id` INT(11) NOT NULL,
   `categories_category_id` INT(11) NOT NULL,
-  `write_access` TINYINT(4) NOT NULL DEFAULT 1,
+  `write_access` TINYINT(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`users_user_id`, `categories_category_id`),
   INDEX `fk_users_has_categories_categories1_idx` (`categories_category_id` ASC) VISIBLE,
   INDEX `fk_users_has_categories_users1_idx` (`users_user_id` ASC) VISIBLE,
