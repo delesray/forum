@@ -43,6 +43,7 @@ def get_topic_by_id(topic_id: int):
 
 @topics_router.post('/')
 def create_topic(topic: Topic):  # def create_topic(topic: Topic, current_user: User = Depends(get_user_or_raise_401)):
+
     result = topics_services.create(topic)
     if isinstance(result, int):
         return f'Topic {result} was successfully created!'

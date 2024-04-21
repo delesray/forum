@@ -1,4 +1,4 @@
-from data.models import Topic
+from data.models import Topic, Status
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
@@ -76,8 +76,9 @@ def create(topic: Topic):
     try:
         generated_id = insert_query(
             'INSERT INTO topics(title, user_id, is_locked, best_reply_id, category_id) VALUES(?,?,?,?,?)',
-            (topic.title, topic.user_id, topic.is_locked, topic.best_reply_id, topic.category_id))
+            (topic.title, topic.user_id, Status.str_int[topic.status], topic.best_reply_id, topic.category_id))
         return generated_id
+
     except IntegrityError as e:
         return e
 

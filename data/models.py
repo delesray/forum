@@ -77,13 +77,23 @@ class Vote(BaseModel):
         )
 
 
+class Status:
+    OPEN = 'open'
+    LOCKED = 'locked'
+    str_int = {'open': 1, 'locked': 0}
+    int_str = {1: 'open', 0: 'locked'}
+
+
+UNCATEGORIZED_ID = 8  # 'Uncategorized' category is created on db initialization
+
+
 class Topic(BaseModel):
     topic_id: int | None = None
     title: str
     user_id: int
-    status: str = 'open'
+    status: str = Status.OPEN
     best_reply_id: int | None = None
-    category_id: int | None = 1  # 'Uncategorized' category is created on db initialization
+    category_id: int = UNCATEGORIZED_ID
 
     @classmethod
     def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
@@ -91,7 +101,7 @@ class Topic(BaseModel):
             topic_id=topic_id,
             title=title,
             user_id=user_id,
-            status='locked' if status == 1 else 'open',
+            status=Status.int_str[status],
             best_reply_id=best_reply_id,
             category_id=category_id
         )
