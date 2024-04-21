@@ -24,26 +24,6 @@ class User(BaseModel):
         )
 
 
-class Topic(BaseModel):
-    topic_id: int | None = None
-    title: str
-    user_id: int
-    status: str = 'open'
-    best_reply_id: int | None = None
-    category_id: int
-
-    @classmethod
-    def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
-        return cls(
-            topic_id=topic_id,
-            title=title,
-            user_id=user_id,
-            status='locked' if status == 1 else 'open',
-            best_reply_id=best_reply_id,
-            category_id=category_id
-        )
-
-
 class Message(BaseModel):
     message_id: int | None = None
     text: str
@@ -94,6 +74,26 @@ class Vote(BaseModel):
             user_id=user_id,
             reply_id=reply_id,
             type=type
+        )
+
+
+class Topic(BaseModel):
+    topic_id: int | None = None
+    title: str
+    user_id: int
+    status: str = 'open'
+    best_reply_id: int | None = None
+    category_id: int
+
+    @classmethod
+    def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
+        return cls(
+            topic_id=topic_id,
+            title=title,
+            user_id=user_id,
+            status='locked' if status == 1 else 'open',
+            best_reply_id=best_reply_id,
+            category_id=category_id
         )
 
 

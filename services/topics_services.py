@@ -1,6 +1,6 @@
 from data.models import Topic
 from data.database import read_query, update_query, insert_query
-#from mariadb import IntegrityError
+from mariadb import IntegrityError
 from fastapi import HTTPException
 
 
@@ -17,7 +17,7 @@ def get_all(search: str = None, username: str = None, category: str = None, stat
     if username:
         if username not in get_usernames():
             raise HTTPException(status_code=400, detail="Invalid username")
-        
+
         sql_1 += ' JOIN users u ON t.user_id = u.user_id '
         if search:
             sql_2 += ' AND '
@@ -25,12 +25,11 @@ def get_all(search: str = None, username: str = None, category: str = None, stat
             sql_2 += ' WHERE'
         sql_2 += ' u.username LIKE ?'
         query_params += (username,)
-         
-        
+
     if category:
         if category not in get_categories_names():
             raise HTTPException(status_code=400, detail="Invalid category")
-        
+
         sql_1 += ' JOIN categories c ON t.category_id = c.category_id '
         if search or username:
             sql_2 += 'AND '
@@ -38,26 +37,26 @@ def get_all(search: str = None, username: str = None, category: str = None, stat
             sql_2 += ' WHERE'
         sql_2 += ' c.name LIKE ? '
         query_params += (category,)
-   
 
-    if status: 
+    if status:
         if status not in ['open', 'locked']:
             raise HTTPException(status_code=400, detail="Invalid status value")
-        
+
         status_val = status_to_db_format(status)
-            
+
         if search or username or category:
             sql_2 += ' AND'
         else:
             sql_2 += ' WHERE'
         sql_2 += ' t.is_locked = ?'
         query_params += (status_val,)
-      
+
     sql = sql_1 + sql_2
     data = read_query(sql, query_params)
-    
+
     topics = [Topic.from_query(*row) for row in data]
     return topics
+
 
 def get_by_id(topic_id: int):
     data = read_query(
@@ -71,21 +70,16 @@ def get_by_id(topic_id: int):
     return topic[0]
 
 
-
 def create(topic: Topic):
     # TODO: validate topic fields in terms of business logic
-    # TODO: handle exceptions from mariadb
-    data = insert_query(
-        'INSERT INTO topics(title, user_id, is_locked, best_reply_id, category_id) VALUES(?,?,?,?,?)',
-        (topic.title, topic.user_id, topic.is_locked, topic.best_reply_id, topic.category_id))
-
-    if not isinstance(data, int):
-        error_msg = helpers.humanize_error_msg(data)
-        return error_msg, StatusCode.BAD_REQUEST
-
-    generated_id = data
-    return f'Topic {generated_id} was successfully created!', StatusCode.OK
-
+    # TODO: handle the message from mdb error
+    try:
+        generated_id = insert_query(
+            'INSERT INTO topics(title, user_id, is_locked, best_reply_id, category_id) VALUES(?,?,?,?,?)',
+            (topic.title, topic.user_id, topic.is_locked, topic.best_reply_id, topic.category_id))
+        return generated_id
+    except IntegrityError as e:
+        return e
 
 
 def update_status(topic_id, status):
@@ -116,7 +110,6 @@ def update_title(topic_id, title):
     return f"Project title updated to {title}"
 
 
-
 def update_best_reply(topic_id, best_reply_id):
     update_query(
         '''UPDATE topics SET
@@ -128,23 +121,23 @@ def update_best_reply(topic_id, best_reply_id):
     return f"Project Best Reply Id updated to {best_reply_id}"
 
 
-
 def custom_sort(topics: list[Topic], attribute, reverse=False):
     return sorted(
         topics,
-        key=lambda t: getattr(t, attribute) if getattr(t, attribute) is not None else float('inf'), #float('inf') - positive infinity, None values are treated as if are greater than any real val
+        key=lambda t: getattr(t, attribute) if getattr(t, attribute) is not None else float('inf'),
+        # float('inf') - positive infinity, None values are treated as if are greater than any real val
         reverse=reverse)
 
 
 def status_to_db_format(status: str) -> int:
     if status == 'open':
-            status_val = 0
+        status_val = 0
     else:
-            status_val = 1
-            
+        status_val = 1
+
     return status_val
 
-    
+
 def get_topic_replies(topic_id: int) -> list[int]:
     data = read_query(
         '''SELECT reply_id
@@ -160,6 +153,7 @@ def get_categories_names():
 
     categories_names = [tupl[0] for tupl in data]
     return categories_names
+
 
 def get_usernames():
     data = read_query(
