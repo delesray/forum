@@ -129,10 +129,10 @@ def update_best_reply(topic_id, best_reply_id):
 
 
 
-def custom_sort(topics: list[Topic], *, attribute, reverse=False):
+def custom_sort(topics: list[Topic], attribute, reverse=False):
     return sorted(
         topics,
-        key=lambda t: getattr(t, attribute) if getattr(t, attribute) is not None else float('inf'),
+        key=lambda t: getattr(t, attribute) if getattr(t, attribute) is not None else float('inf'), #float('inf') - positive infinity, None values are treated as if are greater than any real val
         reverse=reverse)
 
 

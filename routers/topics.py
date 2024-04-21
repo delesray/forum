@@ -11,7 +11,7 @@ topics_router = APIRouter(prefix='/topics')
 @topics_router.get('/')
 def get_all_topics(
     sort: str | None = None, 
-    sort_by: str | None = None,
+    sort_by: str = 'topic_id',
     search: str | None = None, 
     username: str | None = None,
     category: str | None = None,
@@ -19,8 +19,10 @@ def get_all_topics(
     ):
 
     topics = topics_services.get_all(search=search, username=username, category=category, status=status)
-    if sort and (sort == 'asc' or sort == 'desc') and sort_by:
-        return topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc')
+    if not topics:  
+        return [] 
+    if sort and (sort == 'asc' or sort == 'desc'):
+        return topics_services.custom_sort(topics,  attribute=sort_by, reverse=sort == 'desc')
     else:
         return topics
 
