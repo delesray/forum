@@ -83,7 +83,7 @@ class Topic(BaseModel):
     user_id: int
     status: str = 'open'
     best_reply_id: int | None = None
-    category_id: int
+    category_id: int | None = 1  # 'Uncategorized' category is created on db initialization
 
     @classmethod
     def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):

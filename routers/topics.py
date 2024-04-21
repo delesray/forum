@@ -5,7 +5,6 @@ from common.responses import BadRequest
 from common.auth import get_user_or_raise_401
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
-topics_router = APIRouter(prefix='/topics')
 
 
 # pagination for the get_all_topics endpoint to be implemented
