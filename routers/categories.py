@@ -3,7 +3,6 @@ from data.models import Category
 from services import categories_services
 
 categories_router = APIRouter(prefix='/categories', tags=['category'])
-admin_category_router = APIRouter(prefix='/admin/categories', tags=['admin'])
 
 
 @categories_router.get('/')

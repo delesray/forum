@@ -1,5 +1,6 @@
 from data.models import Category
 from data.database import read_query, update_query, insert_query
+from mariadb import IntegrityError
 
 
 def get_all():
@@ -25,20 +26,18 @@ def get_by_id(category_id):
 
 def create(category):
     """
-    Creates category without
-    Handles unique columns violations with try/except in queries
+    Handles unique columns violations with try/except
     """
-    request_sent_from_admin = True
-    data = insert_query(
-        'INSERT INTO categories(name) VALUES(?)',
-        (category.name,)
-    )
-    if not isinstance(data, int):
-        error_msg = helpers.humanize_error_msg(data)
-        return error_msg, StatusCode.BAD_REQUEST
 
-    generated_id = data
-    return f'Category {generated_id} was successfully created!', StatusCode.OK
+    try:
+        generated_id = insert_query(
+            'INSERT INTO categories(name) VALUES(?)',
+            (category.name,)
+        )
+        category.category_id = generated_id
+        return category
+    except IntegrityError as e:
+        return e
 
 
 def update(old: Category, new: Category):

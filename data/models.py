@@ -34,8 +34,8 @@ class Message(BaseModel):
 class Category(BaseModel):
     category_id: int | None = None
     name: str
-    is_locked: bool | None = None
-    is_private: bool | None = None
+    is_locked: bool = False
+    is_private: bool = False
 
     @classmethod
     def from_query(cls, category_id, name, is_locked, is_private):

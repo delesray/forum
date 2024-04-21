@@ -8,6 +8,24 @@ from common.auth import get_user_or_raise_401
 users_router = APIRouter(prefix='/users', tags=['users'])
 
 
+@users_router.post('/login')
+def login(data: LoginData):
+    user = users_services.try_login(data.username, data.password)
+
+    if user:
+        token = users_services.create_token(user)
+        return {'token': token}
+    return BadRequest('Invalid login data')
+
+
+@users_router.post('/register')
+def register_user(user: User):
+    result = users_services.register(user)
+    if isinstance(result, int):
+        return f"User with id: {result} registered"
+    return BadRequest(result.msg)
+
+
 @users_router.get('/')
 def get_all_users():
     users = users_services.get_all()
@@ -20,24 +38,6 @@ def get_user_by_id(user_id: int):
     if not user:
         return Response(status_code=404, content=f"User with id:{user_id} does\'t exist!")
     return user
-
-
-@users_router.post('/register')
-def register_user(user: User):
-    result = users_services.register(user)
-    if isinstance(result, int):
-        return f"User with id: {result} registered"
-    return BadRequest(result.msg)
-
-
-@users_router.post('/login')
-def login(data: LoginData):
-    user = users_services.try_login(data.username, data.password)
-
-    if user:
-        token = users_services.create_token(user)
-        return {'token': token}
-    return BadRequest('Invalid login data')
 
 
 @users_router.put('/', status_code=200)
