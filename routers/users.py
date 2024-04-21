@@ -5,12 +5,11 @@ from data.models import LoginData
 from common.responses import BadRequest
 from common.auth import get_user_or_raise_401
 
-users_router = APIRouter(prefix='/users')
+users_router = APIRouter(prefix='/users', tags=['users'])
 
 
 @users_router.get('/')
 def get_all_users():
-
     users = users_services.get_all()
     return users
 
@@ -59,6 +58,5 @@ def delete_user_by_id(password: str, x_token: str = Header()):
     # pass should be hashed
     if existing_user.password != password:
         return BadRequest('Incorrect password')
-    
-    users_services.delete(existing_user.user_id)
 
+    users_services.delete(existing_user.user_id)

@@ -3,7 +3,7 @@ from data.models import Reply
 from services import replies_services
 
 
-replies_router = APIRouter(prefix='/topics')
+replies_router = APIRouter(prefix='/replies', tags=['replies'])
 
 # This exists in topics router
 # @replies_router.get('/{topic_id}')

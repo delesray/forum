@@ -2,7 +2,8 @@ from fastapi import APIRouter, Response
 from data.models import Category
 from services import categories_services
 
-categories_router = APIRouter(prefix='/categories')
+# admin_category_router = APIRouter(prefix='admin/categories')
+categories_router = APIRouter(prefix='/categories', tags=['category'])
 
 
 @categories_router.get('/')

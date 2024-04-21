@@ -37,11 +37,9 @@ def find_by_username(username: str):
 def register(user: User):
     """
     Creates user without is_admin
-    Handles unique columns violations with try/except in queries
+    Handles columns violations with try/except
     todo check what happens if mariadb returns another error type
     """
-    # if user.email is not 'correct':
-    #     return Response(status_code=400, content='')
 
     try:
         generated_id = insert_query(
@@ -62,27 +60,22 @@ def try_login(username: str, password: str):
 
 def update(old: User, new: User):
     """
-    Merges new user with old, changing is_admin attribute only if request is from admin
-    Handles unique columns violations with try/except in queries
+    Merges new user with old
+    Handles columns violations with try/except
     """
-    request_sent_from_admin = True  # no authorization logic yet
-
-    new_admin_status = old.is_admin
-    if request_sent_from_admin:
-        new_admin_status = new.is_admin if new.is_admin is not None else old.is_admin
-
+    # todo UserUpdateModel
     merged = User(
         user_id=old.user_id,
         username=old.username,  # cannot update username
-        password=old.password, 
+        password=old.password,
         email=old.email,  # cannot update email
         first_name=new.first_name or old.first_name,
         last_name=new.last_name or old.last_name,
-        is_admin=new_admin_status
+        is_admin=old.is_admin
     )
     update_query(
-        'UPDATE users SET first_name = ?, last_name = ?, is_admin = ? WHERE user_id = ?',
-        (merged.first_name, merged.last_name, merged.is_admin, merged.user_id)
+        'UPDATE users SET first_name = ?, last_name = ? WHERE user_id = ?',
+        (merged.first_name, merged.last_name, merged.user_id)
     )
 
     return merged
