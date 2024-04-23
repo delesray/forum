@@ -6,7 +6,7 @@ from data.models import  TopicUpdate, TopicCreate, Status
 
 
 
-topics_router = APIRouter(prefix='/topics') #, tags=['topics'])
+topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
 
 # pagination for the get_all_topics endpoint to be implemented
