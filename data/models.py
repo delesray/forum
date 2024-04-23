@@ -132,3 +132,12 @@ class TopicCreate(BaseModel):
     title: str = Field(..., min_length=1)
     category_name: str | None = 'Uncategorized'
     
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str
+    is_admin: bool
