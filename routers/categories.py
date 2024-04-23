@@ -19,11 +19,6 @@ def get_category_by_id(category_id: int):
     return category
 
 
-@categories_router.post('/')
-def create_category(category: Category):
-    result, code = categories_services.create(category)
-    return Response(status_code=code, content=result)
-
 
 @categories_router.put('/{category_id}', status_code=200)
 def update_category(category_id: int, category: Category):

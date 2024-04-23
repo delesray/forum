@@ -1,6 +1,5 @@
 update:
-test_updating_user_isadmin_attempt_without_admin_permissions > no update
-test_updating_user_isadmin_attempt_with_admin_permissions > update
-test_updating_user_isadmin_attempt_with_admin_permissions_not_specifying > sets the old admin status
-
-
+1.test_updating_user_isadmin_attempt_without_admin_permissions > no update
+2.test_updating_user_isadmin_attempt_with_admin_permissions > update
+3.test_updating_user_isadmin_attempt_with_admin_permissions_not_specifying > sets the old admin status
+4.

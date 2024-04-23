@@ -1,0 +1,4 @@
+Privacy:
+1. publicizing a category that was private and had members, will not delete the rows int the
+    usrer_categories_permissions table, bcs of potential privitizing in futre
+2.

@@ -35,7 +35,9 @@ class Category(BaseModel):
     category_id: int | None = None
     name: str
     is_locked: bool = False
-    is_private: bool = False 
+    is_private: bool = False
+    # users_ids: list[]
+    # topics_ids: list[]
 
     @classmethod
     def from_query(cls, category_id, name, is_locked, is_private):

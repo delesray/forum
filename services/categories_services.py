@@ -16,12 +16,10 @@ def get_by_id(category_id):
     data = read_query(
         '''SELECT category_id, name, is_locked, is_private
         FROM categories WHERE category_id = ?''', (category_id,))
-
-    category = [Category.from_query(*row) for row in data]
-    if not category:
+    if not data:
         return None
-
-    return category[0]
+    category = Category.from_query(*data[0])
+    return category
 
 
 def create(category):
@@ -63,19 +61,22 @@ def update(old: Category, new: Category):
         (merged.name, merged.is_locked, merged.is_private, merged.category_id)
     )
 
-    if data is not True:
-        error_msg = helpers.humanize_error_msg(data)
-        return error_msg, StatusCode.BAD_REQUEST
+    # todo to finish
 
-    return merged, StatusCode.OK
 
 def has_access_to_private_category(user_id: int, category_id: int):
     return any(read_query(
         '''SELECT 1
            FROM users_categories_permissions
-           WHERE user_id = ? AND category_id = ?''', 
+           WHERE user_id = ? AND category_id = ?''',
         (user_id, category_id)))
 
-    
-    
-    
+
+def publicize(category_id: int):
+    update_query('UPDATE categories SET is_private = ? WHERE category_id = ?',
+                 (False, category_id))
+
+
+def privatize(category_id: int):
+    update_query('UPDATE categories SET is_private = ? WHERE category_id = ?',
+                 (True, category_id))
