@@ -21,6 +21,7 @@ def login(data: LoginData):
 @users_router.post('/register')
 def register_user(user: User):
     result = users_services.register(user)
+    
     if isinstance(result, int):
         return f"User with id: {result} registered"
     return BadRequest(result.msg)

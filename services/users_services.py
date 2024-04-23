@@ -1,6 +1,8 @@
 from data.models import User
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
+from common.utils import hash_pass, verify_password
+
 
 _SEPARATOR = ';'
 
@@ -26,7 +28,7 @@ def get_by_id(user_id):
     return user[0]
 
 
-def find_by_username(username: str):
+def find_by_username(username: str) -> User | None:
     data = read_query(
         'SELECT user_id, username, password, email, first_name, last_name, is_admin FROM users WHERE username = ?',
         (username,))
@@ -34,28 +36,33 @@ def find_by_username(username: str):
     return next((User.from_query(*row) for row in data), None)
 
 
-def register(user: User):
+def register(user: User) -> User | IntegrityError:
     """
     Creates user without is_admin
     Handles columns violations with try/except
     todo check what happens if mariadb returns another error type
     """
 
+    # hashing the password and adding it to the db - line 52
+    hashed_password = hash_pass(user.password)
+
     try:
         generated_id = insert_query(
-            'INSERT INTO users(username,password, email) VALUES(?,?,?)',
-            (user.username, user.password, user.email,)
+            'INSERT INTO users(username, password, email, first_name, last_name) VALUES(?,?,?,?,?)',
+            (user.username, hashed_password, user.email, user.first_name, user.last_name)
         )
         return generated_id
     except IntegrityError as e:
         return e
 
 
-def try_login(username: str, password: str):
+def try_login(username: str, password: str) -> User | None:
     user = find_by_username(username)
 
-    # password = _hash_password(password)
-    return user if user and user.password == password else None
+    if user:
+        is_pass_verified = verify_password(password, user.password)
+    
+    return user if user and is_pass_verified else None
 
 
 def update(old: User, new: User):
