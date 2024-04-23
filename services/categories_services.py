@@ -68,3 +68,14 @@ def update(old: Category, new: Category):
         return error_msg, StatusCode.BAD_REQUEST
 
     return merged, StatusCode.OK
+
+def has_access_to_private_category(user_id: int, category_id: int):
+    return any(read_query(
+        '''SELECT 1
+           FROM users_categories_permissions
+           WHERE user_id = ? AND category_id = ?''', 
+        (user_id, category_id)))
+
+    
+    
+    

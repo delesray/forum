@@ -4,7 +4,7 @@ from services import categories_services
 from common.auth import get_user_or_raise_401, is_admin_or_raise_401_403
 from common.responses import BadRequest, Forbidden, Unauthorized, Created
 
-from devtools import debug
+#from devtools import debug
 
 admin_router = APIRouter(prefix='/admin', tags=['admin'])
 

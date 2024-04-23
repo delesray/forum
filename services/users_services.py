@@ -100,3 +100,5 @@ def create_token(user: User):
 
 def delete(user_id: int):
     return update_query('delete from users where user_id = ?', (user_id,))
+
+

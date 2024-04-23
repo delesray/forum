@@ -24,26 +24,6 @@ class User(BaseModel):
         )
 
 
-class Topic(BaseModel):
-    topic_id: int | None = None
-    title: str 
-    user_id: int
-    status: str | None = Field(default='open')
-    best_reply_id: int | None = None
-    category_id: int
-
-    @classmethod
-    def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
-        return cls(
-            topic_id=topic_id,
-            title=title,
-            user_id=user_id,
-            status='locked' if status == 1 else 'open',
-            best_reply_id=best_reply_id,
-            category_id=category_id
-        )
-
-
 class Message(BaseModel):
     message_id: int | None = None
     text: str
@@ -55,7 +35,7 @@ class Category(BaseModel):
     category_id: int | None = None
     name: str
     is_locked: bool = False
-    is_private: bool = False
+    is_private: bool = False 
 
     @classmethod
     def from_query(cls, category_id, name, is_locked, is_private):
@@ -104,7 +84,7 @@ class Status:
     int_str = {1: 'open', 0: 'locked'}
 
 
-UNCATEGORIZED_ID = 8  # 'Uncategorized' category is created on db initialization
+UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization
 
 
 class Topic(BaseModel):
@@ -116,14 +96,14 @@ class Topic(BaseModel):
     category_id: int = UNCATEGORIZED_ID
 
     @classmethod
-    def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
+    def from_query(cls, topic_id, title, username, status, best_reply_id, category_name):
         return cls(
             topic_id=topic_id,
             title=title,
-            user_id=user_id,
+            username=username,
             status=Status.int_str[status],
             best_reply_id=best_reply_id,
-            category_id=category_id
+            category_name=category_name
         )
 
 
@@ -137,16 +117,16 @@ class LoginData(BaseModel):
     username: str
     password: str
     
-class TopicResponse(BaseModel):
-    topic_id: int 
-    title: str 
-    username: str
-    status: str 
-    best_reply_id: int | None 
-    category: str
+# class TopicResponse(BaseModel):
+#     topic_id: int 
+#     title: str 
+#     username: str
+#     status: str 
+#     best_reply_id: int | None 
+#     category: str
 
    
 class TopicCreate(BaseModel):
     title: str = Field(..., min_length=1)
-    category_name: str = Field(..., min_length=1)
+    category_name: str | None = 'Uncategorized'
     
