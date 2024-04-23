@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Header, Response
-from data.models import User
+from fastapi import APIRouter, Header, Response, Depends
+from data.models import User, TokenData
 from services import users_services
 from data.models import LoginData
-from common.responses import BadRequest
-from common.auth import get_user_or_raise_401
+from common.responses import BadRequest, Forbidden
+from common.auth import get_user_or_raise_401, create_access_token, get_current_user
+from common.utils import verify_password
+from typing import Annotated
+
 
 users_router = APIRouter(prefix='/users', tags=['users'])
 
@@ -13,8 +16,8 @@ def login(data: LoginData):
     user = users_services.try_login(data.username, data.password)
 
     if user:
-        token = users_services.create_token(user)
-        return {'token': token}
+        token = create_access_token(TokenData(username=user.username, is_admin=user.is_admin))
+        return token
     return BadRequest('Invalid login data')
 
 
@@ -42,22 +45,25 @@ def get_user_by_id(user_id: int):
 
 
 @users_router.put('/', status_code=200)
-def update_user(user: User, x_token: str = Header()):
-    existing_user = get_user_or_raise_401(x_token)
+def update_user(user: User, existing_user: Annotated[User, Depends(get_current_user)]):
+    # existing_user = get_user_or_raise_401(x_token)
 
-    if not user:
-        return BadRequest('Login required')
+    if not existing_user:
+        return BadRequest('No such user')
+
+    if user.username != existing_user.username:
+        return Forbidden()  # only admin
 
     result = users_services.update(existing_user, user)
     return result
 
 
 @users_router.delete('/', status_code=204)
-def delete_user_by_id(password: str, x_token: str = Header()):
-    existing_user = get_user_or_raise_401(x_token)
+def delete_user_by_id(password: dict, existing_user: Annotated[User, Depends(get_current_user)]):
+    # existing_user = get_user_or_raise_401(x_token)
 
     # pass should be hashed
-    if existing_user.password != password:
+    if not verify_password(password['password'], existing_user.password):
         return BadRequest('Incorrect password')
 
     users_services.delete(existing_user.user_id)
