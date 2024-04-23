@@ -1,41 +1,37 @@
-from data.models import Topic, Status
+from data.models import Topic, User, TopicCreate, TopicResponse, Status
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
 
+_DEFAULT_STATUS = 'open'
+_TOPIC_BEST_REPLY = None
+
 
 def get_all(search: str = None, username: str = None, category: str = None, status: str = None) -> list[Topic]:
     query_params = ()
-    sql_1 = '''SELECT t.topic_id, t.title, t.user_id, t.is_locked, t.best_reply_id, t.category_id
-               FROM topics t '''
-    sql_2 = ''
+    sql = '''SELECT t.topic_id, t.title, u.username, t.is_locked, t.best_reply_id, c.name
+               FROM topics t 
+               JOIN users u ON t.user_id = u.user_id
+               JOIN categories c ON t.category_id = c.category_id
+               WHERE c.is_private != ?'''
+    query_params += (1,)
 
     if search:
-        sql_2 = ' WHERE title LIKE ?'
+        sql += ' AND WHERE title LIKE ?'
         query_params += (f'%{search}%',)
 
     if username:
         if username not in get_usernames():
             raise HTTPException(status_code=400, detail="Invalid username")
-
-        sql_1 += ' JOIN users u ON t.user_id = u.user_id '
-        if search:
-            sql_2 += ' AND '
-        else:
-            sql_2 += ' WHERE'
-        sql_2 += ' u.username LIKE ?'
+        
+        sql += ' AND WHERE u.username LIKE ?'
         query_params += (username,)
 
     if category:
         if category not in get_categories_names():
             raise HTTPException(status_code=400, detail="Invalid category")
-
-        sql_1 += ' JOIN categories c ON t.category_id = c.category_id '
-        if search or username:
-            sql_2 += 'AND '
-        else:
-            sql_2 += ' WHERE'
-        sql_2 += ' c.name LIKE ? '
+    
+        sql += ' AND WHERE c.name LIKE ? '
         query_params += (category,)
 
     if status:
@@ -62,25 +58,31 @@ def get_by_id(topic_id: int):
     data = read_query(
         '''SELECT topic_id, title, user_id, is_locked, best_reply_id, category_id
                FROM topics WHERE topic_id = ?''', (topic_id,))
-
-    topic = [Topic.from_query(*row) for row in data]
-    if not topic:
-        return None
-
-    return topic[0]
+    
+    return next((Topic.from_query(*row) for row in data), None)
+    
 
 
-def create(topic: Topic):
-    # TODO: validate topic fields in terms of business logic
-    # TODO: handle the message from mdb error
+def create(topic: TopicCreate, customer: User):
+   
     try:
         generated_id = insert_query(
             'INSERT INTO topics(title, user_id, is_locked, best_reply_id, category_id) VALUES(?,?,?,?,?)',
-            (topic.title, topic.user_id, Status.str_int[topic.status], topic.best_reply_id, topic.category_id))
-        return generated_id
+        (topic.title, customer.user_id, _DEFAULT_STATUS, _TOPIC_BEST_REPLY, get_category_id(topic.category_name)))
+   
+        return TopicResponse(
+            topic_id=generated_id, 
+            title=topic.title,
+            username=customer.username,
+            status=_DEFAULT_STATUS,
+            best_reply_id=_TOPIC_BEST_REPLY,
+            category=topic.category_name
+        )
 
-    except IntegrityError as e:
-        return e
+    except IntegrityError:
+        
+        return None
+
 
 
 def update_status(topic_id, status):
@@ -153,6 +155,7 @@ def get_categories_names():
         '''SELECT name FROM categories''')
 
     categories_names = [tupl[0] for tupl in data]
+      
     return categories_names
 
 
@@ -162,3 +165,10 @@ def get_usernames():
 
     usernames = [tupl[0] for tupl in data]
     return usernames
+
+def get_category_id(category_name: str) -> int:
+    data = read_query(
+        '''SELECT category_id
+        FROM categories WHERE name = ?''', (category_name,))
+    category_id, = data[0]
+    return category_id

@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Response, Body
-from data.models import Topic, TopicUpdate
+from fastapi import APIRouter, Response, Body, HTTPException
+from data.models import TopicCreate, TopicUpdate
 from services import topics_services, replies_services
 from common.responses import BadRequest
-from common.auth import get_user_or_raise_401
+from common.auth import UserAuthDep
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
@@ -30,7 +30,7 @@ def get_all_topics(
 def get_topic_by_id(topic_id: int):
     topic = topics_services.get_by_id(topic_id)
     if not topic:
-        return Response(status_code=404, content=f"Topic with id:{topic_id} does\'t exist!")
+        return Response(status_code=404, content=f"Topic with id:{topic_id} does not exist")
     replies = replies_services.get_all(topic_id)
 
     topic_with_replies = {
@@ -41,16 +41,20 @@ def get_topic_by_id(topic_id: int):
     return topic_with_replies
 
 
-@topics_router.post('/')
-def create_topic(topic: Topic):  # def create_topic(topic: Topic, current_user: User = Depends(get_user_or_raise_401)):
+@topics_router.post('/')                                   
+def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
+    
+    if new_topic.category_name not in topics_services.get_categories_names():
+            return Response(status_code=404, content=f"Category with name: {new_topic.category_name} does not exist")
+        
+    return topics_services.create(new_topic, current_user)
+    
+    
 
-    result = topics_services.create(topic)
-    if isinstance(result, int):
-        return f'Topic {result} was successfully created!'
-    return BadRequest(result)
+ 
 
 
-@topics_router.put('/{topic_id}')
+@topics_router.put('/{topic_id}') 
 def update_topic(topic_id: int, topic_update: TopicUpdate = Body(...)):
     if not topic_update:  # if topic_update.title == None and topic_update.status == None and topic_update.best_reply_id == None:
         return Response(status_code=400, content=f"Data not provided to make changes")

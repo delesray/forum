@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, Field
 
 
 class User(BaseModel):
@@ -21,6 +21,26 @@ class User(BaseModel):
             first_name=first_name,
             last_name=last_name,
             is_admin=is_admin
+        )
+
+
+class Topic(BaseModel):
+    topic_id: int | None = None
+    title: str 
+    user_id: int
+    status: str | None = Field(default='open')
+    best_reply_id: int | None = None
+    category_id: int
+
+    @classmethod
+    def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
+        return cls(
+            topic_id=topic_id,
+            title=title,
+            user_id=user_id,
+            status='locked' if status == 1 else 'open',
+            best_reply_id=best_reply_id,
+            category_id=category_id
         )
 
 
@@ -116,3 +136,17 @@ class TopicUpdate(BaseModel):
 class LoginData(BaseModel):
     username: str
     password: str
+    
+class TopicResponse(BaseModel):
+    topic_id: int 
+    title: str 
+    username: str
+    status: str 
+    best_reply_id: int | None 
+    category: str
+
+   
+class TopicCreate(BaseModel):
+    title: str = Field(..., min_length=1)
+    category_name: str = Field(..., min_length=1)
+    
