@@ -1,4 +1,4 @@
-from data.models import Topic, Status, TopicCreate, User
+from data.models import TopicResponse, Status, TopicCreate, User
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
@@ -8,7 +8,7 @@ from services import replies_services
 _TOPIC_BEST_REPLY = None
 
 
-def get_all(search: str = None, username: str = None, category: str = None, status: str = None) -> list[Topic]:
+def get_all(search: str = None, username: str = None, category: str = None, status: str = None):
     query_params = ()
     sql = '''SELECT t.topic_id, t.title, u.username, t.is_locked, t.best_reply_id, c.name
                FROM topics t 
@@ -44,7 +44,7 @@ def get_all(search: str = None, username: str = None, category: str = None, stat
 
     data = read_query(sql, query_params)
 
-    topics = [Topic.from_query(*row) for row in data]
+    topics = [TopicResponse.from_query(*row) for row in data]
     return topics
 
 
@@ -55,7 +55,7 @@ def get_by_id(topic_id: int):
                JOIN users u ON t.user_id = u.user_id
                JOIN categories c ON t.category_id = c.category_id WHERE t.topic_id = ?''', (topic_id,))
     
-    return next((Topic.from_query(*row) for row in data), None)
+    return next((TopicResponse.from_query(*row) for row in data), None)
 
     
 
@@ -119,21 +119,13 @@ def update_best_reply(topic_id, best_reply_id):
     return f"Project Best Reply Id updated to {best_reply_id}"
 
 
-def custom_sort(topics: list[Topic], attribute, reverse=False):
+def custom_sort(topics: list[TopicResponse], attribute, reverse=False):
     return sorted(
         topics,
         key=lambda t: getattr(t, attribute) if getattr(t, attribute) is not None else float('inf'),
         # float('inf') - positive infinity, None values are treated as if are greater than any real val
         reverse=reverse)
 
-
-# def status_to_db_format(status: str) -> int:
-#     if status == 'open':
-#         status_val = 0
-#     else:
-#         status_val = 1
-
-#     return status_val
 
 
 def get_topic_replies(topic_id: int) -> list[int]:

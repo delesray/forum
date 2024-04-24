@@ -100,17 +100,7 @@ class Topic(BaseModel):
     best_reply_id: int | None = None
     category_id: int = UNCATEGORIZED_ID
 
-    @classmethod
-    def from_query(cls, topic_id, title, username, status, best_reply_id, category_name):
-        return cls(
-            topic_id=topic_id,
-            title=title,
-            username=username,
-            status=Status.int_str[status],
-            best_reply_id=best_reply_id,
-            category_name=category_name
-        )
-
+    
 
 class TopicUpdate(BaseModel):
     title: str | None = None
@@ -121,15 +111,25 @@ class TopicUpdate(BaseModel):
 class LoginData(BaseModel):
     username: str
     password: str
-
-
-# class TopicResponse(BaseModel):
-#     topic_id: int 
-#     title: str 
-#     username: str
-#     status: str 
-#     best_reply_id: int | None 
-#     category: str
+    
+class TopicResponse(BaseModel):
+    topic_id: int 
+    title: str 
+    username: str
+    status: str 
+    best_reply_id: int | None 
+    category: str
+    
+    @classmethod
+    def from_query(cls, topic_id, title, username, status, best_reply_id, category):
+        return cls(
+            topic_id=topic_id,
+            title=title,
+            username=username,
+            status=Status.int_str[status],
+            best_reply_id=best_reply_id,
+            category=category
+        )
 
 
 class TopicCreate(BaseModel):

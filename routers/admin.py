@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Header
 from data.models import Category
 from services import categories_services
-from common.auth import is_admin_or_raise_401_403, UserAuthDep2
+from common.auth import is_admin_or_raise_401_403, UserAuthDep
 from common.responses import BadRequest, Forbidden, Unauthorized, Created
 
 admin_router = APIRouter(prefix='/admin', tags=['admin'])
 
 
 @admin_router.post('/categories', status_code=201)
-def create_category(category: Category, existing_user: UserAuthDep2):
+def create_category(category: Category, existing_user: UserAuthDep):
     if not existing_user:
         return Unauthorized()
     if not existing_user.is_admin:

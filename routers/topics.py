@@ -35,7 +35,8 @@ def get_topic_by_id(topic_id: int):
     if not topic:
         return Response(status_code=404, content=f"Topic with id:{topic_id} does not exist")
     
-    category = categories_services.get_by_id(topic.category_id)
+    category_id = topics_services.get_category_id(topic.category) 
+    category = categories_services.get_by_id(category_id)
     
     if not category.is_private:
         return topics_services.topic_with_replies(topic)

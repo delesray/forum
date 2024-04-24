@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from data.models import Vote
-from common.auth import UserAuthDep2
+from common.auth import UserAuthDep
 
 
 # too long?

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from common.responses import Forbidden, NotFound
 from data.models import Reply
 from services import replies_services
-from common.auth import UserAuthDep2
+from common.auth import UserAuthDep
 from services.topics_services import get_by_id as get_topic_by_id
 from services.replies_services import get_by_id as get_reply_by_id
 
@@ -11,7 +11,7 @@ replies_router = APIRouter(prefix='/topics/{topic_id}/replies', tags=['replies']
 
 
 @replies_router.post('/')
-def add_reply(topic_id: int, reply: Reply, user: UserAuthDep2):
+def add_reply(topic_id: int, reply: Reply, user: UserAuthDep):
 
     # Topic model needs to provide is_locked attr
     topic = get_topic_by_id(topic_id)
