@@ -133,22 +133,21 @@ CREATE TABLE IF NOT EXISTS `forum`.`users_categories_permissions` (
   `user_id` INT(11) NOT NULL,
   `category_id` INT(11) NOT NULL,
   `write_access` TINYINT(4) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`users_user_id`, `categories_category_id`),
-  INDEX `fk_users_has_categories_categories1_idx` (`categories_category_id` ASC) VISIBLE,
-  INDEX `fk_users_has_categories_users1_idx` (`users_user_id` ASC) VISIBLE,
+  PRIMARY KEY (`user_id`, `category_id`),
+  INDEX `fk_users_has_categories_categories1_idx` (`category_id` ASC) VISIBLE,
+  INDEX `fk_users_has_categories_users1_idx` (`user_id` ASC) VISIBLE,
   CONSTRAINT `fk_users_has_categories_categories1`
-    FOREIGN KEY (`categories_category_id`)
+    FOREIGN KEY (`category_id`)
     REFERENCES `forum`.`categories` (`category_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_users_has_categories_users1`
-    FOREIGN KEY (`users_user_id`)
+    FOREIGN KEY (`user_id`)
     REFERENCES `forum`.`users` (`user_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-
 
 -- -----------------------------------------------------
 -- Table `forum`.`votes`
