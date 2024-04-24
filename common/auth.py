@@ -40,6 +40,9 @@ def verify_token_access(token: str) -> TokenData | JWTError:
         # is is okay to raise raise from inside try block
         if not is_token_exp_valid(exp_at):
             raise JWTError()
+        
+        token_data = TokenData(username=username, is_admin=is_admin)
+        return token_data
 
     except JWTError as e:
         return e
