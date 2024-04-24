@@ -16,7 +16,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def create_access_token(data: TokenData) -> Token:
-    # data.expiration = expire
     to_encode = dict(data)
     expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"expire": expire.strftime("%Y-%m-%d %H:%M:%S")})
@@ -25,15 +24,22 @@ def create_access_token(data: TokenData) -> Token:
     return Token(access_token=encoded_jwt, token_type='jwt')
 
 
-# todo verify dali e iztekal
+# checks token exp validity
+def is_token_exp_valid(exp: str) -> bool:
+    exp_datetime = datetime.strptime(exp, '%Y-%m-%d %H:%M:%S')
+    return exp_datetime > datetime.now()
+
+
 def verify_token_access(token: str) -> TokenData | JWTError:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         username: str = payload.get("username")
         is_admin: bool = payload.get("is_admin")
+        exp_at: str = payload.get("expire")
 
-        token_data = TokenData(username=username, is_admin=is_admin)
-        return token_data
+        # is is okay to raise raise from inside try block
+        if not is_token_exp_valid(exp_at):
+            raise JWTError()
 
     except JWTError as e:
         return e
