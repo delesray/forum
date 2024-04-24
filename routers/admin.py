@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Header
 from data.models import Category
-from services import categories_services
+from services import categories_services, users_services
 from common.auth import is_admin_or_raise_401_403, UserAuthDep2
 from common.responses import BadRequest, Forbidden, Unauthorized, Created
 
@@ -57,11 +57,24 @@ def switch_category_locking(category_id: int, existing_user: UserAuthDep2):
 
 
 @admin_router.post('/users/{user_id}/categories/{category_id}', status_code=201)
-def give_user_a_category_read_access(category_id: int, x_token: str = Header()):
-    pass
+def give_user_a_category_read_access(user_id: int, category_id: int, existing_user: UserAuthDep2):
+    if not existing_user.is_admin:
+        return Forbidden
+
+    if not users_services.get_by_id(user_id):
+        return BadRequest('No such user')
+
+    if not categories_services.get_by_id(category_id):
+        return BadRequest('No such category')
+
+    if categories_services.is_user_in(user_id, category_id):
+        return BadRequest('User is already in the category')
+
+    categories_services.add_user(user_id, category_id)
+    return 'User successfully added to that category'
 
 
-@admin_router.delete('/users/{user_id}/categories/{category_id}', status_code=201)
+@admin_router.delete('/users/{user_id}/categories/{category_id}')
 def revoke_user_category_read_access():
     pass
 

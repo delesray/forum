@@ -90,3 +90,17 @@ def unlock(category_id: int):
 def lock(category_id: int):
     update_query('UPDATE categories SET is_locked = ? WHERE category_id = ?',
                  (True, category_id))
+
+
+def is_user_in(user_id: int, category_id: int) -> bool:
+    data = read_query(
+        '''SELECT COUNT(*) FROM users_categories_permissions 
+        WHERE user_id = ? AND category_id = ?''', (user_id, category_id,)
+    )
+    return data > 0
+
+
+def add_user(user_id: int, category_id: int):
+    # todo first check if pair exists ?
+    insert_query('INSERT INTO users_categories_permissions(user_id,category_id) VALUES(?,?)',
+                 (user_id, category_id))
