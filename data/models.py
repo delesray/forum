@@ -87,7 +87,7 @@ class Status:
     int_str = {1: 'open', 0: 'locked'}
 
 
-UNCATEGORIZED_ID = 8  # 'Uncategorized' category is created on db initialization
+UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization
 
 
 class Topic(BaseModel):
