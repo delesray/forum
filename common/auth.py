@@ -37,11 +37,11 @@ def verify_token_access(token: str) -> TokenData | JWTError:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         username: str = payload.get("username")
         is_admin: bool = payload.get("is_admin")
-        #exp_at: str = payload.get("expire")
+        exp_at: str = payload.get("expire")
 
-        # is is okay to raise raise from inside try block
-        # if not is_token_exp_valid(exp_at):
-        #     raise JWTError()
+        # this is needed, don't comment out
+        if not is_token_exp_valid(exp_at):
+            raise ExpiredSignatureError()
         
         token_data = TokenData(username=username, is_admin=is_admin)
         return token_data
