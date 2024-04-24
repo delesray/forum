@@ -13,19 +13,17 @@ replies_router = APIRouter(prefix='/topics/{topic_id}/replies', tags=['replies']
 @replies_router.post('/')
 def add_reply(topic_id: int, reply: Reply, user: UserAuthDep):
 
-    # Topic model needs to provide is_locked attr
     topic = get_topic_by_id(topic_id)
 
-    if not topic.is_locked:
-        result = replies_services.create_reply(topic_id, reply, user.user_id)
-    else:
+    if topic.status == 'locked':
         return Forbidden('This topic is read-only')
-    
+
+    result = replies_services.create_reply(topic_id, reply, user.user_id)
     return result
 
 
 @replies_router.put('/{reply_id}', status_code=204)
-def edit_reply(reply_id: int, update: Reply, user: UserAuthDep2):
+def edit_reply(reply_id: int, update: Reply, user: UserAuthDep):
     reply_to_update = get_reply_by_id(reply_id)
 
     if not reply_to_update:
