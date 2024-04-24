@@ -44,9 +44,9 @@ def get_user_by_id(user_id: int):
     return user
 
 
-@users_router.put('/', status_code=200)
+@users_router.put('/', status_code=200, response_model=User,
+                  response_model_exclude={"password", "is_admin"})
 def update_user(user: User, existing_user: Annotated[User, Depends(get_current_user)]):
-
     if not existing_user:
         return BadRequest('No such user')
 

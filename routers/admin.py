@@ -9,9 +9,10 @@ admin_router = APIRouter(prefix='/admin', tags=['admin'])
 
 @admin_router.post('/categories', status_code=201)
 def create_category(category: Category, existing_user: UserAuthDep2):
-    if not existing_user:
+    if not existing_user:  # todo dependency
         return Unauthorized()
-    if not existing_user.is_admin:
+
+    if not existing_user.is_admin:  # todo dependency
         return Forbidden()
 
     result = categories_services.create(category)
@@ -21,9 +22,10 @@ def create_category(category: Category, existing_user: UserAuthDep2):
 
 
 # todo test one more time
-@admin_router.patch('/categories/{category_id}/switch-privacy', status_code=202)
-def switch_category_privacy(category_id: int, x_token: str = Header()):
-    is_admin_or_raise_401_403(x_token)  # todo potential decorator
+@admin_router.patch('/categories/{category_id}/privacy', status_code=202)
+def switch_category_privacy(category_id: int, existing_user: UserAuthDep2):
+    if not existing_user.is_admin:  # todo dependancy
+        return Forbidden()
 
     category = categories_services.get_by_id(category_id)
     if not category:
@@ -37,6 +39,23 @@ def switch_category_privacy(category_id: int, x_token: str = Header()):
         return f'Category {category.name} is private now'
 
 
+@admin_router.patch('/categories/{category_id}/locking', status_code=202)
+def switch_category_locking(category_id: int, existing_user: UserAuthDep2):
+    if not existing_user.is_admin:
+        return Forbidden
+
+    category = categories_services.get_by_id(category_id)
+    if not category:
+        return BadRequest("No such category")
+
+    if category.is_locked:
+        categories_services.unlock(category_id)
+        return f'Category {category.name} is unlocked now'
+    else:
+        categories_services.lock(category_id)
+        return f'Category {category.name} is locked now'
+
+
 @admin_router.post('/users/{user_id}/categories/{category_id}', status_code=201)
 def give_user_a_category_read_access(category_id: int, x_token: str = Header()):
     pass
@@ -47,7 +66,7 @@ def revoke_user_category_read_access():
     pass
 
 
-@admin_router.patch('/users/{user_id}/categories/{category_id}', status_code=201)
+@admin_router.patch('/users/{user_id}/categories/{category_id}/access/{boolean}', status_code=201)
 def give_user_a_category_write_access():
     pass
 #

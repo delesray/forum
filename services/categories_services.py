@@ -80,3 +80,13 @@ def publicize(category_id: int):
 def privatize(category_id: int):
     update_query('UPDATE categories SET is_private = ? WHERE category_id = ?',
                  (True, category_id))
+
+
+def unlock(category_id: int):
+    update_query('UPDATE categories SET is_locked = ? WHERE category_id = ?',
+                 (False, category_id))
+
+
+def lock(category_id: int):
+    update_query('UPDATE categories SET is_locked = ? WHERE category_id = ?',
+                 (True, category_id))
