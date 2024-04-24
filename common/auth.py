@@ -3,11 +3,13 @@ from typing import Annotated
 from data.models import User, TokenData
 from services.users_services import is_authenticated, from_token, find_by_username
 from datetime import timedelta, datetime
-from jose import jwt, JWTError
+from jose import jwt, JWTError, ExpiredSignatureError
 from data.models import Token, TokenData
 from secret_key import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
 from common.responses import Unauthorized, BadRequest
+
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -35,14 +37,17 @@ def verify_token_access(token: str) -> TokenData | JWTError:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         username: str = payload.get("username")
         is_admin: bool = payload.get("is_admin")
-        exp_at: str = payload.get("expire")
+        #exp_at: str = payload.get("expire")
 
         # is is okay to raise raise from inside try block
-        if not is_token_exp_valid(exp_at):
-            raise JWTError()
+        # if not is_token_exp_valid(exp_at):
+        #     raise JWTError()
         
         token_data = TokenData(username=username, is_admin=is_admin)
         return token_data
+    
+    except ExpiredSignatureError:
+        raise JWTError("Token has expired. Please log in again.")
 
     except JWTError as e:
         return e
