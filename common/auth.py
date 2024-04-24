@@ -16,7 +16,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def create_access_token(data: TokenData) -> Token:
-    # data.expiration = expire
     to_encode = dict(data)
     expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"expire": expire.strftime("%Y-%m-%d %H:%M:%S")})
@@ -25,13 +24,23 @@ def create_access_token(data: TokenData) -> Token:
     return Token(access_token=encoded_jwt, token_type='jwt')
 
 
-# todo verify dali e iztekal
+# checks token exp validity
+def is_token_exp_valid(exp: str) -> bool:
+    exp_datetime = datetime.strptime(exp, '%Y-%m-%d %H:%M:%S')
+    return exp_datetime > datetime.now()
+
+
 def verify_token_access(token: str) -> TokenData | JWTError:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         username: str = payload.get("username")
         is_admin: bool = payload.get("is_admin")
+        exp_at: str = payload.get("expire")
 
+        # is is okay to raise raise from inside try block
+        if not is_token_exp_valid(exp_at):
+            raise JWTError()
+        
         token_data = TokenData(username=username, is_admin=is_admin)
         return token_data
 
@@ -46,6 +55,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User | BadRequest |
         raise HTTPException(status_code=400, detail="Invalid token")
 
     user = find_by_username(token_data.username)
+
+    # if the token is verified but there is no such user (has been deleted), raise 404
+    if not user:
+        raise HTTPException(status_code=404, detail="No such user")
+    
     return user
 
 
@@ -62,6 +76,4 @@ def is_admin_or_raise_401_403(token: str) -> bool | HTTPException:
         raise HTTPException(status_code=401)
     return True
 
-
-UserAuthDep2 = Annotated[User, Depends(get_current_user)]
-UserAuthDep = Annotated[User, Depends(get_user_or_raise_401)]
+UserAuthDep = Annotated[User, Depends(get_current_user)]
