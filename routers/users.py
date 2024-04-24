@@ -2,11 +2,10 @@ from fastapi import APIRouter, Header, Response, Depends
 from data.models import User, TokenData
 from services import users_services
 from data.models import LoginData
-from common.responses import BadRequest, Forbidden
+from common.responses import BadRequest, Forbidden, NotFound
 from common.auth import get_user_or_raise_401, create_access_token, get_current_user
 from common.utils import verify_password
 from typing import Annotated
-
 
 users_router = APIRouter(prefix='/users', tags=['users'])
 
@@ -24,7 +23,7 @@ def login(data: LoginData):
 @users_router.post('/register')
 def register_user(user: User):
     result = users_services.register(user)
-    
+
     if isinstance(result, int):
         return f"User with id: {result} registered"
     return BadRequest(result.msg)
@@ -36,6 +35,7 @@ def get_all_users():
     return users
 
 
+# todo requires authentication ?
 @users_router.get('/{user_id}')
 def get_user_by_id(user_id: int):
     user = users_services.get_by_id(user_id)
@@ -46,7 +46,6 @@ def get_user_by_id(user_id: int):
 
 @users_router.put('/', status_code=200)
 def update_user(user: User, existing_user: Annotated[User, Depends(get_current_user)]):
-    # existing_user = get_user_or_raise_401(x_token)
 
     if not existing_user:
         return BadRequest('No such user')
@@ -60,9 +59,9 @@ def update_user(user: User, existing_user: Annotated[User, Depends(get_current_u
 
 @users_router.delete('/', status_code=204)
 def delete_user_by_id(password: dict, existing_user: Annotated[User, Depends(get_current_user)]):
-    # existing_user = get_user_or_raise_401(x_token)
+    if not existing_user:
+        return NotFound()
 
-    # pass should be hashed
     if not verify_password(password['password'], existing_user.password):
         return BadRequest('Incorrect password')
 

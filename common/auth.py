@@ -9,15 +9,14 @@ from secret_key import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
 from common.responses import Unauthorized, BadRequest
 
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def create_access_token(data: TokenData) -> Token:
+    # data.expiration = expire
     to_encode = dict(data)
     expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"expire": expire.strftime("%Y-%m-%d %H:%M:%S")})
@@ -26,6 +25,7 @@ def create_access_token(data: TokenData) -> Token:
     return Token(access_token=encoded_jwt, token_type='jwt')
 
 
+# todo verify dali e iztekal
 def verify_token_access(token: str) -> TokenData | JWTError:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
@@ -37,15 +37,14 @@ def verify_token_access(token: str) -> TokenData | JWTError:
 
     except JWTError as e:
         return e
-    
+
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> User | BadRequest | Unauthorized:
-
     token_data = verify_token_access(token)
 
     if not isinstance(token_data, TokenData):
         raise HTTPException(status_code=400, detail="Invalid token")
-    
+
     user = find_by_username(token_data.username)
     return user
 
@@ -62,5 +61,6 @@ def is_admin_or_raise_401_403(token: str) -> bool | HTTPException:
     if not user.is_admin:
         raise HTTPException(status_code=401)
     return True
+
 
 UserAuthDep = Annotated[User, Depends(get_user_or_raise_401)]
