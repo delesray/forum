@@ -36,6 +36,7 @@ class Category(BaseModel):
     name: str
     is_locked: bool = False
     is_private: bool = False
+
     # users_ids: list[]
     # topics_ids: list[]
 
@@ -86,7 +87,7 @@ class Status:
     int_str = {1: 'open', 0: 'locked'}
 
 
-UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization
+UNCATEGORIZED_ID = 8  # 'Uncategorized' category is created on db initialization
 
 
 class Topic(BaseModel):
@@ -118,7 +119,8 @@ class TopicUpdate(BaseModel):
 class LoginData(BaseModel):
     username: str
     password: str
-    
+
+
 # class TopicResponse(BaseModel):
 #     topic_id: int 
 #     title: str 
@@ -127,11 +129,11 @@ class LoginData(BaseModel):
 #     best_reply_id: int | None 
 #     category: str
 
-   
+
 class TopicCreate(BaseModel):
     title: str = Field(..., min_length=1)
     category_name: str | None = 'Uncategorized'
-    
+
 
 class Token(BaseModel):
     access_token: str

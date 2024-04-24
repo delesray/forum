@@ -6,9 +6,6 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- Schema forum
 -- -----------------------------------------------------
 
--- -----------------------------------------------------
--- Schema forum
--- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `forum` DEFAULT CHARACTER SET latin1 ;
 USE `forum` ;
 
@@ -23,7 +20,6 @@ CREATE TABLE IF NOT EXISTS `forum`.`categories` (
   PRIMARY KEY (`category_id`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 8
 DEFAULT CHARACTER SET = latin1;
 
 INSERT INTO categories(name) VALUES('Uncategorized');
@@ -43,7 +39,6 @@ CREATE TABLE IF NOT EXISTS `forum`.`users` (
   UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 35
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -113,6 +108,7 @@ CREATE TABLE IF NOT EXISTS `forum`.`replies` (
   `text` TINYTEXT NOT NULL,
   `user_id` INT(11) NOT NULL,
   `topic_id` INT(11) NOT NULL,
+  `edited` TINYINT(2) NOT NULL,
   PRIMARY KEY (`reply_id`),
   INDEX `fk_replies_users1_idx` (`user_id` ASC) VISIBLE,
   INDEX `fk_replies_topics1_idx` (`topic_id` ASC) VISIBLE,

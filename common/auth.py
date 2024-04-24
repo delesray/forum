@@ -63,4 +63,5 @@ def is_admin_or_raise_401_403(token: str) -> bool | HTTPException:
     return True
 
 
+UserAuthDep2 = Annotated[User, Depends(get_current_user)]
 UserAuthDep = Annotated[User, Depends(get_user_or_raise_401)]
