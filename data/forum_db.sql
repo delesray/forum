@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `forum`.`users` (
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-
+INSERT INTO users(username,password,email) VALUES('admin', '$2b$12$snZATHX9lsgnazHFCtW1tuU9FYuGOnQlwKBeTFmIjx3Y.RZF0MNCS', 'admin@gmail.com');
 
 -- -----------------------------------------------------
 -- Table `forum`.`messages`
@@ -130,8 +130,8 @@ DEFAULT CHARACTER SET = latin1;
 -- Table `forum`.`users_categories_permissions`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `forum`.`users_categories_permissions` (
-  `users_user_id` INT(11) NOT NULL,
-  `categories_category_id` INT(11) NOT NULL,
+  `user_id` INT(11) NOT NULL,
+  `category_id` INT(11) NOT NULL,
   `write_access` TINYINT(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`users_user_id`, `categories_category_id`),
   INDEX `fk_users_has_categories_categories1_idx` (`categories_category_id` ASC) VISIBLE,
