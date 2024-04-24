@@ -53,8 +53,10 @@ class Category(BaseModel):
 class Reply(BaseModel):
     reply_id: int | None = None
     text: str
-    user_id: int
-    topic_id: int
+    user_id: int | None = None
+    topic_id: int | None = None
+    is_edited: bool | None = None
+    is_deleted: bool | None = None
 
     @classmethod
     def from_query(cls, reply_id, text, user_id, topic_id):
