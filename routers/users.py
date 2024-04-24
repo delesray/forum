@@ -47,9 +47,6 @@ def get_user_by_id(user_id: int):
 @users_router.put('/', status_code=200)
 def update_user(user: User, existing_user: Annotated[User, Depends(get_current_user)]):
 
-    if not existing_user:
-        return BadRequest('No such user')
-
     if user.username != existing_user.username:
         return Forbidden()  # only admin
 
@@ -59,8 +56,6 @@ def update_user(user: User, existing_user: Annotated[User, Depends(get_current_u
 
 @users_router.delete('/', status_code=204)
 def delete_user_by_id(password: dict, existing_user: Annotated[User, Depends(get_current_user)]):
-    if not existing_user:
-        return NotFound()
 
     if not verify_password(password['password'], existing_user.password):
         return BadRequest('Incorrect password')

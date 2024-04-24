@@ -55,6 +55,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User | BadRequest |
         raise HTTPException(status_code=400, detail="Invalid token")
 
     user = find_by_username(token_data.username)
+
+    # if the token is verified but there is no such user (has been deleted), raise 404
+    if not user:
+        raise HTTPException(status_code=404, detail="No such user")
+    
     return user
 
 
