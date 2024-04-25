@@ -18,7 +18,6 @@ def create_category(category: Category, existing_user: UserAuthDep):
     return BadRequest(result.msg)
 
 
-# todo test one more time
 @admin_router.patch('/categories/{category_id}/privacy', status_code=202)
 def switch_category_privacy(category_id: int, existing_user: UserAuthDep):
     if not existing_user.is_admin:  # todo dependancy
@@ -28,12 +27,8 @@ def switch_category_privacy(category_id: int, existing_user: UserAuthDep):
     if not category:
         return BadRequest("No such category")
 
-    if category.is_private:
-        categories_services.publicize(category_id)
-        return f'Category {category.name} is public now'
-    else:
-        categories_services.privatize(category_id)
-        return f'Category {category.name} is private now'
+    categories_services.update_privacy(not category.is_private, category_id)
+    return f'Category {category.name} is {'public' if category.is_private else 'private'} now'
 
 
 @admin_router.patch('/categories/{category_id}/locking', status_code=202)
@@ -45,12 +40,8 @@ def switch_category_locking(category_id: int, existing_user: UserAuthDep):
     if not category:
         return BadRequest("No such category")
 
-    if category.is_locked:
-        categories_services.unlock(category_id)
-        return f'Category {category.name} is unlocked now'
-    else:
-        categories_services.lock(category_id)
-        return f'Category {category.name} is locked now'
+    categories_services.update_locking(not category.is_locked, category_id)
+    return f'Category {category.name} is {'unlocked' if category.is_locked else 'locked'} now'
 
 
 @admin_router.post('/users/{user_id}/categories/{category_id}')
@@ -69,7 +60,7 @@ def give_user_category_read_access(user_id: int, category_id: int, existing_user
     return 'User successfully added to that category and he can read'
 
 
-@admin_router.delete('/users/{user_id}/categories/{category_id}', status_code=204)
+@admin_router.delete('/users/{user_id}/categories/{category_id}')
 def revoke_user_category_read_access(user_id: int, category_id: int, existing_user: UserAuthDep):
     if not existing_user.is_admin:
         return Forbidden()

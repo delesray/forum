@@ -12,7 +12,7 @@ from common.responses import Unauthorized, BadRequest
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 43200  # 1 month
 
 
 def create_access_token(data: TokenData) -> Token:
