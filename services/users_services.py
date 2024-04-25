@@ -18,7 +18,7 @@ def get_all():
 
 def get_by_id(user_id):
     data = read_query(
-        '''SELECT user_id, username, email, first_name, last_name, is_admin
+        '''SELECT user_id, username, password, email, first_name, last_name, is_admin
         FROM users WHERE user_id = ?''', (user_id,))
 
     user = [User.from_query(*row) for row in data]

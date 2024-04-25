@@ -92,6 +92,23 @@ def lock(category_id: int):
                  (True, category_id))
 
 
+def get_user_access_level(user_id: int, category_id: int) -> bool | None:
+    data = read_query(
+        '''SELECT write_access FROM users_categories_permissions 
+        WHERE user_id = ? AND category_id = ?''', (user_id, category_id,)
+    )
+    if data:
+        return data[0][0]
+
+
+def update_user_access_level(user_id: int, category_id: int, access: bool) -> bool | None:
+    update_query(
+        '''UPDATE users_categories_permissions SET write_access = ?
+        WHERE user_id = ? AND category_id = ?''', (access, user_id, category_id)
+    )
+
+
+
 def is_user_in(user_id: int, category_id: int) -> bool:
     data = read_query(
         '''SELECT COUNT(*) FROM users_categories_permissions 
@@ -101,6 +118,10 @@ def is_user_in(user_id: int, category_id: int) -> bool:
 
 
 def add_user(user_id: int, category_id: int):
-    # todo first check if pair exists ?
     insert_query('INSERT INTO users_categories_permissions(user_id,category_id) VALUES(?,?)',
                  (user_id, category_id))
+
+
+def remove_user(user_id: int, category_id: int):
+    update_query('DELETE FROM users_categories_permissions WHERE user_id = ? AND category_id = ?',
+                 (user_id, category_id,))
