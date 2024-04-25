@@ -13,6 +13,8 @@ from common.responses import Unauthorized, BadRequest
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -55,6 +57,7 @@ def verify_token_access(token: str) -> TokenData | JWTError:
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> User | BadRequest | Unauthorized:
     token_data = verify_token_access(token)
+    
 
     if not isinstance(token_data, TokenData):
         raise HTTPException(status_code=400, detail="Invalid token")
@@ -82,3 +85,5 @@ def is_admin_or_raise_401_403(token: str) -> bool | HTTPException:
     return True
 
 UserAuthDep = Annotated[User, Depends(get_current_user)]
+
+

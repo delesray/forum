@@ -1,4 +1,4 @@
-from data.models import TopicResponse, Status, TopicCreate, User
+from data.models import TopicResponse, Status, TopicCreate, User, Category, TopicUpdate
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
@@ -8,13 +8,19 @@ from services import replies_services
 _TOPIC_BEST_REPLY = None
 
 
-def get_all(search: str = None, username: str = None, category: str = None, status: str = None):
+def get_all(
+    search: str = None,
+    username: str = None,
+    category: str = None, 
+    status: str = None    
+):
     query_params = ()
     sql = '''SELECT t.topic_id, t.title, u.username, t.is_locked, t.best_reply_id, c.name
                FROM topics t 
                JOIN users u ON t.user_id = u.user_id
                JOIN categories c ON t.category_id = c.category_id
                WHERE c.is_private = ?'''
+
     query_params += (0,)
 
     if search:
@@ -62,9 +68,10 @@ def get_by_id(topic_id: int):
 def create(topic: TopicCreate, customer: User):
     
     try:
+        category = get_category_by_name(topic.category_name)
         generated_id = insert_query(
             'INSERT INTO topics(title, user_id, is_locked, best_reply_id, category_id) VALUES(?,?,?,?,?)',
-            (topic.title, customer.user_id, Status.OPEN, _TOPIC_BEST_REPLY, get_category_id(topic.category_name)))
+            (topic.title, customer.user_id, Status.OPEN, _TOPIC_BEST_REPLY, category.category_id))
         
         return generated_id
         # return TopicResponse(
@@ -127,7 +134,6 @@ def custom_sort(topics: list[TopicResponse], attribute, reverse=False):
         reverse=reverse)
 
 
-
 def get_topic_replies(topic_id: int) -> list[int]:
     data = read_query(
         '''SELECT reply_id
@@ -153,12 +159,12 @@ def get_usernames():
     usernames = [tupl[0] for tupl in data]
     return usernames
 
-def get_category_id(category_name: str) -> int:
+def get_category_by_name(category_name: str) -> Category:
     data = read_query(
-        '''SELECT category_id
+        '''SELECT category_id, name, is_locked, is_private
         FROM categories WHERE name = ?''', (category_name,))
-    category_id, = data[0]
-    return category_id
+    
+    return next((Category.from_query(*row) for row in data), None)
 
 
 def topic_with_replies(topic):
@@ -171,3 +177,32 @@ def topic_with_replies(topic):
         }
 
     return topic_with_replies
+
+def get_topics_from_private_categories(current_user: User) -> list[TopicResponse]:
+    data = read_query(
+            '''SELECT t.topic_id, t.title, u.username, t.is_locked, t.best_reply_id, c.name
+               FROM topics t 
+               JOIN users u ON t.user_id = u.user_id
+               JOIN categories c ON t.category_id = c.category_id
+               WHERE c.is_private = ?
+               AND u.username = ?''', (1, current_user.username))
+    
+    topics = [TopicResponse.from_query(*row) for row in data]
+    return topics
+
+def topic_updates(topic_id: int, current_user: User, topic_update: TopicUpdate) -> str | None:
+    if topic_update.title and len(topic_update.title) >= 1:
+        return update_title(topic_id, topic_update.title)
+
+    if topic_update.status and current_user.is_admin and topic_update.status in [Status.OPEN, Status.LOCKED]:
+        return update_status(topic_id, topic_update.status)
+
+    if topic_update.best_reply_id:
+        topic_replies_ids = get_topic_replies(topic_id)
+        if not topic_replies_ids:
+            return f"Topic with id:{topic_id} does not have replies"
+
+        if topic_update.best_reply_id in topic_replies_ids:
+            return update_best_reply(topic_id, topic_update.best_reply_id)
+        
+    return None

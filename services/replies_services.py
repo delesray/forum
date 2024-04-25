@@ -1,13 +1,15 @@
-from data.models import Reply
+from data.models import Reply, ReplyResponse
 from data.database import read_query, update_query, insert_query
 
 
 def get_all(id: int):
     data = read_query(
-        '''SELECT reply_id, text, user_id, topic_id
-        FROM replies WHERE topic_id = ?''', (id, ))
+        '''SELECT r.reply_id, r.text, u.username, r.topic_id
+        FROM replies r 
+        JOIN users u ON r.user_id = u.user_id
+        WHERE topic_id = ?''', (id, ))
 
-    replies = [Reply.from_query(*row) for row in data]
+    replies = [ReplyResponse.from_query(*row) for row in data]
     return replies if replies else None
 
 
