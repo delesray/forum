@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS `forum`.`categories` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
-INSERT INTO categories(name) VALUES('Uncategorized');
 
 -- -----------------------------------------------------
 -- Table `forum`.`users`
@@ -40,7 +39,6 @@ CREATE TABLE IF NOT EXISTS `forum`.`users` (
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-INSERT INTO users(username,password,email,is_admin) VALUES('admin', '$2b$12$snZATHX9lsgnazHFCtW1tuU9FYuGOnQlwKBeTFmIjx3Y.RZF0MNCS', 'admin@gmail.com', true);
 
 -- -----------------------------------------------------
 -- Table `forum`.`messages`
@@ -167,6 +165,11 @@ CREATE TABLE IF NOT EXISTS `forum`.`votes` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
+-- -----------------------------------------------------
+-- SEED
+-- -----------------------------------------------------
+INSERT INTO categories(name) VALUES('Uncategorized');
+INSERT INTO users(username,password,email,is_admin) VALUES('admin', '$2b$12$snZATHX9lsgnazHFCtW1tuU9FYuGOnQlwKBeTFmIjx3Y.RZF0MNCS', 'admin@gmail.com', true);
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

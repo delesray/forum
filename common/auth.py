@@ -68,19 +68,4 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[User, BadRequ
 
     return user
 
-
-def get_user_or_raise_401(token: str) -> User | HTTPException:
-    if not is_authenticated(token):
-        raise HTTPException(status_code=401)
-
-    return from_token(token)
-
-
-def is_admin_or_raise_401_403(token: str) -> bool | HTTPException:
-    user = get_user_or_raise_401(token)
-    if not user.is_admin:
-        raise HTTPException(status_code=401)
-    return True
-
-
 UserAuthDep = Annotated[User, Depends(get_current_user)]
