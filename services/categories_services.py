@@ -68,28 +68,16 @@ def has_access_to_private_category(user_id: int, category_id: int):
     return any(read_query(
         '''SELECT 1
            FROM users_categories_permissions
-           WHERE users_user_id = ? AND categories_category_id = ?''',
+           WHERE user_id = ? AND category_id = ?''',
         (user_id, category_id)))
-    
-def has_write_access(user_id: int, category_id: int):
-    return any(read_query(
-        '''SELECT 1
-           FROM users_categories_permissions
-           WHERE users_user_id = ? AND categories_category_id = ? AND write_access = ?''',
-        (user_id, category_id, 1)))
-    
+
 
 def update_privacy(privacy: bool, category_id: int):
     update_query('UPDATE categories SET is_private = ? WHERE category_id = ?',
                  (privacy, category_id))
 
 
-def privatize(category_id: int):
-    update_query('UPDATE categories SET is_private = ? WHERE category_id = ?',
-                 (True, category_id))
-
-
-def unlock(category_id: int):
+def update_locking(locking: bool, category_id: int):
     update_query('UPDATE categories SET is_locked = ? WHERE category_id = ?',
                  (locking, category_id))
 
@@ -123,7 +111,13 @@ def add_user(user_id: int, category_id: int):
                  (user_id, category_id))
 
 
-
 def remove_user(user_id: int, category_id: int):
     update_query('DELETE FROM users_categories_permissions WHERE user_id = ? AND category_id = ?',
                  (user_id, category_id,))
+    
+def has_write_access(user_id: int, category_id: int):
+    return any(read_query(
+        '''SELECT 1
+           FROM users_categories_permissions
+           WHERE users_user_id = ? AND categories_category_id = ? AND write_access = ?''',
+        (user_id, category_id, 1)))
