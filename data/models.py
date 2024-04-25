@@ -45,8 +45,9 @@ class Category(BaseModel):
         return cls(
             category_id=category_id,
             name=name,
-            is_locked=is_locked,
-            is_private=is_private,
+            is_locked= True if is_locked == 1 else False,
+            is_private=True if is_private == 1 else False
+            
         )
 
 

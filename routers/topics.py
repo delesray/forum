@@ -9,7 +9,7 @@ from common.auth import get_current_user
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
 
-# pagination for the get_all_topics endpoint to be implemented
+#TODO pagination for the get_all_topics endpoint to be implemented
 
 @topics_router.get('/')
 def get_all_topics(
