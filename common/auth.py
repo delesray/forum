@@ -9,7 +9,7 @@ from secret_key import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
 from common.responses import BadRequest
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
 
 

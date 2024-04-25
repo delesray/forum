@@ -1,7 +1,6 @@
 from typing import Annotated
-
 from fastapi import APIRouter, Response, Body, HTTPException, Header
-from services import topics_services, replies_services, categories_services
+from services import topics_services, categories_services
 from common.responses import BadRequest, NotFound, Forbidden
 from common.auth import UserAuthDep
 from data.models import TopicUpdate, TopicCreate, Status

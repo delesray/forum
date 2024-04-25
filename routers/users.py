@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Header, Response, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from data.models import User, TokenData
 from services import users_services
 from data.models import LoginData
@@ -11,8 +12,9 @@ users_router = APIRouter(prefix='/users', tags=['users'])
 
 
 @users_router.post('/login')
-def login(data: LoginData):
-    user = users_services.try_login(data.username, data.password)
+# now login works through Swagger docs but use form data in Postman
+def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    user = users_services.try_login(form_data.username, form_data.password)
 
     if user:
         token = create_access_token(TokenData(username=user.username, is_admin=user.is_admin))
