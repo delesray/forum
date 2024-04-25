@@ -1,7 +1,7 @@
+from __future__ import annotations
 from typing import Union
 from data.models import Reply, ReplyResponse, Topic, Category
 from data.database import read_query, update_query, insert_query
-from services.topics_services import get_by_id as get_topic_by_id
 from services.categories_services import get_by_id as get_cat_by_id, has_write_access
 
 
@@ -59,3 +59,6 @@ def can_user_modify_reply(topic_id: int, user_id: int) -> Union[bool, str]:
         return False, 'This topic is read-only'
     
     return True, "OK"
+
+
+from services.topics_services import get_by_id as get_topic_by_id

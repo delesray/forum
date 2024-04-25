@@ -1,8 +1,9 @@
+from __future__ import annotations
 from data.models import TopicResponse, Status, TopicCreate, User, Category, TopicUpdate, Topic
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
-from services import replies_services
+
 
 _TOPIC_BEST_REPLY = None
 
@@ -174,7 +175,7 @@ def get_category_by_name(category_name: str) -> Category:
 
 
 def topic_with_replies(topic):
-    replies = replies_services.get_all(topic.topic_id)
+    replies = get_all_replies(topic.topic_id)
 
     topic_with_replies = {
         "topic": topic,
@@ -213,3 +214,5 @@ def topic_updates(topic_id: int, current_user: User, topic_update: TopicUpdate) 
             return update_best_reply(topic_id, topic_update.best_reply_id)
 
     return None
+
+from services.replies_services import get_all as get_all_replies
