@@ -42,7 +42,7 @@ def edit_reply(topic_id: int, reply_id: int, update: Reply, user: UserAuthDep):
 
 @replies_router.delete('/{reply_id}', status_code=204)
 def delete_reply(topic_id: int, reply_id: int, user: UserAuthDep):
-    # delete from table?
+    
     reply_to_delete = get_reply_by_id(reply_id)
 
     if not reply_to_delete:
@@ -55,5 +55,6 @@ def delete_reply(topic_id: int, reply_id: int, user: UserAuthDep):
     
     if reply_to_delete.user_id != user.user_id:
         return Forbidden('You cannot delete another user\'s reply')
-
+    
+    # delete from table?
     replies_services.delete_reply(reply_id)

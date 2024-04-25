@@ -53,7 +53,7 @@ def can_user_modify_reply(topic_id: int, user_id: int) -> Union[bool, str]:
     category: Category = get_cat_by_id(topic.category_id)
 
     if category.is_private and not has_write_access(user_id, category.category_id):
-        return False, 'You don\'t have permissions to post in this topic'
+        return False, 'You don\'t have permissions to post or modify replies in this topic'
 
     if topic.status == 'locked':
         return False, 'This topic is read-only'
