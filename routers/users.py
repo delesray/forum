@@ -3,7 +3,7 @@ from data.models import User, TokenData
 from services import users_services
 from data.models import LoginData
 from common.responses import BadRequest, Forbidden, NotFound
-from common.auth import get_user_or_raise_401, create_access_token, get_current_user
+from common.auth import create_access_token, get_current_user
 from common.utils import verify_password
 from typing import Annotated
 
@@ -44,10 +44,9 @@ def get_user_by_id(user_id: int):
     return user
 
 
-@users_router.put('/', status_code=200, response_model=User,
+@users_router.put('/', response_model=User,
                   response_model_exclude={"password", "is_admin"})
 def update_user(user: User, existing_user: Annotated[User, Depends(get_current_user)]):
-
     if user.username != existing_user.username:
         return Forbidden()  # only admin
 
@@ -57,7 +56,6 @@ def update_user(user: User, existing_user: Annotated[User, Depends(get_current_u
 
 @users_router.delete('/', status_code=204)
 def delete_user_by_id(password: dict, existing_user: Annotated[User, Depends(get_current_user)]):
-
     if not verify_password(password['password'], existing_user.password):
         return BadRequest('Incorrect password')
 

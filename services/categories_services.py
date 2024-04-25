@@ -125,6 +125,7 @@ def get_privileged_users(category_id):
     if data:
         return data
 
+
 def has_write_access(user_id: int, category_id: int):
     return any(read_query(
         '''SELECT 1
