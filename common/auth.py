@@ -9,9 +9,7 @@ from secret_key import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
 from common.responses import BadRequest
 
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 43200  # 1 month
@@ -33,7 +31,7 @@ def is_token_exp_valid(exp: str) -> bool:
 
 
 # Union specifies that the returned type would be either one of these
-def verify_token_access(token: str) -> Union[TokenData, ExpiredSignatureError, JWTError]:
+def verify_token_access(token: str) -> Union[TokenData, str]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         username: str = payload.get("username")
@@ -47,11 +45,11 @@ def verify_token_access(token: str) -> Union[TokenData, ExpiredSignatureError, J
         return token_data
 
     # in case of token exp
-    except ExpiredSignatureError as e:
-        return("Token has expired. Please log in again.")
+    except ExpiredSignatureError:
+        return "Token has expired. Please log in again"
 
     # in case of invalid token
-    except JWTError as e:
+    except JWTError:
         return "Invalid token"
 
 
