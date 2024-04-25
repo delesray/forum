@@ -79,9 +79,9 @@ def has_write_access(user_id: int, category_id: int):
         (user_id, category_id, 1)))
     
 
-def publicize(category_id: int):
+def update_privacy(privacy: bool, category_id: int):
     update_query('UPDATE categories SET is_private = ? WHERE category_id = ?',
-                 (False, category_id))
+                 (privacy, category_id))
 
 
 def privatize(category_id: int):
@@ -91,12 +91,23 @@ def privatize(category_id: int):
 
 def unlock(category_id: int):
     update_query('UPDATE categories SET is_locked = ? WHERE category_id = ?',
-                 (False, category_id))
+                 (locking, category_id))
 
 
-def lock(category_id: int):
-    update_query('UPDATE categories SET is_locked = ? WHERE category_id = ?',
-                 (True, category_id))
+def get_user_access_level(user_id: int, category_id: int) -> bool | None:
+    data = read_query(
+        '''SELECT write_access FROM users_categories_permissions 
+        WHERE user_id = ? AND category_id = ?''', (user_id, category_id,)
+    )
+    if data:
+        return data[0][0]
+
+
+def update_user_access_level(user_id: int, category_id: int, access: bool):
+    update_query(
+        '''UPDATE users_categories_permissions SET write_access = ?
+        WHERE user_id = ? AND category_id = ?''', (access, user_id, category_id)
+    )
 
 
 def is_user_in(user_id: int, category_id: int) -> bool:
@@ -104,11 +115,15 @@ def is_user_in(user_id: int, category_id: int) -> bool:
         '''SELECT COUNT(*) FROM users_categories_permissions 
         WHERE user_id = ? AND category_id = ?''', (user_id, category_id,)
     )
-    return data > 0
+    return data[0][0] > 0
 
 
 def add_user(user_id: int, category_id: int):
-    # todo first check if pair exists ?
     insert_query('INSERT INTO users_categories_permissions(user_id,category_id) VALUES(?,?)',
                  (user_id, category_id))
 
+
+
+def remove_user(user_id: int, category_id: int):
+    update_query('DELETE FROM users_categories_permissions WHERE user_id = ? AND category_id = ?',
+                 (user_id, category_id,))

@@ -8,8 +8,5 @@ def hash_pass(password: str) -> str:
     return pass_context.hash(password)
 
 
-print(hash_pass('admin'))
-
-
 def verify_password(plain_password, hashed_password) -> bool:
     return pass_context.verify(plain_password, hashed_password)
