@@ -71,6 +71,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[User, BadRequ
 
     return user
 
+
 UserAuthDep = Annotated[User, Depends(get_current_user)]
 
 
