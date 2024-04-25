@@ -100,6 +100,17 @@ class Topic(BaseModel):
     best_reply_id: int | None = None
     category_id: int = UNCATEGORIZED_ID
 
+    @classmethod
+    def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
+        return cls(
+            topic_id=topic_id,
+            title=title,
+            user_id=user_id,
+            status=Status.int_str[status],
+            best_reply_id=best_reply_id,
+            category_id=category_id
+        )
+
 
 class TopicUpdate(BaseModel):
     title: str | None = None
@@ -146,12 +157,13 @@ class TokenData(BaseModel):
     username: str
     is_admin: bool
 
+
 class ReplyResponse(BaseModel):
-    reply_id: int 
+    reply_id: int
     text: str
-    username: str 
-    topic_id: int 
-    
+    username: str
+    topic_id: int
+
     @classmethod
     def from_query(cls, reply_id, text, username, topic_id):
         return cls(

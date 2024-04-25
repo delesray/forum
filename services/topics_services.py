@@ -1,18 +1,17 @@
-from data.models import TopicResponse, Status, TopicCreate, User, Category, TopicUpdate
+from data.models import TopicResponse, Status, TopicCreate, User, Category, TopicUpdate, Topic
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
 from services import replies_services
 
-
 _TOPIC_BEST_REPLY = None
 
 
 def get_all(
-    search: str = None,
-    username: str = None,
-    category: str = None, 
-    status: str = None    
+        search: str = None,
+        username: str = None,
+        category: str = None,
+        status: str = None
 ):
     query_params = ()
     sql = '''SELECT t.topic_id, t.title, u.username, t.is_locked, t.best_reply_id, c.name
@@ -30,14 +29,14 @@ def get_all(
     if username:
         if username not in get_usernames():
             raise HTTPException(status_code=400, detail="Invalid username")
-        
+
         sql += ' AND u.username = ?'
         query_params += (username,)
 
     if category:
         if category not in get_categories_names():
             raise HTTPException(status_code=400, detail="Invalid category")
-    
+
         sql += ' AND c.name = ? '
         query_params += (category,)
 
@@ -60,19 +59,25 @@ def get_by_id(topic_id: int):
                FROM topics t 
                JOIN users u ON t.user_id = u.user_id
                JOIN categories c ON t.category_id = c.category_id WHERE t.topic_id = ?''', (topic_id,))
-    
+
     return next((TopicResponse.from_query(*row) for row in data), None)
 
-    
+
+def get_by_id_cat_id(topic_id: int) -> Topic | None:  # Miray
+    data = read_query(
+        '''SELECT topic_id, title, user_id, is_locked, best_reply_id, category_id 
+        FROM topics WHERE topic_id = ?''', (topic_id,))
+
+    return next((Topic.from_query(*row) for row in data), None)
+
 
 def create(topic: TopicCreate, customer: User):
-    
     try:
         category = get_category_by_name(topic.category_name)
         generated_id = insert_query(
             'INSERT INTO topics(title, user_id, is_locked, best_reply_id, category_id) VALUES(?,?,?,?,?)',
             (topic.title, customer.user_id, Status.OPEN, _TOPIC_BEST_REPLY, category.category_id))
-        
+
         return generated_id
         # return TopicResponse(
         #     topic_id=generated_id, 
@@ -148,7 +153,7 @@ def get_categories_names():
         '''SELECT name FROM categories''')
 
     categories_names = [tupl[0] for tupl in data]
-      
+
     return categories_names
 
 
@@ -159,36 +164,38 @@ def get_usernames():
     usernames = [tupl[0] for tupl in data]
     return usernames
 
+
 def get_category_by_name(category_name: str) -> Category:
     data = read_query(
         '''SELECT category_id, name, is_locked, is_private
         FROM categories WHERE name = ?''', (category_name,))
-    
+
     return next((Category.from_query(*row) for row in data), None)
 
 
 def topic_with_replies(topic):
-    
     replies = replies_services.get_all(topic.topic_id)
 
     topic_with_replies = {
         "topic": topic,
         "replies": replies if replies else []
-        }
+    }
 
     return topic_with_replies
 
+
 def get_topics_from_private_categories(current_user: User) -> list[TopicResponse]:
     data = read_query(
-            '''SELECT t.topic_id, t.title, u.username, t.is_locked, t.best_reply_id, c.name
-               FROM topics t 
-               JOIN users u ON t.user_id = u.user_id
-               JOIN categories c ON t.category_id = c.category_id
-               WHERE c.is_private = ?
-               AND u.username = ?''', (1, current_user.username))
-    
+        '''SELECT t.topic_id, t.title, u.username, t.is_locked, t.best_reply_id, c.name
+           FROM topics t 
+           JOIN users u ON t.user_id = u.user_id
+           JOIN categories c ON t.category_id = c.category_id
+           WHERE c.is_private = ?
+           AND u.username = ?''', (1, current_user.username))
+
     topics = [TopicResponse.from_query(*row) for row in data]
     return topics
+
 
 def topic_updates(topic_id: int, current_user: User, topic_update: TopicUpdate) -> str | None:
     if topic_update.title and len(topic_update.title) >= 1:
@@ -204,5 +211,5 @@ def topic_updates(topic_id: int, current_user: User, topic_update: TopicUpdate) 
 
         if topic_update.best_reply_id in topic_replies_ids:
             return update_best_reply(topic_id, topic_update.best_reply_id)
-        
+
     return None
