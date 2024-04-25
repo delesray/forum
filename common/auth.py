@@ -11,6 +11,8 @@ from common.responses import BadRequest
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
 
@@ -55,6 +57,7 @@ def verify_token_access(token: str) -> Union[TokenData, str]:
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[User, BadRequest]:
     token_data = verify_token_access(token)
+    
 
     # will return the correct msg - either invalid token or expired token
     if not isinstance(token_data, TokenData):
@@ -69,3 +72,5 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[User, BadRequ
     return user
 
 UserAuthDep = Annotated[User, Depends(get_current_user)]
+
+
