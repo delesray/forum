@@ -8,7 +8,7 @@ class BadRequest(Response):
 
 class NotFound(Response):
     def __init__(self, content=''):
-        super().__init__(status_code=404, content=content)
+        super().__init__(status_code=404, content='No such resource')
 
 
 class Unauthorized(Response):
