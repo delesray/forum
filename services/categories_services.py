@@ -114,3 +114,13 @@ def add_user(user_id: int, category_id: int):
 def remove_user(user_id: int, category_id: int):
     update_query('DELETE FROM users_categories_permissions WHERE user_id = ? AND category_id = ?',
                  (user_id, category_id,))
+
+
+def get_privileged_users(category_id):
+    data = read_query(
+        '''SELECT ucp.user_id, u.username, ucp.write_access
+        FROM users_categories_permissions as ucp JOIN users as u
+        WHERE ucp.category_id = ?''', (category_id,)
+    )
+    if data:
+        return data

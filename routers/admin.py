@@ -3,9 +3,12 @@ from data.models import Category
 from services import categories_services, users_services
 from common.auth import is_admin_or_raise_401_403, UserAuthDep
 from common.responses import BadRequest, Forbidden, Unauthorized, Created
+from views import category_view
 
 admin_router = APIRouter(prefix='/admin', tags=['admin'])
 
+
+# ============================== Categories ==============================
 
 @admin_router.post('/categories', status_code=201)
 def create_category(category: Category, existing_user: UserAuthDep):
@@ -43,6 +46,8 @@ def switch_category_locking(category_id: int, existing_user: UserAuthDep):
     categories_services.update_locking(not category.is_locked, category_id)
     return f'Category {category.name} is {'unlocked' if category.is_locked else 'locked'} now'
 
+
+# ============================== Users ==============================
 
 @admin_router.post('/users/{user_id}/categories/{category_id}')
 def give_user_category_read_access(user_id: int, category_id: int, existing_user: UserAuthDep):
@@ -88,3 +93,29 @@ def switch_user_category_write_access(user_id: int, category_id: int, existing_u
 
     categories_services.update_user_access_level(user_id, category_id, not access)
     return f"User {'cannot' if access else 'can'} write"
+
+
+@admin_router.get('/users/categories/{category_id}')
+def view_privileged_users(category_id: int, existing_user: UserAuthDep):
+    if not existing_user.is_admin:
+        return Forbidden()
+
+    category = categories_services.get_by_id(category_id)
+    if not category:
+        return BadRequest('No such category')
+    elif not category.is_private:
+        return BadRequest(f'{category.name} is public')
+
+    users = categories_services.get_privileged_users(category_id)
+    if not users:
+        return "No users in that category"
+
+    response = category_view.priviliged_users_view(category, users)
+    return response
+
+
+# ============================== Topics ==============================
+
+@admin_router.patch('/topics/{topic_id}/locking')
+def switch_topic_locking(topic_id: int, existing_user: UserAuthDep):
+    pass
