@@ -49,13 +49,14 @@ def get_all_topics(
 
 @topics_router.get('/{topic_id}')
 def get_topic_by_id(topic_id: int, x_token: Annotated[str | None, Header()] = None):
-    topic = topics_services.get_by_id_cat_id(topic_id)
+    topic = topics_services.get_by_id(topic_id)
     if not topic:
         return NotFound()
+    
     category = categories_services.get_by_id(topic.category_id)
 
     if not category.is_private:
-        return topic
+        return topics_services.topic_with_replies(topic)
 
     # todo
     user = get_current_user(x_token)
@@ -97,9 +98,10 @@ def get_topic_by_id(topic_id: int, x_token: Annotated[str | None, Header()] = No
 
 @topics_router.post('/')
 def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
-    category = topics_services.get_category_by_name(new_topic.category_name)
-    if not category:
-        return Response(status_code=404, content=f"Category with name: {new_topic.category_name} does not exist")
+    category = categories_services.get_by_id(new_topic.category_id)
+    if not category: 
+        return NotFound() 
+        #return Response(status_code=404, content=f"Category id: {new_topic.category_id} does not exist") 
 
     if category.is_locked:
         return Response(status_code=403,
