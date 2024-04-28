@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from data.models import User, TokenData, UserRegister, UserUpdate
 from services import users_services
-from common.responses import BadRequest, Forbidden
+from common.responses import BadRequest, Forbidden, NotFound
 from common.auth import create_access_token, get_current_user
 from common.utils import verify_password
 from typing import Annotated
@@ -19,7 +19,7 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     
     # to display the error in Swagger - HTTPException
     if not user:
-        return HTTPException(
+        raise HTTPException(
             status_code=401,
             detail="Invalid credentials",
             headers={"WWW-Authenticate": "Bearer"},
@@ -31,13 +31,13 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
 @users_router.post('/register')
 def register_user(user: UserRegister):
-    # todo catch username and pass validation errors
+    # todo catch username and pass validation errors from Pydantic
     result = users_services.register(user)
 
-    if isinstance(result, int):
-        return f"User with id: {result} registered"
-
-    return BadRequest(result.msg)
+    if not isinstance(result, int):
+        raise HTTPException(status_code=400, detail=result.msg)
+        
+    return f"User with ID: {result} registered"
 
 
 @users_router.get('/')
@@ -46,27 +46,30 @@ def get_all_users():
     return users
 
 
-# todo requires authentication ?
 @users_router.get('/{user_id}')
-def get_user_by_id(user_id: int):
+def get_user_by_id(user_id: int, dep=Depends(get_current_user)):
     user = users_services.get_by_id(user_id)
+
     if not user:
-        return Response(status_code=404, content=f"User with id:{user_id} does\'t exist!")
+        raise HTTPException(status_code=404, detail=f"User with ID: {user_id} does\'t exist!")
     return user
 
 
 @users_router.put('/')
 def update_user(user: UserUpdate, existing_user: Annotated[User, Depends(get_current_user)]):
+    
     if user.username != existing_user.username:
-        return Forbidden()
+        raise HTTPException(status_code=403, detail=f"Only admins can edit other users' data")
 
     result = users_services.update(existing_user, user)
     return result
 
 
+# todo flag deleted in db, don't delete
 @users_router.delete('/', status_code=204)
 def delete_user_by_id(password: dict, existing_user: Annotated[User, Depends(get_current_user)]):
+
     if not verify_password(password['password'], existing_user.password):
-        return BadRequest('Incorrect password')
+        raise HTTPException(status_code=400, detail=f"Incorrect password")
 
     users_services.delete(existing_user.user_id)
