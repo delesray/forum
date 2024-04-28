@@ -1,5 +1,5 @@
-from datetime import date
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints
+from typing import Annotated
 
 
 class User(BaseModel):
@@ -22,6 +22,15 @@ class User(BaseModel):
             last_name=last_name,
             is_admin=is_admin
         )
+
+
+class RegisterUser(BaseModel):
+    username: Annotated[str, StringConstraints(min_length=4)]
+    password: Annotated[str, StringConstraints(min_length=4)]
+    email: str  # constr(pattern='^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
+    first_name: str | None = None
+    last_name: str | None = None
+    
 
 
 class Message(BaseModel):
@@ -117,11 +126,6 @@ class TopicUpdate(BaseModel):
     title: str | None = None
     status: str | None = None
     best_reply_id: int | None = None
-
-
-class LoginData(BaseModel):
-    username: str
-    password: str
 
 
 class TopicResponse(BaseModel):
