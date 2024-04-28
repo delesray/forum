@@ -1,13 +1,13 @@
 from fastapi import HTTPException, Depends
 from typing import Annotated, Union
 from data.models import User, TokenData
-from services.users_services import is_authenticated, from_token, find_by_username
+from services.users_services import find_by_username
 from datetime import timedelta, datetime
 from jose import jwt, JWTError, ExpiredSignatureError
 from data.models import Token, TokenData
 from secret_key import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
-from common.responses import BadRequest
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
@@ -73,5 +73,3 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
 
 
 UserAuthDep = Annotated[User, Depends(get_current_user)]
-
-
