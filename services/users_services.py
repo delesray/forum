@@ -3,7 +3,6 @@ from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from common.utils import hash_pass, verify_password
 
-
 _SEPARATOR = ';'
 
 
@@ -36,7 +35,7 @@ def find_by_username(username: str) -> User | None:
     return next((User.from_query(*row) for row in data), None)
 
 
-def register(user: User) -> User | IntegrityError:
+def register(user: User) -> User | IntegrityError | int:
     """
     Creates user without is_admin
     Handles columns violations with try/except
@@ -59,10 +58,8 @@ def register(user: User) -> User | IntegrityError:
 def try_login(username: str, password: str) -> User | None:
     user = find_by_username(username)
 
-    if user:
-        is_pass_verified = verify_password(password, user.password)
-    
-    return user if user and is_pass_verified else None
+    if user and verify_password(password, user.password):
+        return user
 
 
 def update(old: User, new: User):
@@ -107,5 +104,3 @@ def create_token(user: User):
 
 def delete(user_id: int):
     return update_query('delete from users where user_id = ?', (user_id,))
-
-
