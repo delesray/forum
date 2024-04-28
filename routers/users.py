@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Response, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from data.models import User, TokenData, UserRegister, UserUpdate
 from services import users_services
-from common.responses import BadRequest, Forbidden, NotFound
-from common.auth import create_access_token, get_current_user
+from common.auth import create_access_token, UserAuthDep
 from common.utils import verify_password
 from typing import Annotated
 
@@ -47,16 +46,17 @@ def get_all_users():
 
 
 @users_router.get('/{user_id}')
-def get_user_by_id(user_id: int, dep=Depends(get_current_user)):
+def get_user_by_id(user_id: int, existing_user: UserAuthDep):
     user = users_services.get_by_id(user_id)
 
     if not user:
         raise HTTPException(status_code=404, detail=f"User with ID: {user_id} does\'t exist!")
     return user
 
+# todo - patch request to update user pass, UserUpdatePassword model
 
 @users_router.put('/')
-def update_user(user: UserUpdate, existing_user: Annotated[User, Depends(get_current_user)]):
+def update_user(user: UserUpdate, existing_user: UserAuthDep):
     
     if user.username != existing_user.username:
         raise HTTPException(status_code=403, detail=f"Only admins can edit other users' data")
@@ -67,7 +67,7 @@ def update_user(user: UserUpdate, existing_user: Annotated[User, Depends(get_cur
 
 # todo flag deleted in db, don't delete
 @users_router.delete('/', status_code=204)
-def delete_user_by_id(password: dict, existing_user: Annotated[User, Depends(get_current_user)]):
+def delete_user_by_id(password: dict, existing_user: UserAuthDep):
 
     if not verify_password(password['password'], existing_user.password):
         raise HTTPException(status_code=400, detail=f"Incorrect password")
