@@ -24,7 +24,7 @@ class User(BaseModel):
         )
 
 
-class RegisterUser(BaseModel):
+class UserRegister(BaseModel):
     username: Annotated[str, StringConstraints(min_length=4)]
     password: Annotated[str, StringConstraints(min_length=4)]
     email: str  # constr(pattern='^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
@@ -32,6 +32,10 @@ class RegisterUser(BaseModel):
     last_name: str | None = None
     
 
+class UserUpdate(BaseModel):
+    username: Annotated[str, StringConstraints(min_length=4)]
+    first_name: str | None = None
+    last_name: str | None = None
 
 class Message(BaseModel):
     message_id: int | None = None

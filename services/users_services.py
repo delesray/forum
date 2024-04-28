@@ -1,4 +1,4 @@
-from data.models import User
+from data.models import User, UserUpdate
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from common.utils import hash_pass, verify_password
@@ -65,24 +65,21 @@ def try_login(username: str, password: str) -> User | None:
     return user if user and is_pass_verified else None
 
 
-def update(old: User, new: User):
+def update(old: User, new: UserUpdate):
     """
     Merges new user with old
     Handles columns violations with try/except
     """
-    # todo UserUpdateModel
-    merged = User(
-        user_id=old.user_id,
+    
+    merged = UserUpdate(
         username=old.username,  # cannot update username
-        password=old.password,
-        email=old.email,  # cannot update email
         first_name=new.first_name or old.first_name,
-        last_name=new.last_name or old.last_name,
-        is_admin=old.is_admin
+        last_name=new.last_name or old.last_name
     )
+
     update_query(
         'UPDATE users SET first_name = ?, last_name = ? WHERE user_id = ?',
-        (merged.first_name, merged.last_name, merged.user_id)
+        (merged.first_name, merged.last_name, old.user_id)
     )
 
     return merged

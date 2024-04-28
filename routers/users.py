@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from data.models import User, TokenData, RegisterUser
+from data.models import User, TokenData, UserRegister, UserUpdate
 from services import users_services
 from common.responses import BadRequest, Forbidden
 from common.auth import create_access_token, get_current_user
@@ -30,7 +30,7 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
 
 @users_router.post('/register')
-def register_user(user: RegisterUser):
+def register_user(user: UserRegister):
     # todo catch username and pass validation errors
     result = users_services.register(user)
 
@@ -55,11 +55,10 @@ def get_user_by_id(user_id: int):
     return user
 
 
-@users_router.put('/', response_model=User,
-                  response_model_exclude={"password", "is_admin"})
-def update_user(user: User, existing_user: Annotated[User, Depends(get_current_user)]):
+@users_router.put('/')
+def update_user(user: UserUpdate, existing_user: Annotated[User, Depends(get_current_user)]):
     if user.username != existing_user.username:
-        return Forbidden()  # only admin
+        return Forbidden()
 
     result = users_services.update(existing_user, user)
     return result
