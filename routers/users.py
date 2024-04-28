@@ -2,12 +2,23 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from data.models import User, TokenData, UserRegister, UserUpdate
 from services import users_services
-from common.auth import create_access_token, UserAuthDep
+from common.oauth import create_access_token, UserAuthDep
 from common.utils import verify_password
 from typing import Annotated
 
 
 users_router = APIRouter(prefix='/users', tags=['users'])
+
+
+@users_router.post('/register')
+def register_user(user: UserRegister):
+    # todo catch username and pass validation errors from Pydantic
+    result = users_services.register(user)
+
+    if not isinstance(result, int):
+        raise HTTPException(status_code=400, detail=result.msg)
+        
+    return f"User with ID: {result} registered"
 
 
 @users_router.post('/login')
@@ -26,17 +37,6 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
     token = create_access_token(TokenData(username=user.username, is_admin=user.is_admin))
     return token
-
-
-@users_router.post('/register')
-def register_user(user: UserRegister):
-    # todo catch username and pass validation errors from Pydantic
-    result = users_services.register(user)
-
-    if not isinstance(result, int):
-        raise HTTPException(status_code=400, detail=result.msg)
-        
-    return f"User with ID: {result} registered"
 
 
 @users_router.get('/')

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from common.responses import Forbidden, NotFound
 from data.models import Reply
 from services import replies_services
-from common.auth import UserAuthDep
+from common.oauth import UserAuthDep
 from services.replies_services import get_by_id as get_reply_by_id, can_user_modify_reply
 
 

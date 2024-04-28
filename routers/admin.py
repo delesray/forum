@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Header
 from data.models import Category
 from services import categories_services, users_services
-from common.auth import UserAuthDep
+from common.oauth import UserAuthDep
 from common.responses import BadRequest, Forbidden, Unauthorized, Created
 from views import category_view
 

@@ -2,10 +2,10 @@ from typing import Annotated
 from fastapi import APIRouter, Response, Body, HTTPException, Header
 from services import topics_services, categories_services
 from common.responses import BadRequest, NotFound, Forbidden
-from common.auth import UserAuthDep
+from common.oauth import UserAuthDep
 from data.models import TopicUpdate, TopicCreate, Status
 from starlette.requests import Request
-from common.auth import get_current_user
+from common.oauth import get_current_user
 from data.models import Topic
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
