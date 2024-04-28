@@ -23,7 +23,7 @@ def create_access_token(data: TokenData) -> Token:
     to_encode.update({"expire": expire.strftime("%Y-%m-%d %H:%M:%S")})
 
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
-    return Token(access_token=encoded_jwt, token_type='jwt')
+    return Token(access_token=encoded_jwt, token_type='bearer')
 
 
 # checks token exp validity
@@ -55,7 +55,7 @@ def verify_token_access(token: str) -> Union[TokenData, str]:
         return "Invalid token"
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[User, BadRequest]:
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
     token_data = verify_token_access(token)
     
 
