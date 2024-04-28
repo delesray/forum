@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Header, Response, Depends
+from fastapi import APIRouter, Response, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from data.models import User, TokenData
+from data.models import User, TokenData, RegisterUser
 from services import users_services
-from data.models import LoginData
-from common.responses import BadRequest, Forbidden, NotFound
+from common.responses import BadRequest, Forbidden
 from common.auth import create_access_token, get_current_user
 from common.utils import verify_password
 from typing import Annotated
+
 
 users_router = APIRouter(prefix='/users', tags=['users'])
 
@@ -14,20 +14,29 @@ users_router = APIRouter(prefix='/users', tags=['users'])
 @users_router.post('/login')
 # now login works through Swagger docs but use form data in Postman
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    
     user = users_services.try_login(form_data.username, form_data.password)
+    
+    # to display the error in Swagger - HTTPException
+    if not user:
+        return HTTPException(
+            status_code=401,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-    if user:
-        token = create_access_token(TokenData(username=user.username, is_admin=user.is_admin))
-        return token
-    return BadRequest('Invalid login data')
+    token = create_access_token(TokenData(username=user.username, is_admin=user.is_admin))
+    return token
 
 
 @users_router.post('/register')
-def register_user(user: User):
+def register_user(user: RegisterUser):
+    # todo catch username and pass validation errors
     result = users_services.register(user)
 
     if isinstance(result, int):
         return f"User with id: {result} registered"
+
     return BadRequest(result.msg)
 
 
