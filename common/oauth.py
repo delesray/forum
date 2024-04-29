@@ -1,15 +1,15 @@
 from fastapi import HTTPException, Depends
 from typing import Annotated, Union
 from data.models import User, TokenData
-from services.users_services import is_authenticated, from_token, find_by_username
+from services.users_services import find_by_username
 from datetime import timedelta, datetime
 from jose import jwt, JWTError, ExpiredSignatureError
 from data.models import Token, TokenData
 from secret_key import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
-from common.responses import BadRequest
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
 
 
@@ -23,7 +23,7 @@ def create_access_token(data: TokenData) -> Token:
     to_encode.update({"expire": expire.strftime("%Y-%m-%d %H:%M:%S")})
 
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
-    return Token(access_token=encoded_jwt, token_type='jwt')
+    return Token(access_token=encoded_jwt, token_type='bearer')
 
 
 # checks token exp validity
@@ -55,7 +55,7 @@ def verify_token_access(token: str) -> Union[TokenData, str]:
         return "Invalid token"
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[User, BadRequest]:
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
     token_data = verify_token_access(token)
     
 
@@ -73,5 +73,3 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[User, BadRequ
 
 
 UserAuthDep = Annotated[User, Depends(get_current_user)]
-
-

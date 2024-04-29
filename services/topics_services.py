@@ -1,8 +1,9 @@
+from __future__ import annotations
 from data.models import TopicResponse, Status, TopicCreate, User, Category, TopicUpdate, Topic
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
-from services import replies_services
+
 
 _TOPIC_BEST_REPLY = None
 
@@ -55,7 +56,7 @@ def get_all(
 
 def get_by_id(topic_id: int):
     data = read_query(
-        '''SELECT t.topic_id, t.title, u.username, t.is_locked, t.best_reply_id, c.name
+        '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
                FROM topics t 
                JOIN users u ON t.user_id = u.user_id
                JOIN categories c ON t.category_id = c.category_id WHERE t.topic_id = ?''', (topic_id,))
@@ -63,29 +64,22 @@ def get_by_id(topic_id: int):
     return next((TopicResponse.from_query(*row) for row in data), None)
 
 
-def get_by_id_cat_id(topic_id: int) -> Topic | None:  # Miray
-    data = read_query(
-        '''SELECT topic_id, title, user_id, is_locked, best_reply_id, category_id 
-        FROM topics WHERE topic_id = ?''', (topic_id,))
+# def get_by_id_cat_id(topic_id: int) -> Topic | None:  # Miray
+#     data = read_query(
+#         '''SELECT topic_id, title, user_id, is_locked, best_reply_id, category_id 
+#         FROM topics WHERE topic_id = ?''', (topic_id,))
 
-    return next((Topic.from_query(*row) for row in data), None)
+#     return next((Topic.from_query(*row) for row in data), None)
 
 
 def create(topic: TopicCreate, customer: User):
     try:
-        category = get_category_by_name(topic.category_name)
         generated_id = insert_query(
             'INSERT INTO topics(title, user_id, is_locked, best_reply_id, category_id) VALUES(?,?,?,?,?)',
-            (topic.title, customer.user_id, Status.OPEN, _TOPIC_BEST_REPLY, category.category_id))
+            (topic.title, customer.user_id, Status.OPEN, _TOPIC_BEST_REPLY, topic.category_id))
 
         return generated_id
         # return TopicResponse(
-        #     topic_id=generated_id, 
-        #     title=topic.title,
-        #     username=customer.username,
-        #     status=Status.OPEN,
-        #     best_reply_id=_TOPIC_BEST_REPLY,
-        #     category=topic.category_name
         # )
 
     except IntegrityError as e:
@@ -165,16 +159,16 @@ def get_usernames():
     return usernames
 
 
-def get_category_by_name(category_name: str) -> Category:
-    data = read_query(
-        '''SELECT category_id, name, is_locked, is_private
-        FROM categories WHERE name = ?''', (category_name,))
+# def get_category_by_name(category_name: str) -> Category:
+#     data = read_query(
+#         '''SELECT category_id, name, is_locked, is_private
+#         FROM categories WHERE name = ?''', (category_name,))
 
-    return next((Category.from_query(*row) for row in data), None)
+#     return next((Category.from_query(*row) for row in data), None)
 
 
-def topic_with_replies(topic):
-    replies = replies_services.get_all(topic.topic_id)
+def topic_with_replies(topic: TopicResponse):
+    replies = get_all_replies(topic.topic_id)
 
     topic_with_replies = {
         "topic": topic,
@@ -213,3 +207,5 @@ def topic_updates(topic_id: int, current_user: User, topic_update: TopicUpdate) 
             return update_best_reply(topic_id, topic_update.best_reply_id)
 
     return None
+
+from services.replies_services import get_all as get_all_replies

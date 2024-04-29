@@ -2,40 +2,59 @@ from fastapi import APIRouter
 from common.responses import Forbidden, NotFound
 from data.models import Reply
 from services import replies_services
-from common.auth import UserAuthDep
-from services.topics_services import get_by_id as get_topic_by_id
-from services.replies_services import get_by_id as get_reply_by_id
+from common.oauth import UserAuthDep
+from services.replies_services import get_by_id as get_reply_by_id, can_user_modify_reply
 
 
 replies_router = APIRouter(prefix='/topics/{topic_id}/replies', tags=['replies'])
 
 
-@replies_router.post('/')
+@replies_router.post('/', status_code=201)
 def add_reply(topic_id: int, reply: Reply, user: UserAuthDep):
 
-    topic = get_topic_by_id(topic_id)
+    user_modify_reply, msg = can_user_modify_reply(topic_id=topic_id, user_id=user.user_id)
 
-    if topic.status == 'locked':
-        return Forbidden('This topic is read-only')
+    if not user_modify_reply:
+        return Forbidden(msg)
 
     result = replies_services.create_reply(topic_id, reply, user.user_id)
     return result
 
 
 @replies_router.put('/{reply_id}', status_code=204)
-def edit_reply(reply_id: int, update: Reply, user: UserAuthDep):
+def edit_reply(topic_id: int, reply_id: int, update: Reply, user: UserAuthDep):
+
     reply_to_update = get_reply_by_id(reply_id)
 
     if not reply_to_update:
-        return NotFound('No such reply for this topic')
-    elif reply_to_update.user_id != user.user_id:
+        return NotFound()
+    
+    user_modify_reply, msg = can_user_modify_reply(topic_id=topic_id, user_id=user.user_id)
+    
+    if not user_modify_reply:
+        return Forbidden(msg)
+    
+    if reply_to_update.user_id != user.user_id:
         return Forbidden('You cannot edit another user\'s reply')
 
     replies_services.update_reply(reply_id, update.text)
 
 
-@replies_router.delete('/{reply_id}')
-def delete_reply(reply_id: int):
-    # delete or flag deleted?
-    pass
+@replies_router.delete('/{reply_id}', status_code=204)
+def delete_reply(topic_id: int, reply_id: int, user: UserAuthDep):
+    
+    reply_to_delete = get_reply_by_id(reply_id)
 
+    if not reply_to_delete:
+        return NotFound()
+    
+    user_modify_reply, msg = can_user_modify_reply(topic_id=topic_id, user_id=user.user_id)
+    
+    if not user_modify_reply:
+        return Forbidden(msg)
+    
+    if reply_to_delete.user_id != user.user_id:
+        return Forbidden('You cannot delete another user\'s reply')
+    
+    # delete from table?
+    replies_services.delete_reply(reply_id)

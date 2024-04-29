@@ -1,9 +1,7 @@
-from data.models import User
+from data.models import User, UserUpdate
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from common.utils import hash_pass, verify_password
-
-_SEPARATOR = ';'
 
 
 def get_all():
@@ -35,7 +33,7 @@ def find_by_username(username: str) -> User | None:
     return next((User.from_query(*row) for row in data), None)
 
 
-def register(user: User) -> User | IntegrityError | int:
+def register(user: User) -> User | IntegrityError:
     """
     Creates user without is_admin
     Handles columns violations with try/except
@@ -58,48 +56,30 @@ def register(user: User) -> User | IntegrityError | int:
 def try_login(username: str, password: str) -> User | None:
     user = find_by_username(username)
 
-    if user and verify_password(password, user.password):
-        return user
+    if user:
+        is_pass_verified = verify_password(password, user.password)
+    
+    return user if user and is_pass_verified else None
 
 
-def update(old: User, new: User):
+def update(old: User, new: UserUpdate):
     """
     Merges new user with old
     Handles columns violations with try/except
     """
-    # todo UserUpdateModel
-    merged = User(
-        user_id=old.user_id,
+    
+    merged = UserUpdate(
         username=old.username,  # cannot update username
-        password=old.password,
-        email=old.email,  # cannot update email
         first_name=new.first_name or old.first_name,
-        last_name=new.last_name or old.last_name,
-        is_admin=old.is_admin
+        last_name=new.last_name or old.last_name
     )
+
     update_query(
         'UPDATE users SET first_name = ?, last_name = ? WHERE user_id = ?',
-        (merged.first_name, merged.last_name, merged.user_id)
+        (merged.first_name, merged.last_name, old.user_id)
     )
 
     return merged
-
-
-def is_authenticated(token: str) -> bool:
-    return any(read_query(
-        'SELECT 1 FROM users where user_id = ? and username = ?',
-        # note: this token is not particulary secure, use JWT for real-world user
-        token.split(_SEPARATOR)[0:2]))
-
-
-def from_token(token: str) -> User | None:
-    _, username, _ = token.split(_SEPARATOR)
-
-    return find_by_username(username)
-
-
-def create_token(user: User):
-    return f'{user.user_id}{_SEPARATOR}{user.username}{_SEPARATOR}{user.is_admin}'
 
 
 def delete(user_id: int):

@@ -1,5 +1,5 @@
-from datetime import date
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints
+from typing import Annotated
 
 
 class User(BaseModel):
@@ -23,6 +23,19 @@ class User(BaseModel):
             is_admin=is_admin
         )
 
+
+class UserRegister(BaseModel):
+    username: Annotated[str, StringConstraints(min_length=4)]
+    password: Annotated[str, StringConstraints(min_length=4)]
+    email: str  # constr(pattern='^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
+    first_name: str | None = None
+    last_name: str | None = None
+    
+
+class UserUpdate(BaseModel):
+    username: Annotated[str, StringConstraints(min_length=4)]
+    first_name: str | None = None
+    last_name: str | None = None
 
 class Message(BaseModel):
     message_id: int | None = None
@@ -119,34 +132,33 @@ class TopicUpdate(BaseModel):
     best_reply_id: int | None = None
 
 
-class LoginData(BaseModel):
-    username: str
-    password: str
-
-
 class TopicResponse(BaseModel):
     topic_id: int
     title: str
+    user_id: int
     username: str
     status: str
     best_reply_id: int | None
-    category: str
+    category_id: int = UNCATEGORIZED_ID
+    category_name: str
 
     @classmethod
-    def from_query(cls, topic_id, title, username, status, best_reply_id, category):
+    def from_query(cls, topic_id, title, user_id, username, status, best_reply_id, category_id, category_name):
         return cls(
             topic_id=topic_id,
             title=title,
+            user_id=user_id,
             username=username,
             status=Status.int_str[status],
             best_reply_id=best_reply_id,
-            category=category
+            category_id=category_id,
+            category_name=category_name
         )
 
 
 class TopicCreate(BaseModel):
     title: str = Field(..., min_length=1)
-    category_name: str | None = 'Uncategorized'
+    category_id: int
 
 
 class Token(BaseModel):
