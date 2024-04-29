@@ -16,10 +16,8 @@ def get_by_id(category_id):
     data = read_query(
         '''SELECT category_id, name, is_locked, is_private
         FROM categories WHERE category_id = ?''', (category_id,))
-    if not data:
-        return None
-    category = Category.from_query(*data[0])
-    return category
+    if data:
+        return Category.from_query(*data[0])
 
 
 def create(category):
@@ -116,16 +114,6 @@ def remove_user(user_id: int, category_id: int):
                  (user_id, category_id,))
 
 
-def get_privileged_users(category_id):
-    data = read_query(
-        '''SELECT ucp.user_id, u.username, ucp.write_access
-        FROM users_categories_permissions as ucp JOIN users as u
-        WHERE ucp.category_id = ?''', (category_id,)
-    )
-    if data:
-        return data
-
-
 def has_write_access(user_id: int, category_id: int):
     return any(read_query(
         '''SELECT 1
@@ -133,3 +121,34 @@ def has_write_access(user_id: int, category_id: int):
            WHERE user_id = ? AND category_id = ? AND access = ?''',
         (user_id, category_id, 1))
     )
+
+
+def get_privileged_users(category_id):
+    data = read_query(
+        '''SELECT ucp.user_id, u.username, ucp.write_access
+        FROM users_categories_permissions as ucp JOIN users as u
+        WHERE ucp.category_id = ?''', (category_id,)
+    )
+    if data:
+        return _privileged_users_response_obj(data)
+
+
+def _privileged_users_response_obj(category: Category, users: list[tuple]):
+    """
+    Shows the bigger access users first
+    """
+    users = list(sorted(users, key=lambda x: -x[-1]))
+    users_dict = {}
+    for uid, username, access in users:
+        users_dict[uid] = f'{username}: {'write' if access else 'read'} access'
+
+    return {
+        'category': category.name,
+        'users': users_dict
+    }
+
+
+def get_topics_title_by_cat_id(category_id: int):
+    data = read_query('SELECT title FROM topics WHERE category_id = ?', (category_id,))
+    if data:
+        return [el[0] for el in data]

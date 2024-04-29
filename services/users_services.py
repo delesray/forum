@@ -58,7 +58,7 @@ def try_login(username: str, password: str) -> User | None:
 
     if user:
         is_pass_verified = verify_password(password, user.password)
-    
+
     return user if user and is_pass_verified else None
 
 
@@ -67,7 +67,7 @@ def update(old: User, new: UserUpdate):
     Merges new user with old
     Handles columns violations with try/except
     """
-    
+
     merged = UserUpdate(
         username=old.username,  # cannot update username
         first_name=new.first_name or old.first_name,

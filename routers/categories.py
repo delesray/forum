@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 from data.models import Category
 from services import categories_services
+from common.responses import BadRequest
 
 categories_router = APIRouter(prefix='/categories', tags=['categories'])
 
@@ -15,24 +16,8 @@ def get_all_categories():
 def get_category_by_id(category_id: int):
     category = categories_services.get_by_id(category_id)
     if not category:
-        return Response(status_code=404, content=f"Category with id:{category_id} does\'t exist!")
-    return category
+        return BadRequest(f"No such category")
 
+    topics = categories_services.get_topics_title_by_cat_id(category_id)
 
-
-@categories_router.put('/{category_id}', status_code=200)
-def update_category(category_id: int, category: Category):
-    existing_category = categories_services.get_by_id(category_id)
-    if not existing_category:
-        return Response(status_code=404, content=f"Category with id:{category_id} does\'t exist!")
-
-    result, code = categories_services.update(existing_category, category)
-    return result
-
-# @categories_router.delete('/{category_id}', status_code=204)
-# def delete_category_by_id(category_id: int):
-#     existing_user =  categories_services.get_by_id(id)
-#     if not existing_user:
-#         return Response(status_code=404, content=f"Category with id:{id} does\'t exist!")
-#
-#     users_services.delete(existing_user)
+    return category, topics if topics else 'No topics'

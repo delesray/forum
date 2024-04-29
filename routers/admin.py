@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Header
 from data.models import Category
-from services import categories_services, users_services
+from services import categories_services, users_services, admin_services
 from common.oauth import UserAuthDep
 from common.responses import BadRequest, Forbidden, Unauthorized, Created
-from views import category_view
 
 admin_router = APIRouter(prefix='/admin', tags=['admin'])
 
@@ -111,8 +110,7 @@ def view_privileged_users(category_id: int, existing_user: UserAuthDep):
     if not users:
         return "No users in that category"
 
-    response = category_view.priviliged_users_view(category, users)
-    return response
+    return users
 
 
 # ============================== Topics ==============================
