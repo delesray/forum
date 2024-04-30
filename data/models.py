@@ -67,24 +67,23 @@ class Category(BaseModel):
 class ReplyCreateUpdate(BaseModel):
     text: str
 
-class Reply(BaseModel):
-    reply_id: int | None = None
+
+class ReplyResponse(BaseModel):
+    reply_id: int
     text: str
-    user_id: int | None = None
-    topic_id: int | None = None
-    is_edited: bool | None = None
-    is_deleted: bool | None = None
+    username: str
+    topic_id: int
 
     @classmethod
-    def from_query(cls, reply_id, text, user_id, topic_id):
+    def from_query(cls, reply_id, text, username, topic_id):
         return cls(
             reply_id=reply_id,
             text=text,
-            user_id=user_id,
+            username=username,
             topic_id=topic_id
         )
-
     
+
 class VoteStatus:
     str_to_int = {'up': 1, 'down': 0}
     int_ti_str = {0: 'down', 1: 'up'}
@@ -101,24 +100,24 @@ class Status:
 UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization
 
 
-class Topic(BaseModel):
-    topic_id: int | None = None
-    title: str
-    user_id: int
-    status: str = Status.OPEN
-    best_reply_id: int | None = None
-    category_id: int = UNCATEGORIZED_ID
+# class Topic(BaseModel):
+#     topic_id: int | None = None
+#     title: str
+#     user_id: int
+#     status: str = Status.OPEN
+#     best_reply_id: int | None = None
+#     category_id: int = UNCATEGORIZED_ID
 
-    @classmethod
-    def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
-        return cls(
-            topic_id=topic_id,
-            title=title,
-            user_id=user_id,
-            status=Status.int_str[status],
-            best_reply_id=best_reply_id,
-            category_id=category_id
-        )
+#     @classmethod
+#     def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
+#         return cls(
+#             topic_id=topic_id,
+#             title=title,
+#             user_id=user_id,
+#             status=Status.int_str[status],
+#             best_reply_id=best_reply_id,
+#             category_id=category_id
+#         )
 
 
 class TopicUpdate(BaseModel):
@@ -164,19 +163,3 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: str
     is_admin: bool
-
-
-class ReplyResponse(BaseModel):
-    reply_id: int
-    text: str
-    username: str
-    topic_id: int
-
-    @classmethod
-    def from_query(cls, reply_id, text, username, topic_id):
-        return cls(
-            reply_id=reply_id,
-            text=text,
-            username=username,
-            topic_id=topic_id
-        )
