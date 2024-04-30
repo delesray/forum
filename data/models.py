@@ -96,8 +96,8 @@ class VoteStatus:
 
 
 class Status:
-    OPEN = 1
-    LOCKED = 0
+    OPEN = 'open'
+    LOCKED = 'locked'
     str_int = {'open': 1, 'locked': 0}
     int_str = {1: 'open', 0: 'locked'}
     opposite = {'open': 'locked', 'locked': 'open'}
