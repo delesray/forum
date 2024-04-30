@@ -15,7 +15,6 @@ topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
 @topics_router.get('/')
 def get_all_topics(
-        x_token: Annotated[str | None, Header()] = None,
         sort: str | None = None,
         sort_by: str = 'topic_id',
         search: str | None = None,
@@ -24,12 +23,7 @@ def get_all_topics(
         status: str | None = None
     ):
         
-        topics = topics_services.get_all(search=search, username=username, category=category, status=status)
-        
-        # if x_token:
-        # user = get_current_user(x_token)
-        private_topics = topics_services.get_topics_from_private_categories2(1)
-        topics.extend(private_topics)
+        topics = topics_services.get_all(search=search, username=username, category=category, status=status)  
        
         if sort and (sort == 'asc' or sort == 'desc'):
             return topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc')
@@ -84,23 +78,41 @@ def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
     return BadRequest(result)
 
 
-@topics_router.put('/{topic_id}')
-def update_topic(topic_id: int, current_user: UserAuthDep, topic_update: TopicUpdate = Body(...)):
-    if not topic_update:  # if topic_update.title == None and topic_update.status == None and topic_update.best_reply_id == None:
+
+@topics_router.patch('/{topic_id}/best-reply')
+def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_update: TopicUpdate = Body(...)):
+    if not topic_update.best_reply_id:  
         return BadRequest(f"Data not provided to make changes")
-
-    existing_topic = topics_services.get_by_id(topic_id)
-    if not existing_topic:
-        return NotFound(f"Topic #ID:{topic_id} does not exist")
-
-    if existing_topic.status == Status.LOCKED:
-        return Forbidden(f"Topic #ID:{existing_topic.topic_id} is locked")
     
-    if existing_topic.user_id != current_user.user_id:
-        return Forbidden('You are not allowed to edit topics created by other users')
+    error_response = topics_services.validate_topic_access(topic_id, current_user)
+    if error_response:
+        return error_response
          
-    result = topics_services.topic_updates(topic_id, current_user, topic_update)
-    if not result:
-        return BadRequest("Invalid or insufficient data provided for update")
+    topic_replies_ids = topics_services.get_topic_replies(topic_id)
+        
+    if not topic_replies_ids:
+        return NotFound(f"Topic with id:{topic_id} does not have replies")
+
+    if topic_update.best_reply_id in topic_replies_ids:
+        return topics_services.update_best_reply(topic_id, topic_update.best_reply_id)
     
-    return result
+    else:
+        return BadRequest("Invalid reply ID")
+
+#separate models TitleUpdate and BestReplyUpdate instaed of the single TopicUpdate model?   
+        
+@topics_router.patch('/{topic_id}/title')
+def update_topic_title(topic_id: int, current_user: UserAuthDep, topic_update: TopicUpdate = Body(...)):
+    if not topic_update.title:  
+        return BadRequest(f"Data not provided to make changes")
+    
+    error_response = topics_services.validate_topic_access(topic_id, current_user)
+    if error_response:
+        return error_response
+    
+    return topics_services.update_title(topic_id, topic_update.title)
+    
+
+    
+    
+

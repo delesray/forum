@@ -3,6 +3,8 @@ from data.models import TopicResponse, Status, TopicCreate, User, TopicUpdate
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
+from common.responses import NotFound, Forbidden
+
 
 _TOPIC_BEST_REPLY = None
 
@@ -17,10 +19,7 @@ def get_all(
     sql = '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
              FROM topics t 
              JOIN users u ON t.user_id = u.user_id
-             JOIN categories c ON t.category_id = c.category_id
-             WHERE c.is_private = ?'''
-
-    query_params += (0,)
+             JOIN categories c ON t.category_id = c.category_id'''
 
     if search:
         sql += ' AND title LIKE ?'
@@ -75,7 +74,7 @@ def create(topic: TopicCreate, customer: User):
     try:
         generated_id = insert_query(
             'INSERT INTO topics(title, user_id, is_locked, best_reply_id, category_id) VALUES(?,?,?,?,?)',
-            (topic.title, customer.user_id, Status.OPEN, _TOPIC_BEST_REPLY, topic.category_id))
+            (topic.title, customer.user_id, Status.str_int["open"], _TOPIC_BEST_REPLY, topic.category_id))
 
         return generated_id
         # return TopicResponse(
@@ -84,22 +83,6 @@ def create(topic: TopicCreate, customer: User):
     except IntegrityError as e:
         return e
 
-
-def update_status(topic_id, status):
-    # TODO
-    # a user should not be able to change topic_id, user_id (author of the topic)
-    # a user with write access can change title, is_locked
-    # author can choose / change best reply
-    # can category be changed?
-
-    update_query(
-        '''UPDATE topics SET
-           is_locked = ?
-           WHERE topic_id = ? 
-        ''',
-        (Status.str_int[status], topic_id))
-
-    return f"Project status updated to {status}"
 
 
 def update_title(topic_id, title):
@@ -177,55 +160,36 @@ def topic_with_replies(topic: TopicResponse):
     return topic_with_replies
 
 
-def get_topics_from_private_categories(current_user: User) -> list[TopicResponse]:
-    data = read_query(
-        '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
-           FROM topics t 
-           JOIN users u ON t.user_id = u.user_id
-           JOIN categories c ON t.category_id = c.category_id
-           WHERE c.is_private = ?
-           AND u.user_id = ?''', (1, current_user.user_id))
+# def get_topics_from_private_categories(current_user: User) -> list[TopicResponse]:
+#     data = read_query(
+#         '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
+#            FROM topics t 
+#            JOIN users u ON t.user_id = u.user_id
+#            JOIN categories c ON t.category_id = c.category_id
+#            JOIN users_categories_permissions ucp ON c.category_id = ucp.category_id
+#            WHERE c.is_private = ?
+#            AND ucp.user_id = ?''', (1, current_user.user_id))
 
-    topics = [TopicResponse.from_query(*row) for row in data]
-    return topics
-
-
-def get_topics_from_private_categories2(user_id: User) -> list[TopicResponse]:
-    data = read_query(
-        '''SELECT t.topic_id, t.title, t.user_id, t.is_locked, t.best_reply_id, t.category_id
-           FROM topics t 
-           JOIN users_categories_permissions ucp ON t.category_id = ucp.category_id
-           WHERE ucp.user_id = ?''',
-        (user_id,))
-
-    topics = [TopicResponse.from_query(*row) for row in data]
-    return topics
+#     topics = [TopicResponse.from_query(*row) for row in data]
+#     return topics
 
 
-def topic_updates(topic_id: int, current_user: User, topic_update: TopicUpdate) -> str | None:
-    if topic_update.title and len(topic_update.title) >= 1:  # or return a message 'Title cannot be empty'?
-        return update_title(topic_id, topic_update.title)
 
-    if topic_update.status in [Status.OPEN,
-                               Status.LOCKED] and current_user.is_admin:  # or return a message'Only administrators are authorized to change the status'
-        return update_status(topic_id, topic_update.status)
+def validate_topic_access(topic_id: int, user: User):
+    
+   existing_topic = get_by_id(topic_id)
+   
+   if not existing_topic:
+        return NotFound(f"Topic #ID:{topic_id} does not exist")
+    
+   if existing_topic.status == Status.LOCKED:
+        return Forbidden(f"Topic #ID:{existing_topic.topic_id} is locked")
+    
+   if existing_topic.user_id != user.user_id:
+        return Forbidden('You are not allowed to edit topics created by other users')
 
-    # todo only topic author can choose best reply - separate patch request
-    if topic_update.best_reply_id:
-        topic_replies_ids = get_topic_replies(topic_id)
-
-        if not topic_replies_ids:
-            return f"Topic with id:{topic_id} does not have replies"
-
-        if topic_update.best_reply_id in topic_replies_ids:
-            return update_best_reply(topic_id, topic_update.best_reply_id)
-
-    return None
+   return None
+    
 
 
 from services.replies_services import get_all as get_all_replies
-
-
-def update_locking(locking: bool, topic_id: int):
-    update_query('UPDATE topics SET is_locked = ? WHERE topic_id = ?',
-                 (locking, topic_id))

@@ -128,7 +128,6 @@ UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization
 
 class TopicUpdate(BaseModel):
     title: str | None = None
-    status: str | None = None
     best_reply_id: int | None = None
 
 
