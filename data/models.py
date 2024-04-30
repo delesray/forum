@@ -64,6 +64,9 @@ class Category(BaseModel):
         )
 
 
+class ReplyCreateUpdate(BaseModel):
+    text: str
+
 class Reply(BaseModel):
     reply_id: int | None = None
     text: str
@@ -94,6 +97,10 @@ class Vote(BaseModel):
             reply_id=reply_id,
             type=type
         )
+    
+class VoteStatus:
+    str_to_int = {'up': 1, 'down': 0}
+    int_ti_str = {0: 'down', 1: 'up'}
 
 
 class Status:
