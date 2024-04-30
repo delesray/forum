@@ -5,7 +5,7 @@ from services import votes_services
 
 votes_router = APIRouter(prefix='/topics/{topic_id}/replies/{reply_id}/votes', tags=['votes'])
 
-# check if reply and topic exist?
+#TODO check if reply and topic exist?
 
 @votes_router.get('/', status_code=200)
 def get_all_votes_for_reply(reply_id: int, type: str, user: UserAuthDep):
@@ -15,10 +15,10 @@ def get_all_votes_for_reply(reply_id: int, type: str, user: UserAuthDep):
 
 @votes_router.put('/', status_code=201)
 def add_or_switch_(type: str, reply_id, user: UserAuthDep):
-    vote = votes_services.find_vote(reply_id=reply_id, user_id_=user.user_id)
+    vote = votes_services.find_vote(reply_id=reply_id, user_id=user.user_id)
 
     if not vote:
-        votes_services.add_vote(user_id=user.user_id, reply_id=reply_id)
+        votes_services.add_vote(user_id=user.user_id, reply_id=reply_id, type=type)
         return f'You {type}voted reply with ID: {reply_id}'
 
     votes_services.switch_vote(user_id=user.user_id, 

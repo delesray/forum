@@ -13,7 +13,7 @@ def get_all(reply_id: int, type: str):
 def find_vote(reply_id: int, user_id: int):
     vote = read_query('SELECT type FROM votes WHERE reply_id=? AND user_id=?', 
                       (reply_id, user_id))
-    return vote[0]
+    return vote
 
 
 def add_vote(user_id, reply_id: int, type: str):
