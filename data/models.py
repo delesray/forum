@@ -33,7 +33,6 @@ class UserRegister(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    username: Annotated[str, StringConstraints(min_length=4)]
     first_name: str | None = None
     last_name: str | None = None
 
