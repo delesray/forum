@@ -84,19 +84,6 @@ class Reply(BaseModel):
             topic_id=topic_id
         )
 
-
-class Vote(BaseModel):
-    user_id: int
-    reply_id: int
-    type: bool
-
-    @classmethod
-    def from_query(cls, user_id, reply_id, type):
-        return cls(
-            user_id=user_id,
-            reply_id=reply_id,
-            type=type
-        )
     
 class VoteStatus:
     str_to_int = {'up': 1, 'down': 0}
