@@ -46,7 +46,6 @@ def delete_reply(id: int):
     )
 
 
-# same logic is needed for post/edit/delete reply
 def can_user_modify_reply(topic_id: int, user_id: int) -> Union[bool, str]:
     topic: TopicResponse = get_topic_by_id(topic_id)
     category: Category = get_cat_by_id(topic.category_id)

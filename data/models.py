@@ -90,8 +90,8 @@ class VoteStatus:
 
 
 class Status:
-    OPEN = 'open'
-    LOCKED = 'locked'
+    OPEN = 1
+    LOCKED = 0
     str_int = {'open': 1, 'locked': 0}
     int_str = {1: 'open', 0: 'locked'}
     opposite = {'open': 'locked', 'locked': 'open'}
@@ -130,19 +130,19 @@ class TopicResponse(BaseModel):
     topic_id: int
     title: str
     user_id: int
-    username: str
+    author: str
     status: str
     best_reply_id: int | None
     category_id: int = UNCATEGORIZED_ID
     category_name: str
 
     @classmethod
-    def from_query(cls, topic_id, title, user_id, username, status, best_reply_id, category_id, category_name):
+    def from_query(cls, topic_id, title, user_id, author, status, best_reply_id, category_id, category_name):
         return cls(
             topic_id=topic_id,
             title=title,
             user_id=user_id,
-            username=username,
+            author=author,
             status=Status.int_str[status],
             best_reply_id=best_reply_id,
             category_id=category_id,
