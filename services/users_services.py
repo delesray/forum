@@ -56,10 +56,8 @@ def register(user: User) -> User | IntegrityError:
 def try_login(username: str, password: str) -> User | None:
     user = find_by_username(username)
 
-    if user:
-        is_pass_verified = verify_password(password, user.password)
-
-    return user if user and is_pass_verified else None
+    if user and verify_password(password, user.password):
+        return user
 
 
 def update(old: User, new: UserUpdate):
