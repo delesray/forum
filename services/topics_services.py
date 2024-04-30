@@ -197,6 +197,7 @@ def topic_updates(topic_id: int, current_user: User, topic_update: TopicUpdate) 
     if topic_update.status in [Status.OPEN, Status.LOCKED] and current_user.is_admin:#or return a message'Only administrators are authorized to change the status'
         return update_status(topic_id, topic_update.status)
 
+    # todo only topic author can choose best reply - separate patch request
     if topic_update.best_reply_id:
         topic_replies_ids = get_topic_replies(topic_id)
         

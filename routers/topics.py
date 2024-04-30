@@ -12,6 +12,7 @@ topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
 
 #TODO pagination for the get_all_topics endpoint to be implemented
+#TODO no need for authentication for get_all_topics
 
 @topics_router.get('/')
 def get_all_topics(

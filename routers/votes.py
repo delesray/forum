@@ -8,18 +8,19 @@ votes_router = APIRouter(prefix='/topics/{topic_id}/replies/{reply_id}/votes', t
 
 
 @votes_router.get('/')
-def get_all_voter_for_reply(reply_id: int):
+def get_all_votes_for_reply(reply_id: int):
     pass
 
 
 @votes_router.post('/')
 def add_vote():
+    # create or switch vote
     pass
 
-
-@votes_router.put('/{vote_id}')
-def change_vote(id: int):
-    pass
+# change 
+# @votes_router.put('/{vote_id}')
+# def change_vote(id: int):
+#     pass
 
 
 @votes_router.delete('/{vote_id}')

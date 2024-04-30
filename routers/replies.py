@@ -8,6 +8,7 @@ from services.replies_services import get_by_id as get_reply_by_id, can_user_mod
 
 replies_router = APIRouter(prefix='/topics/{topic_id}/replies', tags=['replies'])
 
+# get all votes per reply
 
 @replies_router.post('/', status_code=201)
 def add_reply(topic_id: int, reply: Reply, user: UserAuthDep):
