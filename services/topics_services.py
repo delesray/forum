@@ -14,11 +14,11 @@ def get_all(
         status: str = None
 ):
     query_params = ()
-    sql = '''SELECT t.topic_id, t.title, u.username, t.is_locked, t.best_reply_id, c.name
-               FROM topics t 
-               JOIN users u ON t.user_id = u.user_id
-               JOIN categories c ON t.category_id = c.category_id
-               WHERE c.is_private = ?'''
+    sql = '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
+             FROM topics t 
+             JOIN users u ON t.user_id = u.user_id
+             JOIN categories c ON t.category_id = c.category_id
+             WHERE c.is_private = ?'''
 
     query_params += (0,)
 
@@ -179,26 +179,27 @@ def topic_with_replies(topic: TopicResponse):
 
 def get_topics_from_private_categories(current_user: User) -> list[TopicResponse]:
     data = read_query(
-        '''SELECT t.topic_id, t.title, u.username, t.is_locked, t.best_reply_id, c.name
+        '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
            FROM topics t 
            JOIN users u ON t.user_id = u.user_id
            JOIN categories c ON t.category_id = c.category_id
            WHERE c.is_private = ?
-           AND u.username = ?''', (1, current_user.username))
+           AND u.user_id = ?''', (1, current_user.user_id))
 
     topics = [TopicResponse.from_query(*row) for row in data]
     return topics
 
 
 def topic_updates(topic_id: int, current_user: User, topic_update: TopicUpdate) -> str | None:
-    if topic_update.title and len(topic_update.title) >= 1:
+    if topic_update.title and len(topic_update.title) >= 1: #or return a message 'Title cannot be empty'?
         return update_title(topic_id, topic_update.title)
 
-    if topic_update.status and current_user.is_admin and topic_update.status in [Status.OPEN, Status.LOCKED]:
+    if topic_update.status in [Status.OPEN, Status.LOCKED] and current_user.is_admin:#or return a message'Only administrators are authorized to change the status'
         return update_status(topic_id, topic_update.status)
 
     if topic_update.best_reply_id:
         topic_replies_ids = get_topic_replies(topic_id)
+        
         if not topic_replies_ids:
             return f"Topic with id:{topic_id} does not have replies"
 

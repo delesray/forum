@@ -1,4 +1,4 @@
-from data.models import User, UserUpdate
+from data.models import User, UserUpdate, UserRegister
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from common.utils import hash_pass, verify_password
@@ -33,7 +33,7 @@ def find_by_username(username: str) -> User | None:
     return next((User.from_query(*row) for row in data), None)
 
 
-def register(user: User) -> User | IntegrityError:
+def register(user: UserRegister) -> User | IntegrityError:
     """
     Creates user without is_admin
     Handles columns violations with try/except

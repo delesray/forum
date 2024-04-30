@@ -160,7 +160,7 @@ class TopicResponse(BaseModel):
 
 class TopicCreate(BaseModel):
     title: str = Field(..., min_length=1)
-    category_id: int
+    category_id: int = UNCATEGORIZED_ID
 
 
 class Token(BaseModel):
