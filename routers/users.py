@@ -55,11 +55,8 @@ def get_user_by_id(user_id: int, existing_user: UserAuthDep):
 
 # todo - patch request to update user pass, UserUpdatePassword model
 
-@users_router.put('/', status_code=201)
+@users_router.put('/', status_code=200)
 def update_user(user: UserUpdate, existing_user: UserAuthDep):
-    
-    if user.username != existing_user.username:
-        raise HTTPException(status_code=403, detail=f"Only admins can edit other users' data")
 
     result = users_services.update(existing_user, user)
     return result

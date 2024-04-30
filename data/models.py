@@ -33,7 +33,6 @@ class UserRegister(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    username: Annotated[str, StringConstraints(min_length=4)]
     first_name: str | None = None
     last_name: str | None = None
 
@@ -65,41 +64,34 @@ class Category(BaseModel):
         )
 
 
-class Reply(BaseModel):
-    reply_id: int | None = None
+class ReplyCreateUpdate(BaseModel):
     text: str
-    user_id: int | None = None
-    topic_id: int | None = None
-    is_edited: bool | None = None
-    is_deleted: bool | None = None
+
+
+class ReplyResponse(BaseModel):
+    reply_id: int
+    text: str
+    username: str
+    topic_id: int
 
     @classmethod
-    def from_query(cls, reply_id, text, user_id, topic_id):
+    def from_query(cls, reply_id, text, username, topic_id):
         return cls(
             reply_id=reply_id,
             text=text,
-            user_id=user_id,
+            username=username,
             topic_id=topic_id
         )
+    
 
-
-class Vote(BaseModel):
-    user_id: int
-    reply_id: int
-    type: bool
-
-    @classmethod
-    def from_query(cls, user_id, reply_id, type):
-        return cls(
-            user_id=user_id,
-            reply_id=reply_id,
-            type=type
-        )
+class VoteStatus:
+    str_to_int = {'up': 1, 'down': 0}
+    int_ti_str = {0: 'down', 1: 'up'}
 
 
 class Status:
-    OPEN = 'open'
-    LOCKED = 'locked'
+    OPEN = 1
+    LOCKED = 0
     str_int = {'open': 1, 'locked': 0}
     int_str = {1: 'open', 0: 'locked'}
     opposite = {'open': 'locked', 'locked': 'open'}
@@ -108,24 +100,24 @@ class Status:
 UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization
 
 
-class Topic(BaseModel):
-    topic_id: int | None = None
-    title: str
-    user_id: int
-    status: str = Status.OPEN
-    best_reply_id: int | None = None
-    category_id: int = UNCATEGORIZED_ID
+# class Topic(BaseModel):
+#     topic_id: int | None = None
+#     title: str
+#     user_id: int
+#     status: str = Status.OPEN
+#     best_reply_id: int | None = None
+#     category_id: int = UNCATEGORIZED_ID
 
-    @classmethod
-    def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
-        return cls(
-            topic_id=topic_id,
-            title=title,
-            user_id=user_id,
-            status=Status.int_str[status],
-            best_reply_id=best_reply_id,
-            category_id=category_id
-        )
+#     @classmethod
+#     def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
+#         return cls(
+#             topic_id=topic_id,
+#             title=title,
+#             user_id=user_id,
+#             status=Status.int_str[status],
+#             best_reply_id=best_reply_id,
+#             category_id=category_id
+#         )
 
 
 class TopicUpdate(BaseModel):
@@ -138,19 +130,19 @@ class TopicResponse(BaseModel):
     topic_id: int
     title: str
     user_id: int
-    username: str
+    author: str
     status: str
     best_reply_id: int | None
     category_id: int = UNCATEGORIZED_ID
     category_name: str
 
     @classmethod
-    def from_query(cls, topic_id, title, user_id, username, status, best_reply_id, category_id, category_name):
+    def from_query(cls, topic_id, title, user_id, author, status, best_reply_id, category_id, category_name):
         return cls(
             topic_id=topic_id,
             title=title,
             user_id=user_id,
-            username=username,
+            author=author,
             status=Status.int_str[status],
             best_reply_id=best_reply_id,
             category_id=category_id,
@@ -171,19 +163,3 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: str
     is_admin: bool
-
-
-class ReplyResponse(BaseModel):
-    reply_id: int
-    text: str
-    username: str
-    topic_id: int
-
-    @classmethod
-    def from_query(cls, reply_id, text, username, topic_id):
-        return cls(
-            reply_id=reply_id,
-            text=text,
-            username=username,
-            topic_id=topic_id
-        )

@@ -67,7 +67,6 @@ def update(old: User, new: UserUpdate):
     """
 
     merged = UserUpdate(
-        username=old.username,  # cannot update username
         first_name=new.first_name or old.first_name,
         last_name=new.last_name or old.last_name
     )
