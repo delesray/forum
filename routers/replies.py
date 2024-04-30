@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from common.responses import Forbidden, NotFound
-from data.models import Reply, ReplyCreateUpdate
+from data.models import ReplyCreateUpdate
 from services import replies_services
 from common.oauth import UserAuthDep
 from services.replies_services import get_by_id as get_reply_by_id, can_user_modify_reply
@@ -9,7 +9,7 @@ from services.replies_services import get_by_id as get_reply_by_id, can_user_mod
 replies_router = APIRouter(prefix='/topics/{topic_id}/replies', tags=['replies'])
 
 
-# check if topic exists?
+#TODO check if topic exists?
 @replies_router.post('/', status_code=201)
 def add_reply(topic_id: int, reply: ReplyCreateUpdate, user: UserAuthDep):
 
@@ -21,8 +21,8 @@ def add_reply(topic_id: int, reply: ReplyCreateUpdate, user: UserAuthDep):
             detail=msg
         )
 
-    result = replies_services.create_reply(topic_id, reply, user.user_id)
-    return result
+    reply_id = replies_services.create_reply(topic_id, reply, user.user_id)
+    return f'Reply with ID {reply_id} successfully added'
 
 
 @replies_router.put('/{reply_id}', status_code=204)
@@ -60,5 +60,4 @@ def delete_reply(topic_id: int, reply_id: int, user: UserAuthDep):
             detail=msg
         )
     
-    # delete from table?
     replies_services.delete_reply(reply_id)
