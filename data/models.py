@@ -37,6 +37,12 @@ class UserUpdate(BaseModel):
     last_name: str | None = None
 
 
+class UserUpdatePassword(BaseModel):
+    old: str
+    new: str
+    re_new: str
+
+
 class Message(BaseModel):
     message_id: int | None = None
     text: str
@@ -82,7 +88,7 @@ class ReplyResponse(BaseModel):
             username=username,
             topic_id=topic_id
         )
-    
+
 
 class VoteStatus:
     str_to_int = {'up': 1, 'down': 0}
