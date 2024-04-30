@@ -26,10 +26,10 @@ def get_all_topics(
         
         topics = topics_services.get_all(search=search, username=username, category=category, status=status)
         
-        if x_token:
-            user = get_current_user(x_token)
-            private_topics = topics_services.get_topics_from_private_categories(user) 
-            topics.extend(private_topics)   
+        # if x_token:
+        # user = get_current_user(x_token)
+        private_topics = topics_services.get_topics_from_private_categories2(1)
+        topics.extend(private_topics)
        
         if sort and (sort == 'asc' or sort == 'desc'):
             return topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc')

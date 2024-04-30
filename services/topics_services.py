@@ -190,16 +190,29 @@ def get_topics_from_private_categories(current_user: User) -> list[TopicResponse
     return topics
 
 
+def get_topics_from_private_categories2(user_id: User) -> list[TopicResponse]:
+    data = read_query(
+        '''SELECT t.topic_id, t.title, t.user_id, t.is_locked, t.best_reply_id, t.category_id
+           FROM topics t 
+           JOIN users_categories_permissions ucp ON t.category_id = ucp.category_id
+           WHERE ucp.user_id = ?''',
+        (user_id,))
+
+    topics = [TopicResponse.from_query(*row) for row in data]
+    return topics
+
+
 def topic_updates(topic_id: int, current_user: User, topic_update: TopicUpdate) -> str | None:
-    if topic_update.title and len(topic_update.title) >= 1: #or return a message 'Title cannot be empty'?
+    if topic_update.title and len(topic_update.title) >= 1:  # or return a message 'Title cannot be empty'?
         return update_title(topic_id, topic_update.title)
 
-    if topic_update.status in [Status.OPEN, Status.LOCKED] and current_user.is_admin:#or return a message'Only administrators are authorized to change the status'
+    if topic_update.status in [Status.OPEN,
+                               Status.LOCKED] and current_user.is_admin:  # or return a message'Only administrators are authorized to change the status'
         return update_status(topic_id, topic_update.status)
 
     if topic_update.best_reply_id:
         topic_replies_ids = get_topic_replies(topic_id)
-        
+
         if not topic_replies_ids:
             return f"Topic with id:{topic_id} does not have replies"
 

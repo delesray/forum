@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS `forum`.`replies` (
   `text` TINYTEXT NOT NULL,
   `user_id` INT(11) NOT NULL,
   `topic_id` INT(11) NOT NULL,
-  `edited` TINYINT(2) NOT NULL,
+  `edited` TINYINT(2) NOT NULL DEFAULT 0,
   PRIMARY KEY (`reply_id`),
   INDEX `fk_replies_users1_idx` (`user_id` ASC) VISIBLE,
   INDEX `fk_replies_topics1_idx` (`topic_id` ASC) VISIBLE,
@@ -153,7 +153,7 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `forum`.`votes` (
   `user_id` INT(11) NOT NULL,
   `reply_id` INT(11) NOT NULL,
-  `type` TINYINT(4) NOT NULL,
+  `type` TINYINT(2) NOT NULL,
   PRIMARY KEY (`user_id`, `reply_id`),
   INDEX `fk_votes_users1_idx` (`user_id` ASC) VISIBLE,
   INDEX `fk_votes_replies1_idx` (`reply_id` ASC) VISIBLE,
