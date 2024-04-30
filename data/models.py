@@ -30,12 +30,13 @@ class UserRegister(BaseModel):
     email: str  # constr(pattern='^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
     first_name: str | None = None
     last_name: str | None = None
-    
+
 
 class UserUpdate(BaseModel):
     username: Annotated[str, StringConstraints(min_length=4)]
     first_name: str | None = None
     last_name: str | None = None
+
 
 class Message(BaseModel):
     message_id: int | None = None
@@ -58,9 +59,9 @@ class Category(BaseModel):
         return cls(
             category_id=category_id,
             name=name,
-            is_locked= True if is_locked == 1 else False,
+            is_locked=True if is_locked == 1 else False,
             is_private=True if is_private == 1 else False
-            
+
         )
 
 
@@ -101,6 +102,7 @@ class Status:
     LOCKED = 'locked'
     str_int = {'open': 1, 'locked': 0}
     int_str = {1: 'open', 0: 'locked'}
+    opposite = {'open': 'locked', 'locked': 'open'}
 
 
 UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization

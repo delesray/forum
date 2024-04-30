@@ -4,7 +4,6 @@ from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
 
-
 _TOPIC_BEST_REPLY = None
 
 
@@ -208,4 +207,10 @@ def topic_updates(topic_id: int, current_user: User, topic_update: TopicUpdate) 
 
     return None
 
+
 from services.replies_services import get_all as get_all_replies
+
+
+def update_locking(locking: bool, topic_id: int):
+    update_query('UPDATE topics SET is_locked = ? WHERE topic_id = ?',
+                 (locking, topic_id))

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Header
-from data.models import Category
-from services import categories_services, users_services, admin_services
+from data.models import Category, Status
+from services import categories_services, users_services, admin_services, topics_services
 from common.oauth import UserAuthDep
 from common.responses import BadRequest, Forbidden, Unauthorized, Created
 
@@ -117,4 +117,15 @@ def view_privileged_users(category_id: int, existing_user: UserAuthDep):
 
 @admin_router.patch('/topics/{topic_id}/locking')
 def switch_topic_locking(topic_id: int, existing_user: UserAuthDep):
-    pass
+    """
+    Locked topic means it can no longer accept new Replies
+    """
+    if not existing_user.is_admin:  # todo add: ...or not existing_user.is_owner
+        return Forbidden()
+
+    topic = topics_services.get_by_id(topic_id)
+    if not topic:
+        return BadRequest("No such topic")
+
+    topics_services.update_locking(not Status.str_int[topic.status], topic_id)
+    return f'Topic {topic.title} is {Status.opposite[topic.status]} now'
