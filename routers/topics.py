@@ -1,10 +1,9 @@
 from typing import Annotated
-from fastapi import APIRouter, Response, Body, HTTPException, Header
+from fastapi import APIRouter, Body, HTTPException, Header
 from services import topics_services, categories_services
-from common.responses import BadRequest, NotFound, Forbidden, Unauthorized
 from common.oauth import UserAuthDep
+from common.responses import BadRequest, NotFound, Forbidden
 from data.models import TopicUpdate, TopicCreate, Status
-#from starlette.requests import Request
 from common.oauth import get_current_user
 
 
@@ -36,39 +35,37 @@ def get_all_topics(
             return topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc')
         else:
             return topics
-    
 
 
 @topics_router.get('/{topic_id}')
-def get_topic_by_id(topic_id: int, x_token: Annotated[str | None, Header()] = None):
+def get_topic_by_id(topic_id: int, current_user: UserAuthDep):
     topic = topics_services.get_by_id(topic_id)
+
     if not topic:
-        return NotFound(f"Topic #ID:{topic_id} does not exist")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Topic #ID:{topic_id} does not exist"
+        )
     
     category = categories_services.get_by_id(topic.category_id)
 
     if not category.is_private:
         return topics_services.topic_with_replies(topic)
-    
-    else:
-        if not x_token:
-              return Unauthorized(f"You are not authenticated. Please provide a valid authentication token to access this resource.")
-          
-        user = get_current_user(x_token)
         
-        if not categories_services.has_access_to_private_category(user.user_id, category.category_id):
-            return Forbidden(f'You do not have permission to access this private category')
+    if not categories_services.has_access_to_private_category(current_user.user_id, category.category_id):
+        raise HTTPException(
+            status_code=403,
+            detail=f'You do not have permission to access this private category'
+        )
         
-        return topics_services.topic_with_replies(topic)
-
-   
+    return topics_services.topic_with_replies(topic)
 
 
 @topics_router.post('/')
 def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
     category = categories_services.get_by_id(new_topic.category_id)
     
-    if not category: #Do we need such level of detail or more general "No such category" is enough?
+    if not category:
         return NotFound(f'Category #ID: {new_topic.category_id} does not exist') 
         
     if category.is_locked: 
@@ -85,7 +82,6 @@ def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
     if isinstance(result, int):
         return f'Topic {result} was successfully created!'
     return BadRequest(result)
-
 
 
 @topics_router.put('/{topic_id}')
@@ -108,4 +104,3 @@ def update_topic(topic_id: int, current_user: UserAuthDep, topic_update: TopicUp
         return BadRequest("Invalid or insufficient data provided for update")
     
     return result
-
