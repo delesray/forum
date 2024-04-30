@@ -118,7 +118,7 @@ def has_write_access(user_id: int, category_id: int):
     return any(read_query(
         '''SELECT 1
            FROM users_categories_permissions
-           WHERE user_id = ? AND category_id = ? AND access = ?''',
+           WHERE user_id = ? AND category_id = ? AND write_access = ?''',
         (user_id, category_id, 1))
     )
 
