@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from data.models import User, TokenData, UserRegister, UserUpdate
+from data.models import TokenData, UserRegister, UserUpdate
 from services import users_services
 from common.oauth import create_access_token, UserAuthDep
 from common.utils import verify_password
@@ -10,7 +10,7 @@ from typing import Annotated
 users_router = APIRouter(prefix='/users', tags=['users'])
 
 
-@users_router.post('/register')
+@users_router.post('/register', status_code=201)
 def register_user(user: UserRegister):
     # todo catch username and pass validation errors from Pydantic
     result = users_services.register(user)
@@ -21,7 +21,7 @@ def register_user(user: UserRegister):
     return f"User with ID: {result} registered"
 
 
-@users_router.post('/login')
+@users_router.post('/login', status_code=200)
 # now login works through Swagger docs but use form data in Postman
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     
@@ -39,13 +39,13 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     return token
 
 
-@users_router.get('/')
+@users_router.get('/', status_code=200)
 def get_all_users():
     users = users_services.get_all()
     return users
 
 
-@users_router.get('/{user_id}')
+@users_router.get('/{user_id}', status_code=200)
 def get_user_by_id(user_id: int, existing_user: UserAuthDep):
     user = users_services.get_by_id(user_id)
 
@@ -55,7 +55,7 @@ def get_user_by_id(user_id: int, existing_user: UserAuthDep):
 
 # todo - patch request to update user pass, UserUpdatePassword model
 
-@users_router.put('/')
+@users_router.put('/', status_code=201)
 def update_user(user: UserUpdate, existing_user: UserAuthDep):
     
     if user.username != existing_user.username:
