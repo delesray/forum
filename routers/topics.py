@@ -98,7 +98,7 @@ def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_upda
         return error_response
          
     topic_replies_ids = topics_services.get_topic_replies(topic_id)
-        
+
     if not topic_replies_ids:
         return NotFound(f"Topic with id:{topic_id} does not have replies")
 

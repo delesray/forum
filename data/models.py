@@ -181,6 +181,21 @@ class TokenData(BaseModel):
     is_admin: bool
 
 
-class MessageCreate(BaseModel):
+class Message(BaseModel):
+    message_id: int | None = None
     text: str
+    sender_id: int
     receiver_id: int
+
+    @classmethod
+    def from_query(cls, message_id, sender_id, receiver_id, text):
+        return cls(
+            message_id=message_id,
+            text=text,
+            sender_id=sender_id,
+            receiver_id=receiver_id
+        )
+
+
+class MessageSend(BaseModel):
+    text: str
