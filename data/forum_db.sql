@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `forum`.`users` (
   `first_name` VARCHAR(45) NULL DEFAULT NULL,
   `last_name` VARCHAR(45) NULL DEFAULT NULL,
   `is_admin` TINYINT(2) NOT NULL DEFAULT 0,
+  `deleted` TINYINT(2) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`),
   UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
@@ -165,10 +166,26 @@ CREATE TABLE IF NOT EXISTS `forum`.`votes` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
+USE `forum`;
+DELIMITER $$
+USE `forum`$$
+CREATE
+DEFINER=`root`@`localhost`
+TRIGGER `forum`.`after_user_deleted_delete_his_messages`
+AFTER UPDATE ON `forum`.`users`
+FOR EACH ROW
+BEGIN
+  IF NEW.deleted = 1 THEN
+    DELETE FROM messages
+    WHERE sender_id = OLD.user_id OR receiver_id = OLD.user_id;
+  END IF;
+END$$
+DELIMITER ;
+
+
 -- -----------------------------------------------------
 -- SEED
 -- -----------------------------------------------------
-
 INSERT INTO categories(name) VALUES('Uncategorized');
 INSERT INTO users(username,password,email,is_admin) VALUES('admin', '$2b$12$snZATHX9lsgnazHFCtW1tuU9FYuGOnQlwKBeTFmIjx3Y.RZF0MNCS', 'admin@gmail.com', true);
 
