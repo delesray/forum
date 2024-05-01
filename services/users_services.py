@@ -1,4 +1,4 @@
-from data.models import User, UserUpdate, UserRegister
+from data.models import UserInfo, User, UserUpdate, UserRegister
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from common.utils import hash_pass, verify_password
@@ -6,19 +6,19 @@ from common.utils import hash_pass, verify_password
 
 def get_all():
     data = read_query(
-        '''SELECT user_id, username, password, email, first_name, last_name, is_admin
+        '''SELECT username, email, first_name, last_name
         FROM users''')
 
-    users = [User.from_query(*row) for row in data]
+    users = [UserInfo.from_query(*row) for row in data]
     return users
 
 
 def get_by_id(user_id):
     data = read_query(
-        '''SELECT user_id, username, password, email, first_name, last_name, is_admin
+        '''SELECT username, email, first_name, last_name
         FROM users WHERE user_id = ?''', (user_id,))
 
-    user = [User.from_query(*row) for row in data]
+    user = [UserInfo.from_query(*row) for row in data]
     if not user:
         return None
 

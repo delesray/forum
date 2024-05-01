@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, Response
-from data.models import Message, User
+from fastapi import APIRouter, HTTPException
+from data.models import MessageCreate
 from services import messages_services, users_services
+from common.oauth import UserAuthDep
 
-messages_router = APIRouter
 
+messages_router = APIRouter(prefix='/messages', tags=['messages'])
 #
 # @messages_router.get("/conversations/{other_user_id}/", response_model=list[Message])
 # def view_conversation(other_user_id: int, current: User = Depends(get_user_or_raise_401)):
@@ -33,3 +34,26 @@ messages_router = APIRouter
 #     pass
 
 # todo flag for deleting messege
+
+@messages_router.post('/')
+def create_message(new_message: MessageCreate, current_user: UserAuthDep):
+    if not new_message.text:
+        raise HTTPException(status_code=400, detail="Message text is required")
+    
+    if not new_message.receiver_id:
+        raise HTTPException(status_code=400, detail="Receiver ID is required")
+    
+    receiver = users_services.get_by_id(new_message.receiver_id)
+    if not receiver:
+        raise HTTPException(status_code=404, detail="Receiver not found")
+    
+    result = messages_services.create(new_message.text, current_user.user_id, new_message.receiver_id)
+    
+    if isinstance(result, int):
+        return f'Message ID: {result} was successfully created!'
+    else:
+        raise HTTPException(status_code=400)
+
+   
+    
+     

@@ -43,6 +43,13 @@ class UserChangePassword(BaseModel):
     confirm_password: str
 
 
+class UserInfo(BaseModel):
+    username: str
+    email: str
+    first_name: str
+    last_name: str
+
+
 class Message(BaseModel):
     message_id: int | None = None
     text: str
@@ -96,8 +103,8 @@ class VoteStatus:
 
 
 class Status:
-    OPEN = 1
-    LOCKED = 0
+    OPEN = 'open'
+    LOCKED = 'locked'
     str_int = {'open': 1, 'locked': 0}
     int_str = {1: 'open', 0: 'locked'}
     opposite = {'open': 'locked', 'locked': 'open'}
@@ -128,7 +135,6 @@ UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization
 
 class TopicUpdate(BaseModel):
     title: str | None = None
-    status: str | None = None
     best_reply_id: int | None = None
 
 
@@ -169,3 +175,8 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: str
     is_admin: bool
+
+
+class MessageCreate(BaseModel):
+    text: str
+    receiver_id: int
