@@ -43,6 +43,13 @@ class UserUpdatePassword(BaseModel):
     re_new: str
 
 
+class UserInfo(BaseModel):
+    username: str
+    email: str
+    first_name: str
+    last_name: str
+
+
 class Message(BaseModel):
     message_id: int | None = None
     text: str
