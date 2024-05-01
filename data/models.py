@@ -43,6 +43,10 @@ class UserChangePassword(BaseModel):
     confirm_password: str
 
 
+class UserDelete(BaseModel):
+    current_password: str
+
+
 class UserInfo(BaseModel):
     username: str
     email: str
