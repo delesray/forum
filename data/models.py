@@ -50,9 +50,17 @@ class UserDelete(BaseModel):
 class UserInfo(BaseModel):
     username: str
     email: str
-    first_name: str
-    last_name: str
+    first_name: str | None = None
+    last_name: str | None = None
 
+    @classmethod
+    def from_query(cls, username, email, first_name, last_name):
+        return cls(
+            username=username,
+            email=email,
+            first_name=first_name,
+            last_name=last_name
+        )
 
 class Message(BaseModel):
     message_id: int | None = None
