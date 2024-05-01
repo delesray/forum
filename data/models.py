@@ -168,3 +168,8 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: str
     is_admin: bool
+
+
+class MessageCreate(BaseModel):
+    text: str
+    receiver_id: int
