@@ -17,7 +17,7 @@ def add_reply(topic_id: int, reply: ReplyCreateUpdate, user: UserAuthDep):
             status_code=404,
             detail='No such topic'
         )
-    
+
     user_modify_reply, msg = can_user_modify_reply(topic_id=topic_id, user_id=user.user_id)
 
     if not user_modify_reply:

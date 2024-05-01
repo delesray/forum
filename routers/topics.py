@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Body, HTTPException, Header
+from fastapi import APIRouter, Body, HTTPException, Header, Request
 from services import topics_services, categories_services
 from common.oauth import UserAuthDep
 from common.responses import BadRequest, NotFound, Forbidden
@@ -24,7 +24,6 @@ def get_all_topics(
                 
     topics = topics_services.get_all(search=search, username=username, category=category, status=status)  
         
-              
     if sort and (sort == 'asc' or sort == 'desc'):
         return paginate(topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc'))
     else:
@@ -32,7 +31,7 @@ def get_all_topics(
 
 
 @topics_router.get('/{topic_id}')
-def get_topic_by_id(topic_id: int, current_user: UserAuthDep):
+def get_topic_by_id(topic_id: int, req: Request):
     topic = topics_services.get_by_id(topic_id)
 
     if not topic:
@@ -46,7 +45,17 @@ def get_topic_by_id(topic_id: int, current_user: UserAuthDep):
     if not category.is_private:
         return topics_services.topic_with_replies(topic)
         
-    if not categories_services.has_access_to_private_category(current_user.user_id, category.category_id):
+    token = req.headers.get('Authorization').split()[1]
+    
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail='Login to view topics in private categories'
+        )
+    
+    existing_user = get_current_user(token)
+
+    if not categories_services.has_access_to_private_category(existing_user.user_id, category.category_id):
         raise HTTPException(
             status_code=403,
             detail=f'You do not have permission to access this private category'
