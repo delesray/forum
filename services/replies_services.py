@@ -59,4 +59,8 @@ def can_user_modify_reply(topic_id: int, user_id: int) -> Union[bool, str]:
     return True, "OK"
 
 
+def exists(id: int):
+    return any(read_query('SELECT 1 FROM replies WHERE reply_id=?', (id,)))
+
+
 from services.topics_services import get_by_id as get_topic_by_id

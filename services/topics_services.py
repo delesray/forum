@@ -190,7 +190,9 @@ def validate_topic_access(topic_id: int, user: User):
 
    return None
     
-    
+
+def exists(id: int):
+    return any(read_query('SELECT 1 from topics WHERE topic_id=?', (id,)))
 
 
 from services.replies_services import get_all as get_all_replies
