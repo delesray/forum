@@ -190,6 +190,7 @@ def validate_topic_access(topic_id: int, user: User):
 
    return None
     
+    
 
 
 from services.replies_services import get_all as get_all_replies

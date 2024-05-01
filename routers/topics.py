@@ -3,32 +3,32 @@ from fastapi import APIRouter, Body, HTTPException, Header
 from services import topics_services, categories_services
 from common.oauth import UserAuthDep
 from common.responses import BadRequest, NotFound, Forbidden
-from data.models import TopicUpdate, TopicCreate, Status
+from data.models import TopicUpdate, TopicCreate, TopicResponse
 from common.oauth import get_current_user
+from fastapi_pagination import paginate
+from fastapi_pagination.links import Page
 
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
 
-#TODO pagination for the get_all_topics endpoint to be implemented
-#TODO no need for authentication for get_all_topics
-
 @topics_router.get('/')
 def get_all_topics(
-        sort: str | None = None,
-        sort_by: str = 'topic_id',
-        search: str | None = None,
-        username: str | None = None,
-        category: str | None = None,
-        status: str | None = None
-    ):
+    sort: str | None = None,
+    sort_by: str = 'topic_id',
+    search: str | None = None,
+    username: str | None = None,
+    category: str | None = None,
+    status: str | None = None
+) -> Page[TopicResponse]:
+                
+    topics = topics_services.get_all(search=search, username=username, category=category, status=status)  
         
-        topics = topics_services.get_all(search=search, username=username, category=category, status=status)  
-       
-        if sort and (sort == 'asc' or sort == 'desc'):
-            return topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc')
-        else:
-            return topics
+              
+    if sort and (sort == 'asc' or sort == 'desc'):
+        return paginate(topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc'))
+    else:
+        return paginate(topics)
 
 
 @topics_router.get('/{topic_id}')
