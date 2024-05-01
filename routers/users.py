@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from data.models import TokenData, UserRegister, UserUpdate, UserUpdatePassword
+from data.models import TokenData, UserRegister, UserUpdate, UserChangePassword
 from services import users_services
 from common.oauth import create_access_token, UserAuthDep
 from common.utils import verify_password
 from typing import Annotated
-from common.utils import verify_password
+from common import utils
 
 users_router = APIRouter(prefix='/users', tags=['users'])
 
@@ -60,11 +60,20 @@ def update_user(user: UserUpdate, existing_user: UserAuthDep):
 
 
 @users_router.patch('/password', status_code=200)
-def update_user_password(passwords: UserUpdatePassword, existing_user: UserAuthDep):
-    if not verify_password(passwords.old, existing_user.password):
-        return HTTPException(status_code=401, detail="Old password does not match the current one")
-    if not passwords.new == passwords.re_new:
-        return HTTPException(status_code=401, detail="New password does not match the repeat password")
+def change_user_password(data: UserChangePassword, existing_user: UserAuthDep):
+    """
+    1. Verifies the current password
+    2. Verifies the new password match
+    3. Updates in db with new_hashed_password
+    """
+    if not utils.verify_password(data.current_password, existing_user.password):
+        return HTTPException(401, "Current password does not match")
+    if not data.new_password == data.confirm_password:
+        return HTTPException(401, "New password does not match")
+
+    new_hashed_password = utils.hash_pass(data.new_password)
+    users_services.change_password(existing_user.user_id, new_hashed_password)
+    return 'Password changed successfully'
 
 
 # todo flag deleted in db, don't delete

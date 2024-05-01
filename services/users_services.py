@@ -79,5 +79,9 @@ def update(old: User, new: UserUpdate):
     return merged
 
 
+def change_password(user_id: int, new_hashed_password: str):
+    update_query('UPDATE users SET password = ? WHERE user_id = ?', (new_hashed_password, user_id))
+
+
 def delete(user_id: int):
     return update_query('delete from users where user_id = ?', (user_id,))

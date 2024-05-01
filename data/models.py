@@ -37,10 +37,10 @@ class UserUpdate(BaseModel):
     last_name: str | None = None
 
 
-class UserUpdatePassword(BaseModel):
-    old: str
-    new: str
-    re_new: str
+class UserChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
 
 
 class Message(BaseModel):

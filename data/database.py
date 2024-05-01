@@ -1,5 +1,4 @@
 from mariadb import connect
-import mariadb
 from mariadb.connections import Connection
 from hidden import database_password
 
