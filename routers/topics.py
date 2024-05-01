@@ -24,6 +24,7 @@ def get_all_topics(
                 
     topics = topics_services.get_all(search=search, username=username, category=category, status=status)  
         
+    #TODO pagination should work on db level for optimal result
     if sort and (sort == 'asc' or sort == 'desc'):
         return paginate(topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc'))
     else:
