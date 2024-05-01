@@ -3,12 +3,16 @@ from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 
 
-def get_all():
-    data = read_query(
-        '''SELECT category_id, name, is_locked, is_private
-        FROM categories''')
+def get_all(search: str | None) -> Category:
+    sql = '''SELECT category_id, name, is_locked, is_private
+        FROM categories'''
 
-    categories = [Category.from_query(*row) for row in data]
+    if search:
+        sql += ' WHERE ' + f'name LIKE "%{search}%"'
+
+    result = read_query(sql)
+    categories = [Category.from_query(*row) for row in result]
+
     return categories
 
 

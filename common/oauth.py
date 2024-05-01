@@ -57,7 +57,6 @@ def verify_token_access(token: str) -> Union[TokenData, str]:
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
     token_data = verify_token_access(token)
     
-
     # will return the correct msg - either invalid token or expired token
     if not isinstance(token_data, TokenData):
         raise HTTPException(status_code=400, detail=token_data)
