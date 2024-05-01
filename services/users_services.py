@@ -84,4 +84,6 @@ def change_password(user_id: int, new_hashed_password: str):
 
 
 def delete(user_id: int):
-    return update_query('delete from users where user_id = ?', (user_id,))
+    update_query(
+        'UPDATE users SET deleted = ? WHERE user_id = ?;', (True, user_id)
+    )

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from data.models import TokenData, UserRegister, UserUpdate, UserChangePassword
 from services import users_services
@@ -76,10 +76,16 @@ def change_user_password(data: UserChangePassword, existing_user: UserAuthDep):
     return 'Password changed successfully'
 
 
-# todo flag deleted in db, don't delete
 @users_router.delete('/', status_code=204)
-def delete_user_by_id(password: dict, existing_user: UserAuthDep):
-    if not verify_password(password['password'], existing_user.password):
-        raise HTTPException(status_code=400, detail=f"Incorrect password")
+def delete_user_by_id(existing_user: UserAuthDep, body: str = Body(...)):
+    """
+    1. Verifies the current password
+    2. Flags the user as deleted in db
+        2.1 Triggers an object in db that deletes his messages
+    """
+    if not verify_password(body, existing_user.password):
+        raise HTTPException(status_code=400, detail=f"Current password does not match")
 
     users_services.delete(existing_user.user_id)
+    return 'Your account was successfully deleted'
+

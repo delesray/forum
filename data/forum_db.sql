@@ -168,6 +168,7 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 -- SEED
 -- -----------------------------------------------------
+
 INSERT INTO categories(name) VALUES('Uncategorized');
 INSERT INTO users(username,password,email,is_admin) VALUES('admin', '$2b$12$snZATHX9lsgnazHFCtW1tuU9FYuGOnQlwKBeTFmIjx3Y.RZF0MNCS', 'admin@gmail.com', true);
 
