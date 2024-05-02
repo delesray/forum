@@ -7,7 +7,7 @@ from common.utils import hash_pass, verify_password
 def get_all():
     data = read_query(
         '''SELECT username, email, first_name, last_name
-        FROM users''')
+        FROM users WHERE NOT deleted = ?''', (1,))
 
     users = [UserInfo.from_query(*row) for row in data]
     return users
@@ -16,7 +16,7 @@ def get_all():
 def get_by_id(user_id):
     data = read_query(
         '''SELECT username, email, first_name, last_name
-        FROM users WHERE user_id = ?''', (user_id,))
+        FROM users WHERE user_id = ? AND NOT deleted = ?''', (user_id, 1))
 
     user = [UserInfo.from_query(*row) for row in data]
     if not user:

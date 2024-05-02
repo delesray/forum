@@ -98,17 +98,10 @@ def view_privileged_users(category_id: int, existing_admin: AdminAuthDep):
 # ============================== Topics ==============================
 
 @admin_router.patch('/topics/{topic_id}/locking')
-def switch_topic_locking(topic_id: int, existing_user: UserAuthDep):
-    """
-    Locked topic means it can no longer accept new Replies
-    """
+def switch_topic_locking(topic_id: int, existing_admin: AdminAuthDep):
+    topic = topics_services.get_by_id(topic_id)
+    if not topic:
+        return BadRequest("No such topic")
 
-    if existing_user.is_admin or topics_services.is_owner(topic_id, existing_user.user_id):
-        topic = topics_services.get_by_id(topic_id)
-        if not topic:
-            return BadRequest("No such topic")
-
-        topics_services.update_locking(not Status.str_int[topic.status], topic_id)
-        return f'Topic {topic.title} is {Status.opposite[topic.status]} now'
-
-    raise HTTPException(403)
+    topics_services.update_locking(not Status.str_int[topic.status], topic_id)
+    return f'Topic {topic.title} is {Status.opposite[topic.status]} now'

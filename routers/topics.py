@@ -3,7 +3,7 @@ from fastapi import APIRouter, Body, HTTPException, Header, Request
 from services import topics_services, categories_services
 from common.oauth import UserAuthDep
 from common.responses import BadRequest, NotFound, Forbidden
-from data.models import TopicUpdate, TopicCreate, TopicResponse
+from data.models import TopicUpdate, TopicCreate, TopicResponse, Status
 from common.oauth import get_current_user
 from fastapi_pagination import paginate
 from fastapi_pagination.links import Page
@@ -114,3 +114,15 @@ def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_upda
 
     else:
         return BadRequest("Invalid reply ID")
+
+
+@topics_router.patch('/{topic_id}/locking')
+def switch_topic_locking(topic_id: int, existing_user: UserAuthDep):
+    topic = topics_services.get_by_id(topic_id)
+    if not topic:
+        return BadRequest("No such topic")
+
+    if topic.user_id != existing_user.user_id:
+        return Forbidden
+    topics_services.update_locking(not Status.str_int[topic.status], topic_id)
+    return f'Topic {topic.title} is {Status.opposite[topic.status]} now'
