@@ -3,7 +3,7 @@ from data.models import MessageSend
 from services import messages_services, users_services
 from common.oauth import UserAuthDep
 
-messages_router = APIRouter(prefix='/users/{user_id}/messages', tags=['messages'])
+messages_router = APIRouter(prefix='/messages', tags=['messages'])
 
 
 #
@@ -35,7 +35,7 @@ messages_router = APIRouter(prefix='/users/{user_id}/messages', tags=['messages'
 #     pass
 
 
-@messages_router.post('', status_code=201)
+@messages_router.post('/{receiver_id}', status_code=201)
 def send_message(receiver_id: int, new_message: MessageSend, current_user: UserAuthDep):
     if not new_message.text:
         raise HTTPException(status_code=400, detail="Message text is required")
@@ -45,3 +45,16 @@ def send_message(receiver_id: int, new_message: MessageSend, current_user: UserA
         raise HTTPException(status_code=404, detail="Receiver not found")
 
     messages_services.create(new_message.text, current_user.user_id, receiver_id)
+    return f'Message sent'
+
+
+@messages_router.get('/users')
+def get_all_conversations(current_user: UserAuthDep):
+    result = messages_services.get_all_conversations(current_user.user_id)
+
+    return result or 'No conversations'
+
+
+@messages_router.get('/{receiver_id}')
+def get_conversation():
+    pass

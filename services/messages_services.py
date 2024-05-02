@@ -1,24 +1,18 @@
-from data.models import Message
+from data.models import UserInfo
 from data.database import read_query, update_query, insert_query
-from mariadb import IntegrityError
-
-
-# def get_messages_between_users(current.user_id, user_id):
-#     pass
-
-# def get_conversations_for_user(current.user_id):
-#     pass
-
-# def get_message_by_id(message_id):
-#     pass
-
-# def update(old: Message, new: Message):
-#     pass
 
 
 def create(message_text, sender_id, receiver_id):
-    generated_id = insert_query(
+    return insert_query(
         'INSERT INTO messages(text, sender_id, receiver_id) VALUES(?,?,?)',
         (message_text, sender_id, receiver_id))
 
-    return Message.from_query(*(generated_id, message_text, sender_id, receiver_id))
+
+def get_all_conversations(user_id: int):
+    data = read_query('''SELECT DISTINCT u.username, u.email, u.first_name, u.last_name
+               FROM users u
+               JOIN messages m
+               ON u.user_id = m.receiver_id
+               WHERE m.sender_id = ?''', (user_id,))
+    
+    return [UserInfo.from_query(*row) for row in data]
