@@ -123,6 +123,6 @@ def switch_topic_locking(topic_id: int, existing_user: UserAuthDep):
         return BadRequest("No such topic")
 
     if topic.user_id != existing_user.user_id:
-        return Forbidden
+        return Forbidden()
     topics_services.update_locking(not Status.str_int[topic.status], topic_id)
     return f'Topic {topic.title} is {Status.opposite[topic.status]} now'
