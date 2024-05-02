@@ -56,5 +56,7 @@ def get_all_conversations(current_user: UserAuthDep):
 
 
 @messages_router.get('/{receiver_id}')
-def get_conversation():
-    pass
+def get_conversation(receiver_id: int, current_user: UserAuthDep):
+    result = messages_services.get_conversation(current_user.user_id, receiver_id)
+
+    return result or 'No such conversation'

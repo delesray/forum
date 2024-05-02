@@ -196,7 +196,7 @@ class Message(BaseModel):
     receiver_id: int
 
     @classmethod
-    def from_query(cls, message_id, sender_id, receiver_id, text):
+    def from_query(cls, message_id, text, sender_id, receiver_id):
         return cls(
             message_id=message_id,
             text=text,
@@ -207,3 +207,4 @@ class Message(BaseModel):
 
 class MessageSend(BaseModel):
     text: str
+
