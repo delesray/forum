@@ -45,14 +45,23 @@ def get_topic_by_id(topic_id: int, req: Request):
 
     if not category.is_private:
         return topics_services.topic_with_replies(topic)
-        
-    token = req.headers.get('Authorization').split()[1]
     
-    if not token:
+    authorization = req.headers.get("Authorization")
+    if not authorization:
         raise HTTPException(
             status_code=401,
             detail='Login to view topics in private categories'
         )
+    
+    _, _, token = authorization.partition(" ") 
+          
+    #token = req.headers.get('Authorization').split()[1]
+    
+    # if not token:
+    #     raise HTTPException(
+    #         status_code=401,
+    #         detail='Login to view topics in private categories'
+    #     )
     
     existing_user = get_current_user(token)
 
