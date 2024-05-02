@@ -5,7 +5,6 @@ from mariadb import IntegrityError
 from fastapi import HTTPException
 from common.responses import NotFound, Forbidden
 
-
 _TOPIC_BEST_REPLY = None
 
 
@@ -82,7 +81,6 @@ def create(topic: TopicCreate, customer: User):
 
     except IntegrityError as e:
         return e
-
 
 
 def update_title(topic_id, title):
@@ -174,25 +172,36 @@ def topic_with_replies(topic: TopicResponse):
 #     return topics
 
 
-
 def validate_topic_access(topic_id: int, user: User):
-    
-   existing_topic = get_by_id(topic_id)
-   
-   if not existing_topic:
+    existing_topic = get_by_id(topic_id)
+
+    if not existing_topic:
         return NotFound(f"Topic #ID:{topic_id} does not exist")
-    
-   if existing_topic.status == Status.LOCKED:
+
+    if existing_topic.status == Status.LOCKED:
         return Forbidden(f"Topic #ID:{existing_topic.topic_id} is locked")
-    
-   if existing_topic.user_id != user.user_id:
+
+    if existing_topic.user_id != user.user_id:
         return Forbidden('You are not allowed to edit topics created by other users')
 
-   return None
-    
+    return None
+
 
 def exists(id: int):
     return any(read_query('SELECT 1 from topics WHERE topic_id=?', (id,)))
 
 
 from services.replies_services import get_all as get_all_replies
+
+
+def update_locking(locking: bool, topic_id: int):
+    update_query('UPDATE topics SET is_locked = ? WHERE topic_id = ?',
+                 (locking, topic_id))
+
+
+def is_owner(topic_id: int, user_id: int):
+    data = read_query('SELECT FROM topics = ? WHERE topic_id = ? AND user_id = ?',
+                      (topic_id, topic_id))
+    if not data:
+        return False
+    return True

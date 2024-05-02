@@ -27,8 +27,9 @@ def get_by_id(user_id):
 
 def find_by_username(username: str) -> User | None:
     data = read_query(
-        'SELECT user_id, username, password, email, first_name, last_name, is_admin FROM users WHERE username = ?',
-        (username,))
+        '''SELECT user_id, username, password, email, first_name, last_name, is_admin FROM users 
+        WHERE username = ? AND NOT deleted = ?''',
+        (username, 1))
 
     return next((User.from_query(*row) for row in data), None)
 

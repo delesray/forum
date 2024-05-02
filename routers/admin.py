@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, HTTPException
 from data.models import Category, Status
 from services import categories_services, users_services, admin_services, topics_services
-from common.oauth import UserAuthDep
+from common.oauth import UserAuthDep, AdminAuthDep
 from common.responses import BadRequest, Forbidden, Unauthorized, Created
 
 admin_router = APIRouter(prefix='/admin', tags=['admin'])
@@ -10,10 +10,7 @@ admin_router = APIRouter(prefix='/admin', tags=['admin'])
 # ============================== Categories ==============================
 
 @admin_router.post('/categories', status_code=201)
-def create_category(category: Category, existing_user: UserAuthDep):
-    if not existing_user.is_admin:  # todo dependency
-        return Forbidden()
-
+def create_category(category: Category, existing_admin: AdminAuthDep):
     result = categories_services.create(category)
     if isinstance(result, Category):
         return result
@@ -21,10 +18,7 @@ def create_category(category: Category, existing_user: UserAuthDep):
 
 
 @admin_router.patch('/categories/{category_id}/privacy', status_code=202)
-def switch_category_privacy(category_id: int, existing_user: UserAuthDep):
-    if not existing_user.is_admin:  # todo dependancy
-        return Forbidden()
-
+def switch_category_privacy(category_id: int, existing_admin: AdminAuthDep):
     category = categories_services.get_by_id(category_id)
     if not category:
         return BadRequest("No such category")
@@ -34,10 +28,7 @@ def switch_category_privacy(category_id: int, existing_user: UserAuthDep):
 
 
 @admin_router.patch('/categories/{category_id}/locking', status_code=202)
-def switch_category_locking(category_id: int, existing_user: UserAuthDep):
-    if not existing_user.is_admin:
-        return Forbidden()
-
+def switch_category_locking(category_id: int, existing_admin: AdminAuthDep):
     category = categories_services.get_by_id(category_id)
     if not category:
         return BadRequest("No such category")
@@ -49,9 +40,7 @@ def switch_category_locking(category_id: int, existing_user: UserAuthDep):
 # ============================== Users ==============================
 
 @admin_router.post('/users/{user_id}/categories/{category_id}')
-def give_user_category_read_access(user_id: int, category_id: int, existing_user: UserAuthDep):
-    if not existing_user.is_admin:
-        return Forbidden()
+def give_user_category_read_access(user_id: int, category_id: int, existing_admin: AdminAuthDep):
     if not users_services.get_by_id(user_id):
         return BadRequest('No such user')
     if not categories_services.get_by_id(category_id):
@@ -66,9 +55,7 @@ def give_user_category_read_access(user_id: int, category_id: int, existing_user
 
 
 @admin_router.delete('/users/{user_id}/categories/{category_id}')
-def revoke_user_category_read_access(user_id: int, category_id: int, existing_user: UserAuthDep):
-    if not existing_user.is_admin:
-        return Forbidden()
+def revoke_user_category_read_access(user_id: int, category_id: int, existing_admin: AdminAuthDep):
     if not users_services.get_by_id(user_id):
         return BadRequest('No such user')
     if not categories_services.get_by_id(category_id):
@@ -79,9 +66,7 @@ def revoke_user_category_read_access(user_id: int, category_id: int, existing_us
 
 
 @admin_router.patch('/users/{user_id}/categories/{category_id}/access')
-def switch_user_category_write_access(user_id: int, category_id: int, existing_user: UserAuthDep):
-    if not existing_user.is_admin:
-        return Forbidden()
+def switch_user_category_write_access(user_id: int, category_id: int, existing_admin: AdminAuthDep):
     if not users_services.get_by_id(user_id):
         return BadRequest('No such user')
     if not categories_services.get_by_id(category_id):
@@ -96,10 +81,7 @@ def switch_user_category_write_access(user_id: int, category_id: int, existing_u
 
 
 @admin_router.get('/users/categories/{category_id}')
-def view_privileged_users(category_id: int, existing_user: UserAuthDep):
-    if not existing_user.is_admin:
-        return Forbidden()
-
+def view_privileged_users(category_id: int, existing_admin: AdminAuthDep):
     category = categories_services.get_by_id(category_id)
     if not category:
         return BadRequest('No such category')
@@ -120,12 +102,13 @@ def switch_topic_locking(topic_id: int, existing_user: UserAuthDep):
     """
     Locked topic means it can no longer accept new Replies
     """
-    if not existing_user.is_admin:  # todo add: ...or not existing_user.is_owner
-        return Forbidden()
 
-    topic = topics_services.get_by_id(topic_id)
-    if not topic:
-        return BadRequest("No such topic")
+    if existing_user.is_admin or topics_services.is_owner(topic_id, existing_user.user_id):
+        topic = topics_services.get_by_id(topic_id)
+        if not topic:
+            return BadRequest("No such topic")
 
-    topics_services.update_locking(not Status.str_int[topic.status], topic_id)
-    return f'Topic {topic.title} is {Status.opposite[topic.status]} now'
+        topics_services.update_locking(not Status.str_int[topic.status], topic_id)
+        return f'Topic {topic.title} is {Status.opposite[topic.status]} now'
+
+    raise HTTPException(403)

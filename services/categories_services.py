@@ -4,6 +4,7 @@ from mariadb import IntegrityError
 
 
 def get_all(search: str | None) -> Category:
+
     sql = '''SELECT category_id, name, is_locked, is_private
         FROM categories'''
 

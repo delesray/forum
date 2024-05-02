@@ -8,9 +8,7 @@ from data.models import Token, TokenData
 from secret_key import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
 
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login", )
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
@@ -54,9 +52,14 @@ def verify_token_access(token: str) -> Union[TokenData, str]:
         return "Invalid token"
 
 
-def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
+def get_current_admin(token: Annotated[str, Depends(oauth2_scheme)]):
+    admin = get_current_user(token, admin_required=True)
+    return admin
+
+
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], admin_required=None) -> User:
     token_data = verify_token_access(token)
-    
+
     # will return the correct msg - either invalid token or expired token
     if not isinstance(token_data, TokenData):
         raise HTTPException(status_code=400, detail=token_data)
@@ -67,7 +70,11 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
     if not user:
         raise HTTPException(status_code=404, detail="No such user")
 
+    if admin_required and not user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin required")
+
     return user
 
 
 UserAuthDep = Annotated[User, Depends(get_current_user)]
+AdminAuthDep = Annotated[User, Depends(get_current_admin)]

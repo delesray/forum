@@ -87,4 +87,3 @@ def delete_user_by_id(existing_user: UserAuthDep, body: UserDelete):
         raise HTTPException(status_code=400, detail=f"Current password does not match")
 
     users_services.delete(existing_user.user_id)
-    return 'Your account was successfully deleted'
