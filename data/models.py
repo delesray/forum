@@ -62,12 +62,6 @@ class UserInfo(BaseModel):
             last_name=last_name
         )
 
-class Message(BaseModel):
-    message_id: int | None = None
-    text: str
-    sender_id: int
-    receiver_id: int
-
 
 class Category(BaseModel):
     category_id: int | None = None
@@ -205,6 +199,5 @@ class Message(BaseModel):
         )
 
 
-class MessageSend(BaseModel):
+class MessageText(BaseModel):
     text: str
-
