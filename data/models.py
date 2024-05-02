@@ -208,3 +208,8 @@ class Message(BaseModel):
 class MessageSend(BaseModel):
     text: str
 
+
+class TopicsPaginate(BaseModel):
+    topics: list[TopicResponse]
+    pagination_info: dict
+    #links: dict

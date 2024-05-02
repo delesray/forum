@@ -4,11 +4,14 @@ from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
 from common.responses import NotFound, Forbidden
+from math import ceil
 
 _TOPIC_BEST_REPLY = None
 
 
 def get_all(
+        page: int,
+        size: int,
         search: str = None,
         username: str = None,
         category: str = None,
@@ -44,11 +47,17 @@ def get_all(
 
         sql += ' AND t.is_locked = ? '
         query_params += (Status.str_int[status],)
-
-    data = read_query(sql, query_params)
+        
+    
+    pagination = pagination_info(sql, query_params, page, size) 
+    
+    pagination_sql = sql + ' LIMIT ? OFFSET ?'
+    query_params += (size, size*(page - 1))
+    
+    data = read_query(pagination_sql, query_params)
 
     topics = [TopicResponse.from_query(*row) for row in data]
-    return topics
+    return topics, pagination
 
 
 def get_by_id(topic_id: int):
@@ -205,3 +214,17 @@ def is_owner(topic_id: int, user_id: int):
     if not data:
         return False
     return True
+
+def pagination_info(sql, query_params, page, size):
+    count_sql =  f'SELECT COUNT(*) FROM ({sql}) filtered_topics'
+    data = read_query(count_sql, query_params)
+    total = data[0][0]
+    info = {
+            "total_topics": total,
+             "page": page,
+             "size": size,
+             "pages": ceil(total / size)
+    }
+    return info
+
+        

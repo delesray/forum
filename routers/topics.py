@@ -1,32 +1,41 @@
 from typing import Annotated
-from fastapi import APIRouter, Body, HTTPException, Header, Request
+from fastapi import APIRouter, Body, HTTPException, Query, Request
 from services import topics_services, categories_services
 from common.oauth import UserAuthDep
 from common.responses import BadRequest, NotFound, Forbidden
-from data.models import TopicUpdate, TopicCreate, TopicResponse, Status
+from data.models import TopicUpdate, TopicCreate, TopicsPaginate, TopicResponse, Status
 from common.oauth import get_current_user
-from fastapi_pagination import paginate
-from fastapi_pagination.links import Page
+#from fastapi_pagination import paginate
+#from fastapi_pagination.links import Page
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
 
 @topics_router.get('/')
 def get_all_topics(
+        page: int = Query(1, ge=1, description="Page number"),
+        size: int = Query(2, ge=1, le=10, description="Page size"),
         sort: str | None = None,
         sort_by: str = 'topic_id',
         search: str | None = None,
         username: str | None = None,
         category: str | None = None,
         status: str | None = None
-) -> Page[TopicResponse]:
-    topics = topics_services.get_all(search=search, username=username, category=category, status=status)
+    ):
+    topics, pagination = topics_services.get_all(page=page, size=size, search=search, username=username, category=category, status=status)
 
     # TODO pagination should work on db level for optimal result
     if sort and (sort == 'asc' or sort == 'desc'):
-        return paginate(topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc'))
+        return TopicsPaginate(
+            topics=topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc'),
+            pagination_info=pagination
+        )
+    
     else:
-        return paginate(topics)
+        return TopicsPaginate(
+            topics=topics,
+            pagination_info=pagination
+        )
 
 
 @topics_router.get('/{topic_id}')
