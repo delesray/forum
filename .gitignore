@@ -161,3 +161,4 @@ cython_debug/
 hidden.py
 .vscode/launch.json
 secret_key.py
+/.VSCodeCounter
