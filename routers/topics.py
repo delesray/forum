@@ -1,9 +1,9 @@
 from typing import Annotated
 from fastapi import APIRouter, Body, HTTPException, Query, Request
 from services import topics_services, categories_services
-from common.oauth import UserAuthDep
+from common.oauth import OptionalUser, UserAuthDep
 from common.responses import BadRequest, NotFound, Forbidden
-from data.models import TopicUpdate, TopicCreate, TopicsPaginate, TopicResponse, Status
+from data.models import AnonymousUser, TopicUpdate, TopicCreate, TopicsPaginate, TopicResponse, Status
 from common.oauth import get_current_user
 #from fastapi_pagination import paginate
 #from fastapi_pagination.links import Page
@@ -22,7 +22,8 @@ def get_all_topics(
         category: str | None = None,
         status: str | None = None
     ):
-    topics, pagination = topics_services.get_all(page=page, size=size, search=search, username=username, category=category, status=status)
+    topics, pagination = topics_services.get_all(page=page, size=size, search=search, 
+                                                 username=username, category=category, status=status)
 
     # TODO pagination should work on db level for optimal result
     if sort and (sort == 'asc' or sort == 'desc'):
@@ -39,7 +40,7 @@ def get_all_topics(
 
 
 @topics_router.get('/{topic_id}')
-def get_topic_by_id(topic_id: int, req: Request):
+def get_topic_by_id(topic_id: int, current_user: OptionalUser, req: Request):
     topic = topics_services.get_by_id(topic_id)
 
     if not topic:
@@ -53,24 +54,16 @@ def get_topic_by_id(topic_id: int, req: Request):
     if not category.is_private:
         return topics_services.topic_with_replies(topic)
 
-    authorization = req.headers.get("Authorization")
-    if not authorization:
-        raise HTTPException(
-            status_code=401,
-            detail='Login to view topics in private categories'
-        )
+    # Verify category privacy
 
-    _, _, token = authorization.partition(" ")
+    else:
+        if isinstance(current_user, AnonymousUser):
+            raise HTTPException(
+                status_code=401,
+                detail='Login to view topics in private categories'
+                    )
 
-    # token = req.headers.get('Authorization').split()[1]
-
-    # if not token:
-    #     raise HTTPException(
-    #         status_code=401,
-    #         detail='Login to view topics in private categories'
-    #     )
-
-    existing_user = get_current_user(token)
+    existing_user = current_user
 
     if not categories_services.has_access_to_private_category(existing_user.user_id, category.category_id):
         raise HTTPException(

@@ -61,6 +61,17 @@ class UserInfo(BaseModel):
             first_name=first_name,
             last_name=last_name
         )
+    
+
+class AnonymousUser(User):
+    user_id: int | None = None
+    username: str | None = None
+    password: str | None = None
+    email: str | None = None # constr(pattern='^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
+    first_name: str | None = None
+    last_name: str | None = None
+    is_admin: bool | None = None
+
 
 class Message(BaseModel):
     message_id: int | None = None
@@ -213,3 +224,6 @@ class TopicsPaginate(BaseModel):
     topics: list[TopicResponse]
     pagination_info: dict
     #links: dict
+
+
+
