@@ -46,12 +46,12 @@ def delete_reply(id: int):
     )
 
 
-def can_user_modify_reply(topic_id: int, user_id: int) -> Union[bool, str]:
+def can_user_access_topic_content(topic_id: int, user_id: int) -> Union[bool, str]:
     topic: TopicResponse = get_topic_by_id(topic_id)
     category: Category = get_cat_by_id(topic.category_id)
 
     if category.is_private and not has_write_access(user_id, category.category_id):
-        return False, 'You don\'t have permissions to post or modify replies in this topic'
+        return False, 'You don\'t have permissions to post, modify replies or vote in this topic'
 
     if topic.status == 'locked':
         return False, 'This topic is read-only'

@@ -2,8 +2,9 @@ from http.client import HTTPException
 from fastapi import APIRouter
 from common.oauth import UserAuthDep
 from services import votes_services
-from services.replies_services import exists as reply_exists
+from services.replies_services import exists as reply_exists, can_user_access_topic_content
 from services.topics_services import exists as topic_exists
+
 
 votes_router = APIRouter(prefix='/topics/{topic_id}/replies/{reply_id}/votes', tags=['votes'])
 
@@ -21,7 +22,15 @@ def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, user: UserA
             status_code=404,
             detail='No such reply'
         )
+    
+    user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
 
+    if not user_modify_vote:
+        raise HTTPException(
+            status_code=403,
+            detail=msg
+        )
+    
     result = votes_services.get_all(reply_id=reply_id, type=type)
     return result
 
@@ -39,7 +48,15 @@ def add_or_switch(type: str, reply_id, topic_id, user: UserAuthDep):
             status_code=404,
             detail='No such reply'
         )
+    
+    user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
 
+    if not user_modify_vote:
+        raise HTTPException(
+            status_code=403,
+            detail=msg
+        )
+    
     vote = votes_services.find_vote(reply_id=reply_id, user_id=user.user_id)
 
     if not vote:
@@ -52,5 +69,26 @@ def add_or_switch(type: str, reply_id, topic_id, user: UserAuthDep):
 
 
 @votes_router.delete('/', status_code=204)
-def remove_vote(reply_id: int, user: UserAuthDep):
+def remove_vote(topic_id: int, reply_id: int, user: UserAuthDep):
+
+    if not topic_exists(id=topic_id):
+        raise HTTPException(
+            status_code=404,
+            detail='No such topic'
+        )
+
+    if not reply_exists(id=reply_id):
+        raise HTTPException(
+            status_code=404,
+            detail='No such reply'
+        )
+    
+    user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
+
+    if not user_modify_vote:
+        raise HTTPException(
+            status_code=403,
+            detail=msg
+        )
+    
     votes_services.delete_vote(reply_id=reply_id, user_id=user.user_id)

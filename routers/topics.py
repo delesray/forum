@@ -1,36 +1,46 @@
 from typing import Annotated
-from fastapi import APIRouter, Body, HTTPException, Header, Request
+from fastapi import APIRouter, Body, HTTPException, Query, Request
 from services import topics_services, categories_services
-from common.oauth import UserAuthDep
+from common.oauth import OptionalUser, UserAuthDep
 from common.responses import BadRequest, NotFound, Forbidden
-from data.models import TopicUpdate, TopicCreate, TopicResponse, Status
+from data.models import AnonymousUser, TopicUpdate, TopicCreate, TopicsPaginate, TopicResponse, Status
 from common.oauth import get_current_user
-from fastapi_pagination import paginate
-from fastapi_pagination.links import Page
+#from fastapi_pagination import paginate
+#from fastapi_pagination.links import Page
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
 
 @topics_router.get('/')
 def get_all_topics(
+        page: int = Query(1, ge=1, description="Page number"),
+        size: int = Query(2, ge=1, le=10, description="Page size"),
         sort: str | None = None,
         sort_by: str = 'topic_id',
         search: str | None = None,
         username: str | None = None,
         category: str | None = None,
         status: str | None = None
-) -> Page[TopicResponse]:
-    topics = topics_services.get_all(search=search, username=username, category=category, status=status)
+    ):
+    topics, pagination = topics_services.get_all(page=page, size=size, search=search, 
+                                                 username=username, category=category, status=status)
 
     # TODO pagination should work on db level for optimal result
     if sort and (sort == 'asc' or sort == 'desc'):
-        return paginate(topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc'))
+        return TopicsPaginate(
+            topics=topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc'),
+            pagination_info=pagination
+        )
+    
     else:
-        return paginate(topics)
+        return TopicsPaginate(
+            topics=topics,
+            pagination_info=pagination
+        )
 
 
 @topics_router.get('/{topic_id}')
-def get_topic_by_id(topic_id: int, req: Request):
+def get_topic_by_id(topic_id: int, current_user: OptionalUser, req: Request):
     topic = topics_services.get_by_id(topic_id)
 
     if not topic:
@@ -44,24 +54,16 @@ def get_topic_by_id(topic_id: int, req: Request):
     if not category.is_private:
         return topics_services.topic_with_replies(topic)
 
-    authorization = req.headers.get("Authorization")
-    if not authorization:
-        raise HTTPException(
-            status_code=401,
-            detail='Login to view topics in private categories'
-        )
+    # Verify category privacy
 
-    _, _, token = authorization.partition(" ")
+    else:
+        if isinstance(current_user, AnonymousUser):
+            raise HTTPException(
+                status_code=401,
+                detail='Login to view topics in private categories'
+                    )
 
-    # token = req.headers.get('Authorization').split()[1]
-
-    # if not token:
-    #     raise HTTPException(
-    #         status_code=401,
-    #         detail='Login to view topics in private categories'
-    #     )
-
-    existing_user = get_current_user(token)
+    existing_user = current_user
 
     if not categories_services.has_access_to_private_category(existing_user.user_id, category.category_id):
         raise HTTPException(

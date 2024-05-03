@@ -3,7 +3,7 @@ from data.models import ReplyCreateUpdate
 from services import replies_services
 from services.topics_services import exists
 from common.oauth import UserAuthDep
-from services.replies_services import get_by_id as get_reply_by_id, can_user_modify_reply
+from services.replies_services import get_by_id as get_reply_by_id, can_user_access_topic_content
 
 
 replies_router = APIRouter(prefix='/topics/{topic_id}/replies', tags=['replies'])
@@ -18,7 +18,7 @@ def add_reply(topic_id: int, reply: ReplyCreateUpdate, user: UserAuthDep):
             detail='No such topic'
         )
 
-    user_modify_reply, msg = can_user_modify_reply(topic_id=topic_id, user_id=user.user_id)
+    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
 
     if not user_modify_reply:
         raise HTTPException(
@@ -44,7 +44,7 @@ def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, user: Us
     if not reply_to_update:
         raise HTTPException(status_code=404)
     
-    user_modify_reply, msg = can_user_modify_reply(topic_id=topic_id, user_id=user.user_id)
+    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
     
     if not user_modify_reply:
         raise HTTPException(
@@ -69,7 +69,7 @@ def delete_reply(topic_id: int, reply_id: int, user: UserAuthDep):
     if not reply_to_delete:
         raise HTTPException(status_code=404)
     
-    user_modify_reply, msg = can_user_modify_reply(topic_id=topic_id, user_id=user.user_id)
+    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
     
     if not user_modify_reply:
         raise HTTPException(
