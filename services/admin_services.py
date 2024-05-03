@@ -1,1 +1,1 @@
-from data.models import Category
+from data.models.category import Category

@@ -1,4 +1,4 @@
-from data.models import Category
+from data.models.category import Category
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 

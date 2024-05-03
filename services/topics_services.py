@@ -1,5 +1,6 @@
 from __future__ import annotations
-from data.models import TopicResponse, Status, TopicCreate, User, TopicUpdate
+from data.models.topic import Status, TopicUpdate, TopicResponse, TopicCreate
+from data.models.user import User
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException

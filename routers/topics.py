@@ -3,7 +3,8 @@ from fastapi import APIRouter, Body, HTTPException, Query, Request
 from services import topics_services, categories_services
 from common.oauth import OptionalUser, UserAuthDep
 from common.responses import BadRequest, NotFound, Forbidden
-from data.models import AnonymousUser, TopicUpdate, TopicCreate, TopicsPaginate, TopicResponse, Status
+from data.models.topic import Status, TopicUpdate, TopicResponse, TopicCreate, TopicsPaginate
+from data.models.user import AnonymousUser
 from common.oauth import get_user_required
 
 # from fastapi_pagination import paginate

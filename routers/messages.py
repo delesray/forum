@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from data.models import MessageText
+from data.models.message import MessageText
 from services import messages_services, users_services
 from common.oauth import UserAuthDep
 

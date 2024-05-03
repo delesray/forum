@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from data.models import ReplyCreateUpdate
+from data.models.reply import ReplyCreateUpdate
 from services import replies_services
 from services.topics_services import exists
 from common.oauth import UserAuthDep

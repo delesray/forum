@@ -1,4 +1,5 @@
-from data.models import UserInfo, Message
+from data.models.message import Message
+from data.models.user import UserInfo
 from data.database import read_query, update_query, insert_query
 
 

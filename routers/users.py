@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.security import OAuth2PasswordRequestForm
-from data.models import TokenData, UserRegister, UserUpdate, UserChangePassword, UserDelete
+from data.models.user import UserRegister, UserUpdate, UserChangePassword, UserDelete, TokenData
 from services import users_services
 from common.oauth import create_access_token, UserAuthDep
 from common.utils import verify_password

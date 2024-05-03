@@ -1,4 +1,4 @@
-from data.models import UserInfo, User, UserUpdate, UserRegister
+from data.models.user import User, UserRegister, UserUpdate, UserInfo
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from common.utils import hash_pass, verify_password

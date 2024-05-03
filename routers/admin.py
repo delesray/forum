@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Header, HTTPException
-from data.models import Category, Status
+from data.models.category import Category
+from data.models.topic import Status
 from services import categories_services, users_services, admin_services, topics_services
 from common.oauth import UserAuthDep, AdminAuthDep
 from common.responses import BadRequest, Forbidden, Unauthorized, Created
