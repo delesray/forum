@@ -14,7 +14,9 @@ categories_router = APIRouter(prefix='/categories', tags=['categories'])
 def get_all_categories(
         sort: str | None = None,
         search: str | None = None) -> list[Category]:
-    if sort:
+    
+    # sort works in-memory - okay for low number of categories
+    if sort and (sort.lower() in ('asc', 'desc')):
         return sorted(categories_services.get_all(search=search),
                       key=lambda x: x.name, reverse=sort == 'desc')
 
@@ -27,11 +29,17 @@ def get_category_by_id(
         current_user: OptionalUser,
         sort: str | None = None,
         search: str | None = None):
+    
+    """
+    1. Returns Category with a list of Topics, if Category is public
+    2. If Category is private requires authentication
+    3. Topics in a Category can be searched by title or sorted by title in alphabetical order (asc / desc)
+    """
 
-    category = categories_services.get_cat_by_id_with_topics(category_id, search)
+    category = categories_services.get_cat_by_id_with_topics(category_id, search, sort)
 
     if not category:
-        raise HTTPException(404, 'No such category')
+        raise HTTPException(404, 'Category or topic not found')
 
     if category.is_private:
         if isinstance(current_user, AnonymousUser):

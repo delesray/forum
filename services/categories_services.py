@@ -47,7 +47,7 @@ def dto(data):
     return category
 
 
-def get_cat_by_id_with_topics(category_id, search=None) -> None | CategoryWithTopics:
+def get_cat_by_id_with_topics(category_id, search=None, sort=None) -> None | CategoryWithTopics:
     sql = '''SELECT c.category_id, c.name, c.is_locked, c.is_private,
         t.topic_id, t.title, t.user_id, t.is_locked, t.best_reply_id, t.category_id
         FROM categories as c 
@@ -60,6 +60,10 @@ def get_cat_by_id_with_topics(category_id, search=None) -> None | CategoryWithTo
     if search:
         sql += ' AND t.title LIKE ?'
         query_params += (f'%{search}%',)
+
+    # db sort to avoid in-memory sort
+    if sort and (sort.lower() in ('asc', 'desc')):
+        sql += f' ORDER BY t.title {sort}'
 
     data = read_query(sql, query_params)
     
