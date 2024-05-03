@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Depends
 from typing import Annotated, Union
-from data.models import AnonymousUser, TokenData
+from data.models import AnonymousUser, TokenData, User
 from services.users_services import find_by_username
 from datetime import timedelta, datetime
 from jose import jwt, JWTError, ExpiredSignatureError

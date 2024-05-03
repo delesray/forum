@@ -33,4 +33,4 @@ def get_category_by_id(category_id: int, current_user: OptionalUser):
         return category, topics if topics else 'No topics'
     
     if isinstance(current_user, AnonymousUser):
-        raise HTTPException(401, 'Login to view topics in private categories')
+        raise HTTPException(401, 'Login to view private categories')
