@@ -50,35 +50,38 @@ class PaginationInfo(BaseModel):
     total_topics: int
     page: int
     size: int
-    pages: int    
-    
+    pages: int
+
+
 class Links(BaseModel):
     self: str
     first: str
     last: str
     next: str | None
     prev: str | None
-    
+
+
 class TopicsPaginate(BaseModel):
     topics: list[TopicResponse]
     pagination_info: PaginationInfo
     links: Links
 
-# class Topic(BaseModel):
-#     topic_id: int | None = None
-#     title: str
-#     user_id: int
-#     status: str = Status.OPEN
-#     best_reply_id: int | None = None
-#     category_id: int = UNCATEGORIZED_ID
 
-#     @classmethod
-#     def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
-#         return cls(
-#             topic_id=topic_id,
-#             title=title,
-#             user_id=user_id,
-#             status=Status.int_str[status],
-#             best_reply_id=best_reply_id,
-#             category_id=category_id
-#         )
+class Topic(BaseModel):
+    topic_id: int | None = None
+    title: str
+    user_id: int
+    status: str = Status.OPEN
+    best_reply_id: int | None = None
+    category_id: int = UNCATEGORIZED_ID
+
+    @classmethod
+    def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
+        return cls(
+            topic_id=topic_id,
+            title=title,
+            user_id=user_id,
+            status=Status.int_str[status],
+            best_reply_id=best_reply_id,
+            category_id=category_id
+        )

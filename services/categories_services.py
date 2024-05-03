@@ -1,14 +1,14 @@
-from data.models.category import Category
+from data.models.category import Category, CategoryWithTopics
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 
-from data.models.topic import TopicResponse
+from data.models.topic import TopicResponse, Topic
 
 
-def get_all(search: str | None) -> Category:
+def get_all(search: str | None) -> list[Category]:
     sql = '''SELECT category_id, name, is_locked, is_private
         FROM categories'''
-    
+
     query_params = ()
 
     if search:
@@ -21,12 +21,44 @@ def get_all(search: str | None) -> Category:
     return categories
 
 
-def get_by_id(category_id):
+def get_by_id(category_id, with_topics=None) -> Category | None | CategoryWithTopics:
     data = read_query(
         '''SELECT category_id, name, is_locked, is_private
         FROM categories WHERE category_id = ?''', (category_id,))
-    if data:
-        return Category.from_query(*data[0])
+    if not data:
+        return None
+
+    if with_topics:
+        return CategoryWithTopics.from_query(*data[0])
+
+    return Category.from_query(*data[0])
+
+
+def dto(data):
+    topics = []
+    for c1, c2, c3, c4, tid, ttile, tuserid, tislocked, tbrid, tcategoryid in data:
+        topics.append(
+            Topic.from_query(*(tid, ttile, tuserid, tislocked, tbrid, tcategoryid))
+        )
+    category = CategoryWithTopics(*(c1, c2, c3, c4, topics))
+    return category
+
+
+def get_by_id_with_topics(category_id, ) -> None | CategoryWithTopics:
+    data = read_query(
+        '''
+        SELECT c.category_id, c.name, c.is_locked, c.is_private,
+        t.topic_id, t.title, t.user_id, t.is_locked, t.best_reply_id, t.category_id
+        FROM categories as c LEFT
+        JOIN topics as t on c.category_id = t.category_id
+        
+        WHERE c.category_id = ?
+        ''', (category_id,))
+    if not data:
+        return None
+
+    category_dto = dto(data)
+    return category_dto
 
 
 def create(category):
