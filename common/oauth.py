@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Depends
 from typing import Annotated, Union
-from data.models import AnonymousUser, User, TokenData
+from data.models import AnonymousUser, TokenData
 from services.users_services import find_by_username
 from datetime import timedelta, datetime
 from jose import jwt, JWTError, ExpiredSignatureError
@@ -8,8 +8,10 @@ from data.models import Token, TokenData
 from secret_key import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
 
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/users/login", auto_error=False)
+
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
