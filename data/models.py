@@ -49,7 +49,6 @@ class UserDelete(BaseModel):
 
 class UserInfo(BaseModel):
     username: str
-    email: str
     first_name: str | None = None
     last_name: str | None = None
 
