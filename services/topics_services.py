@@ -1,5 +1,5 @@
 from __future__ import annotations
-from data.models.topic import Status, TopicUpdate, TopicResponse, TopicCreate
+from data.models.topic import Status,TopicResponse, TopicCreate, PaginationInfo, Links
 from data.models.user import User
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from common.responses import NotFound, Forbidden
 from math import ceil
 from starlette.requests import URL, Request
-from urllib.parse import urlparse, urlencode, parse_qs, urlunparse, parse_qsl
+from urllib.parse import  parse_qs, parse_qsl
 
 
 
