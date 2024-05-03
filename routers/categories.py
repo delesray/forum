@@ -28,7 +28,7 @@ def get_category_by_id(
         sort: str | None = None,
         search: str | None = None):
 
-    category = categories_services.get_cat_by_id_with_topics(category_id)
+    category = categories_services.get_cat_by_id_with_topics(category_id, search)
 
     if not category:
         raise HTTPException(404, 'No such category')
