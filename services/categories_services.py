@@ -2,6 +2,8 @@ from data.models.category import Category
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 
+from data.models.topic import TopicResponse
+
 
 def get_all(search: str | None) -> Category:
     sql = '''SELECT category_id, name, is_locked, is_private
@@ -155,7 +157,12 @@ def response_obj_privileged_users(category: Category, users: list[tuple]):
     }
 
 
-def get_topics_title_by_cat_id(category_id: int):
-    data = read_query('SELECT title FROM topics WHERE category_id = ?', (category_id,))
+def get_topics_by_cat_id(category_id: int):
+    data = read_query(
+        '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
+               FROM topics t 
+               JOIN users u ON t.user_id = u.user_id
+               JOIN categories c ON t.category_id = c.category_id WHERE t.category_id = ?''', (category_id,))
+
     if data:
-        return [el[0] for el in data]
+        return [TopicResponse.from_query(*row) for row in data]
