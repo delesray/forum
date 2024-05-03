@@ -6,11 +6,14 @@ from mariadb import IntegrityError
 def get_all(search: str | None) -> Category:
     sql = '''SELECT category_id, name, is_locked, is_private
         FROM categories'''
+    
+    query_params = ()
 
     if search:
-        sql += ' WHERE ' + f'name LIKE "%{search}%"'
+        sql += ' WHERE name LIKE ?'
+        query_params += (f'%{search}%',)
 
-    result = read_query(sql)
+    result = read_query(sql, query_params)
     categories = [Category.from_query(*row) for row in result]
 
     return categories

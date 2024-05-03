@@ -3,7 +3,7 @@ from fastapi import APIRouter, Body, HTTPException, Query, Request
 from services import topics_services, categories_services
 from common.oauth import OptionalUser, UserAuthDep
 from common.responses import BadRequest, NotFound, Forbidden
-from data.models.topic import Status, TopicUpdate, TopicResponse, TopicCreate, TopicsPaginate
+from data.models.topic import Status, TopicUpdate, TopicCreate, TopicsPaginate
 from data.models.user import AnonymousUser
 from common.oauth import get_user_required
 
@@ -28,7 +28,8 @@ def get_all_topics(
         status: str | None = None
     ):
     
-    topics, pagination = topics_services.get_all(page=page, size=size, search=search, username=username, category=category, status=status)
+    topics, pagination = topics_services.get_all(page=page, size=size, search=search, username=username, 
+                                                 category=category, status=status)
     
     if not topics:
         return []
