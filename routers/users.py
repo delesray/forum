@@ -45,7 +45,7 @@ def get_all_users():
 
 
 @users_router.get('/{user_id}', status_code=200)
-def get_user_by_id(user_id: int, existing_user: UserAuthDep):
+def get_user_by_id(user_id: int):
     user = users_services.get_by_id(user_id)
 
     if not user:
