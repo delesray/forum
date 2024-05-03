@@ -7,7 +7,10 @@ from fastapi import HTTPException
 from common.responses import NotFound, Forbidden
 from math import ceil
 from starlette.requests import URL, Request
-from urllib.parse import parse_qs, parse_qsl
+from urllib.parse import parse_qs, quote
+
+
+
 
 _TOPIC_BEST_REPLY = None
 
@@ -252,7 +255,14 @@ def create_links(request: Request, page: int, size: int, total: int):
 
 def result_url(request: Request, page: int, size: int):
     parsed_query = parse_qs(request.url.query)
-    # parsed_query = dict(parse_qsl(request.url.query))
-    parsed_query.update({'page': page, 'size': size})
+  
+    parsed_query.update({'page': [str(page)], 'size': [str(size)]})
+    new_query = '&'.join(f'{key}={quote(val[0])}' for key, val in parsed_query.items())
+    
+    new_url = f'{request.url.scheme}://{request.url.netloc}{request.url.path}'
+    if new_query:
+        new_url += f'?{new_query}'
 
-    return request.url.replace_query_params(**parsed_query)
+    return new_url
+
+   
