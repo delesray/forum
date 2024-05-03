@@ -6,6 +6,11 @@ from mariadb import IntegrityError
 from fastapi import HTTPException
 from common.responses import NotFound, Forbidden
 from math import ceil
+from starlette.requests import URL, Request
+from urllib.parse import urlparse, urlencode, parse_qs, urlunparse, parse_qsl
+
+
+
 
 _TOPIC_BEST_REPLY = None
 
@@ -216,16 +221,41 @@ def is_owner(topic_id: int, user_id: int):
         return False
     return True
 
+
 def pagination_info(sql, query_params, page, size):
     count_sql =  f'SELECT COUNT(*) FROM ({sql}) filtered_topics'
     data = read_query(count_sql, query_params)
     total = data[0][0]
-    info = {
-            "total_topics": total,
-             "page": page,
-             "size": size,
-             "pages": ceil(total / size)
-    }
-    return info
+    
+    if not total:
+        return None
+    else:
+         return PaginationInfo(
+                total_topics=total,
+                page=page,
+                size=size,
+                pages=ceil(total / size)
+         )
+   
 
+
+def create_links(request: Request, page: int, size: int, total: int): 
+    #base_url = str(request.url_for("get_all_topics"))
         
+    last_page = ceil(total / size) if total > 0 else 1
+      
+    return Links(
+        self=f"{request.url}",
+        first=f"{result_url(request, 1, size)}",
+        last=f"{result_url(request, last_page, size)}",
+        next=f"{result_url(request, page + 1, size)}" if page * size < total else None,
+        prev=f"{result_url(request, page - 1, size)}" if page - 1 >= 1 else None
+    )
+    
+
+def result_url(request: Request, page: int, size: int):
+    parsed_query = parse_qs(request.url.query)
+  # parsed_query = dict(parse_qsl(request.url.query))
+    parsed_query.update({'page': page, 'size': size})
+
+    return request.url.replace_query_params(**parsed_query)

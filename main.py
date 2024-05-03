@@ -18,7 +18,7 @@ app.include_router(admin_router)
 app.include_router(replies_router)
 app.include_router(votes_router)
 app.include_router(messages_router)
-#add_pagination(app)
+#add_pagination(app)    
 
 if __name__ == '__main__':
     uvicorn.run('main:app', host='127.0.0.1', port=8001)

@@ -9,12 +9,15 @@ from common.oauth import get_user_required
 
 # from fastapi_pagination import paginate
 # from fastapi_pagination.links import Page
+from starlette.requests import Request
+
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
 
 @topics_router.get('/')
 def get_all_topics(
+        request: Request,
         page: int = Query(1, ge=1, description="Page number"),
         size: int = Query(2, ge=1, le=10, description="Page size"),
         sort: str | None = None,
@@ -23,21 +26,27 @@ def get_all_topics(
         username: str | None = None,
         category: str | None = None,
         status: str | None = None
-):
-    topics, pagination = topics_services.get_all(page=page, size=size, search=search,
-                                                 username=username, category=category, status=status)
-
-    # TODO pagination should work on db level for optimal result
+    ):
+    
+    topics, pagination = topics_services.get_all(page=page, size=size, search=search, username=username, category=category, status=status)
+    
+    if not topics:
+        return []
+    
+    links = topics_services.create_links(request, page, size, pagination.total_topics) 
+                                                                         
     if sort and (sort == 'asc' or sort == 'desc'):
         return TopicsPaginate(
             topics=topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc'),
-            pagination_info=pagination
+            pagination_info=pagination,
+            links=links
         )
 
     else:
         return TopicsPaginate(
             topics=topics,
-            pagination_info=pagination
+            pagination_info=pagination,
+            links=links
         )
 
 
