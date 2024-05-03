@@ -31,4 +31,5 @@ class CategoryWithTopics(BaseModel):
             name=name,
             is_locked=True if is_locked == 1 else False,
             is_private=True if is_private == 1 else False,
-            topics=topics if topics else 'No topics')
+            topics=topics if topics else 'No topics'
+        )

@@ -54,7 +54,7 @@ def get_cat_by_id_with_topics(category_id, search=None, sort=None) -> None | Cat
         LEFT JOIN topics as t 
         ON c.category_id = t.category_id
         WHERE c.category_id = ?'''
-    
+
     query_params = (category_id,)
 
     if search:
@@ -66,9 +66,14 @@ def get_cat_by_id_with_topics(category_id, search=None, sort=None) -> None | Cat
         sql += f' ORDER BY t.title {sort}'
 
     data = read_query(sql, query_params)
-    
+
     if not data:
-        return None
+        data = read_query(
+            'SELECT category_id, name, is_locked, is_private FROM category WHERE category_id = ?',
+            (category_id,))
+        if not data:
+            return None
+        return CategoryWithTopics.from_query(*data[0])
 
     category_dto = dto(data)
     return category_dto
