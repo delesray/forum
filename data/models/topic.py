@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from data.models.reply import ReplyResponse
 
 
 class Status:
@@ -13,7 +14,7 @@ UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization
 
 
 class TopicUpdate(BaseModel):
-    title: str | None = None
+    #title: str | None = None
     best_reply_id: int | None = None
 
 
@@ -85,3 +86,13 @@ class Topic(BaseModel):
             best_reply_id=best_reply_id,
             category_id=category_id
         )
+
+class TopicWithReplies(BaseModel):
+    topic: TopicResponse
+    replies: list[ReplyResponse] | str | None = []
+
+    @classmethod
+    def from_query(cls, topic, replies=None):
+        return cls(
+            topic=topic,
+            replies=replies if replies else 'No replies')

@@ -53,18 +53,18 @@ def get_all_topics(
 
 @topics_router.get('/{topic_id}')
 def get_topic_by_id(topic_id: int, current_user: OptionalUser):
-    topic = topics_services.get_by_id(topic_id)
+    current = topics_services.get_topic_by_id_with_replies(topic_id)
 
-    if not topic:
+    if not current:
         raise HTTPException(
             status_code=404,
             detail=f"Topic #ID:{topic_id} does not exist"
         )
 
-    category = categories_services.get_by_id(topic.category_id)
+    category = categories_services.get_by_id(current.topic.category_id)
 
     if not category.is_private:
-        return topics_services.topic_with_replies(topic)
+        return current
 
     # Verify category privacy
     if isinstance(current_user, AnonymousUser):
@@ -79,7 +79,7 @@ def get_topic_by_id(topic_id: int, current_user: OptionalUser):
             detail=f'You do not have permission to access this private category'
         )
 
-    return topics_services.topic_with_replies(topic)
+    return current
 
 
 @topics_router.post('/')
