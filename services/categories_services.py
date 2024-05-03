@@ -36,24 +36,27 @@ def get_by_id(category_id, with_topics=None) -> Category | None | CategoryWithTo
 
 def dto(data):
     topics = []
-    for c1, c2, c3, c4, tid, ttile, tuserid, tislocked, tbrid, tcategoryid in data:
-        topics.append(
-            Topic.from_query(*(tid, ttile, tuserid, tislocked, tbrid, tcategoryid))
-        )
-    category = CategoryWithTopics(*(c1, c2, c3, c4, topics))
+
+    for cid, cname, cislocked, cisprivate, tid, ttile, tuserid, tislocked, tbrid, tcategoryid in data:
+        if any(data[0][4:]):  # if topics
+            topics.append(
+                Topic.from_query(*(tid, ttile, tuserid, tislocked, tbrid, tcategoryid))
+            )
+
+    category = CategoryWithTopics.from_query(cid, cname, cislocked, cisprivate, topics)
     return category
 
 
-def get_by_id_with_topics(category_id, ) -> None | CategoryWithTopics:
+def get_cat_by_id_with_topics(category_id, ) -> None | CategoryWithTopics:
     data = read_query(
         '''
         SELECT c.category_id, c.name, c.is_locked, c.is_private,
         t.topic_id, t.title, t.user_id, t.is_locked, t.best_reply_id, t.category_id
-        FROM categories as c LEFT
-        JOIN topics as t on c.category_id = t.category_id
-        
-        WHERE c.category_id = ?
-        ''', (category_id,))
+        FROM categories as c 
+        LEFT JOIN topics as t 
+        ON c.category_id = t.category_id
+        WHERE c.category_id = ?''', (category_id,))
+    
     if not data:
         return None
 

@@ -28,8 +28,8 @@ def get_category_by_id(
         sort: str | None = None,
         search: str | None = None):
 
-    c = categories_services.get_by_id_with_topics(category_id)
-    category = categories_services.get_by_id(category_id, with_topics=True)
+    category = categories_services.get_cat_by_id_with_topics(category_id)
+
     if not category:
         raise HTTPException(404, 'No such category')
 
@@ -44,6 +44,4 @@ def get_category_by_id(
                 detail=f'You do not have permission to access this private category'
             )
 
-    topics = categories_services.get_topics_by_cat_id(category_id)
-    category['topics'] = topics or 'No topics'
     return category
