@@ -62,21 +62,9 @@ class UserInfo(BaseModel):
             last_name=last_name
         )
 
-class AnonymousUser(User):
-    user_id: int | None = None
-    username: str | None = None
-    password: str | None = None
-    email: str | None = None # constr(pattern='^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
-    first_name: str | None = None
-    last_name: str | None = None
-    is_admin: bool | None = None
 
-
-class Message(BaseModel):
-    message_id: int | None = None
-    text: str
-    sender_id: int
-    receiver_id: int
+class AnonymousUser:
+    pass
 
 
 class Category(BaseModel):
@@ -133,26 +121,6 @@ class Status:
 
 
 UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization
-
-
-# class Topic(BaseModel):
-#     topic_id: int | None = None
-#     title: str
-#     user_id: int
-#     status: str = Status.OPEN
-#     best_reply_id: int | None = None
-#     category_id: int = UNCATEGORIZED_ID
-
-#     @classmethod
-#     def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
-#         return cls(
-#             topic_id=topic_id,
-#             title=title,
-#             user_id=user_id,
-#             status=Status.int_str[status],
-#             best_reply_id=best_reply_id,
-#             category_id=category_id
-#         )
 
 
 class TopicUpdate(BaseModel):
@@ -215,14 +183,30 @@ class Message(BaseModel):
         )
 
 
-class MessageSend(BaseModel):
+class MessageText(BaseModel):
     text: str
 
 
 class TopicsPaginate(BaseModel):
     topics: list[TopicResponse]
     pagination_info: dict
-    #links: dict
+    # links: dict
 
+# class Topic(BaseModel):
+#     topic_id: int | None = None
+#     title: str
+#     user_id: int
+#     status: str = Status.OPEN
+#     best_reply_id: int | None = None
+#     category_id: int = UNCATEGORIZED_ID
 
-
+#     @classmethod
+#     def from_query(cls, topic_id, title, user_id, status, best_reply_id, category_id):
+#         return cls(
+#             topic_id=topic_id,
+#             title=title,
+#             user_id=user_id,
+#             status=Status.int_str[status],
+#             best_reply_id=best_reply_id,
+#             category_id=category_id
+#         )

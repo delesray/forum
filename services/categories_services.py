@@ -4,7 +4,6 @@ from mariadb import IntegrityError
 
 
 def get_all(search: str | None) -> Category:
-
     sql = '''SELECT category_id, name, is_locked, is_private
         FROM categories'''
 
@@ -135,10 +134,10 @@ def get_privileged_users(category_id):
         WHERE ucp.category_id = ?''', (category_id,)
     )
     if data:
-        return _privileged_users_response_obj(data)
+        return data
 
 
-def _privileged_users_response_obj(category: Category, users: list[tuple]):
+def response_obj_privileged_users(category: Category, users: list[tuple]):
     """
     Shows the bigger access users first
     """

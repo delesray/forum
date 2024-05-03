@@ -4,7 +4,7 @@ from services import topics_services, categories_services
 from common.oauth import OptionalUser, UserAuthDep
 from common.responses import BadRequest, NotFound, Forbidden
 from data.models import AnonymousUser, TopicUpdate, TopicCreate, TopicsPaginate, TopicResponse, Status
-from common.oauth import get_current_user
+from common.oauth import get_user_required
 
 # from fastapi_pagination import paginate
 # from fastapi_pagination.links import Page
@@ -41,7 +41,7 @@ def get_all_topics(
 
 
 @topics_router.get('/{topic_id}')
-def get_topic_by_id(topic_id: int, current_user: OptionalUser, req: Request):
+def get_topic_by_id(topic_id: int, current_user: OptionalUser):
     topic = topics_services.get_by_id(topic_id)
 
     if not topic:
@@ -56,17 +56,13 @@ def get_topic_by_id(topic_id: int, current_user: OptionalUser, req: Request):
         return topics_services.topic_with_replies(topic)
 
     # Verify category privacy
+    if isinstance(current_user, AnonymousUser):
+        raise HTTPException(
+            status_code=401,
+            detail='Login to view topics in private categories'
+        )
 
-    else:
-        if isinstance(current_user, AnonymousUser):
-            raise HTTPException(
-                status_code=401,
-                detail='Login to view topics in private categories'
-            )
-
-    existing_user = current_user
-
-    if not categories_services.has_access_to_private_category(existing_user.user_id, category.category_id):
+    if not categories_services.has_access_to_private_category(current_user.user_id, category.category_id):
         raise HTTPException(
             status_code=403,
             detail=f'You do not have permission to access this private category'

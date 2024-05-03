@@ -8,10 +8,8 @@ from data.models import Token, TokenData
 from secret_key import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
 
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/users/login", auto_error=False)
-
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
@@ -55,12 +53,24 @@ def verify_token_access(token: str) -> Union[TokenData, str]:
         return "Invalid token"
 
 
-def get_current_admin(token: Annotated[str, Depends(oauth2_scheme)]):
-    admin = get_current_user(token, admin_required=True)
+def get_admin_required(token: Annotated[str, Depends(oauth2_scheme)]):
+    admin = get_current_user(token)
+    if not admin.is_admin:
+        raise HTTPException(status_code=403, detail="Admin required")
     return admin
 
 
-def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], admin_required=None) -> User:
+def get_user_required(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
+    return get_current_user(token)
+
+
+def get_user_optional(token: Annotated[str, Depends(oauth2_scheme_optional)]) -> User | AnonymousUser:
+    if not token:
+        return AnonymousUser()
+    return get_current_user(token)
+
+
+def get_current_user(token):
     token_data = verify_token_access(token)
 
     # will return the correct msg - either invalid token or expired token
@@ -68,39 +78,13 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], admin_requir
         raise HTTPException(status_code=400, detail=token_data)
 
     user = find_by_username(token_data.username)
-
     # if the token is verified but there is no such user (has been deleted)
     if not user:
         raise HTTPException(status_code=404, detail="No such user")
 
-    if admin_required and not user.is_admin:
-        raise HTTPException(status_code=403, detail="Admin required")
-
     return user
 
 
-def get_optional_current_user(token: Annotated[str, Depends(oauth2_scheme_optional)], admin_required=None) -> User | AnonymousUser:
-    if not token:
-        return AnonymousUser()
-
-    token_data = verify_token_access(token)
-
-    # will return the correct msg - either invalid token or expired token
-    if not isinstance(token_data, TokenData):
-        raise HTTPException(status_code=400, detail=token_data)
-
-    user = find_by_username(token_data.username)
-
-    # if the token is verified but there is no such user (has been deleted)
-    # if not user:
-    #     raise HTTPException(status_code=404, detail="No such user")
-
-    if admin_required and not user.is_admin:
-        raise HTTPException(status_code=403, detail="Admin required")
-
-    return user
-
-
-UserAuthDep = Annotated[User, Depends(get_current_user)]
-AdminAuthDep = Annotated[User, Depends(get_current_admin)]
-OptionalUser = Annotated[User | AnonymousUser, Depends(get_optional_current_user)]
+UserAuthDep = Annotated[User, Depends(get_user_required)]
+AdminAuthDep = Annotated[User, Depends(get_admin_required)]
+OptionalUser = Annotated[User | AnonymousUser, Depends(get_user_optional)]

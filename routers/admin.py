@@ -86,13 +86,14 @@ def view_privileged_users(category_id: int, existing_admin: AdminAuthDep):
     if not category:
         return BadRequest('No such category')
     elif not category.is_private:
-        return BadRequest(f'{category.name} is public')
+        return f'This category is public'
 
     users = categories_services.get_privileged_users(category_id)
     if not users:
         return "No users in that category"
 
-    return users
+    dto = categories_services.response_obj_privileged_users(category, users)
+    return dto
 
 
 # ============================== Topics ==============================
