@@ -34,9 +34,3 @@ class CategoryWithTopics(BaseModel):
             is_private=True if is_private == 1 else False,
             topics=topics if topics else 'No topics'
         )
-
-
-class CategoryTopicsPaginate(BaseModel):
-    category: CategoryWithTopics
-    pagination_info: PaginationInfo
-    links: Links

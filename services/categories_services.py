@@ -26,14 +26,14 @@ def get_all(search: str | None) -> list[Category]:
     return categories
 
 
-def get_by_id(category_id, with_topics=None) -> Category | None | CategoryWithTopics:
+def get_by_id(category_id, with_topics_empty=None) -> Category | None | CategoryWithTopics:
     data = read_query(
         '''SELECT category_id, name, is_locked, is_private
         FROM categories WHERE category_id = ?''', (category_id,))
     if not data:
         return None
 
-    if with_topics:
+    if with_topics_empty:
         return CategoryWithTopics.from_query(*data[0])
 
     return Category.from_query(*data[0])
