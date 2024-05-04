@@ -264,7 +264,7 @@ def result_url(request: Request, page: int, size: int):
     parsed_query = parse_qs(request.url.query)
   
     parsed_query.update({'page': [str(page)], 'size': [str(size)]})
-    new_query = '&'.join(f'{key}={quote(val[0])}' for key, val in parsed_query.items())
+    new_query = '&'.join(f'{key}={val[0]}' for key, val in parsed_query.items())
     
     new_url = f'{request.url.scheme}://{request.url.netloc}{request.url.path}'
     if new_query:
