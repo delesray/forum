@@ -13,10 +13,15 @@ def get_all():
     return users
 
 
+def exists_by_username(username):
+    return any(read_query(
+        '''SELECT 1 FROM users WHERE username = ? AND NOT is_deleted = ?''', (username, 1)))
+
+
 def get_by_id(user_id):
     data = read_query(
         '''SELECT username, email, first_name, last_name
-        FROM users WHERE user_id = ? AND NOT deleted = ?''', (user_id, 1))
+        FROM users WHERE user_id = ? AND NOT is_deleted = ?''', (user_id, 1))
 
     user = [UserInfo.from_query(*row) for row in data]
     if not user:
@@ -28,7 +33,7 @@ def get_by_id(user_id):
 def find_by_username(username: str) -> User | None:
     data = read_query(
         '''SELECT user_id, username, password, email, first_name, last_name, is_admin FROM users 
-        WHERE username = ? AND NOT deleted = ?''',
+        WHERE username = ? AND NOT is_deleted = ?''',
         (username, 1))
 
     return next((User.from_query(*row) for row in data), None)
@@ -86,5 +91,5 @@ def change_password(user_id: int, new_hashed_password: str):
 
 def delete(user_id: int):
     update_query(
-        'UPDATE users SET deleted = ? WHERE user_id = ?;', (True, user_id)
+        'UPDATE users SET is_deleted = ? WHERE user_id = ?;', (True, user_id)
     )
