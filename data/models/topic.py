@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from common.utils import PaginationInfo, Links
 from data.models.reply import ReplyResponse
 
 
@@ -45,21 +46,6 @@ class TopicResponse(BaseModel):
 class TopicCreate(BaseModel):
     title: str = Field(..., min_length=1)
     category_id: int = UNCATEGORIZED_ID
-
-
-class PaginationInfo(BaseModel):
-    total_topics: int
-    page: int
-    size: int
-    pages: int
-
-
-class Links(BaseModel):
-    self: str
-    first: str
-    last: str
-    next: str | None
-    prev: str | None
 
 
 class TopicsPaginate(BaseModel):

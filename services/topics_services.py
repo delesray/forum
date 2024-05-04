@@ -1,22 +1,24 @@
 from __future__ import annotations
 
-from common.utils import pagination_info
-from data.models.topic import Status, TopicResponse, TopicCreate, Links, TopicWithReplies
+from data.models.topic import Status, TopicResponse, TopicCreate, TopicWithReplies
 from data.models.user import User
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from fastapi import HTTPException
 from common.responses import NotFound, Forbidden
-from math import ceil
-from starlette.requests import Request
-from urllib.parse import parse_qs
 from data.models.reply import ReplyResponse
+from services.users_services import exists_by_username
+from services.categories_services import exists_by_name
 
 _TOPIC_BEST_REPLY = None
 
 
 def exists(id: int):
     return any(read_query('SELECT 1 from topics WHERE topic_id=?', (id,)))
+
+
+def get_total_count():
+    return read_query('SELECT COUNT(*) FROM topics')[0][0]
 
 
 def get_all(
@@ -40,15 +42,15 @@ def get_all(
         query_params += (f'%{search}%',)
 
     if username:
-        if username not in get_usernames():
-            raise HTTPException(status_code=400, detail="Invalid username")
+        if not exists_by_username(username):
+            return None
 
         sql += ' AND u.username = ?'
         query_params += (username,)
 
     if category:
-        if category not in get_categories_names():
-            raise HTTPException(status_code=400, detail="Invalid category")
+        if not exists_by_name(category):
+            return None
 
         sql += ' AND c.name = ? '
         query_params += (category,)
@@ -67,10 +69,8 @@ def get_all(
     query_params += (size, size * (page - 1))
 
     data = read_query(pagination_sql, query_params)
-    pagination = pagination_info(len(data), page, size)
-
     topics = [TopicResponse.from_query(*row) for row in data]
-    return topics, pagination
+    return topics
 
 
 def get_by_id(topic_id: int):
@@ -217,34 +217,6 @@ def is_owner(topic_id: int, user_id: int):
     if not data:
         return False
     return True
-
-
-def create_links(request: Request, page: int, size: int, total: int):
-    # base_url = str(request.url_for("get_all_topics"))
-
-    last_page = ceil(total / size) if total > 0 else 1
-
-    links = Links(
-        self=f"{request.url}",
-        first=f"{result_url(request, 1, size)}",
-        last=f"{result_url(request, last_page, size)}",
-        next=f"{result_url(request, page + 1, size)}" if page * size < total else None,
-        prev=f"{result_url(request, page - 1, size)}" if page - 1 >= 1 else None
-    )
-    return links
-
-
-def result_url(request: Request, page: int, size: int):
-    parsed_query = parse_qs(request.url.query)
-
-    parsed_query.update({'page': [str(page)], 'size': [str(size)]})
-    new_query = '&'.join(f'{key}={val[0]}' for key, val in parsed_query.items())
-
-    new_url = f'{request.url.scheme}://{request.url.netloc}{request.url.path}'
-    if new_query:
-        new_url += f'?{new_query}'
-
-    return new_url
 
 
 def dto(data):

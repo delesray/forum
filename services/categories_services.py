@@ -5,6 +5,11 @@ from mariadb import IntegrityError
 from data.models.topic import TopicResponse, Topic
 
 
+def exists_by_name(name):
+    return any(read_query(
+        '''SELECT 1 FROM category WHERE name = ?''', (name,)))
+
+
 def get_all(search: str | None) -> list[Category]:
     sql = '''SELECT category_id, name, is_locked, is_private
         FROM categories'''
