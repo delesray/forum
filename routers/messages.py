@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException
+
+from common.responses import SC
 from data.models.message import MessageText
 from services import messages_services, users_services
 from common.oauth import UserAuthDep
@@ -9,12 +11,12 @@ messages_router = APIRouter(prefix='/messages', tags=['messages'])
 @messages_router.post('/{receiver_id}', status_code=201)
 def send_message(receiver_id: int, message: MessageText, current_user: UserAuthDep):
     if not message.text:
-        raise HTTPException(status_code=400, detail="Message text is required")
+        raise HTTPException(status_code=SC.BadRequest, detail="Message text is required")
 
     # todo db raises error when no such receiver fkconstr
     receiver = users_services.get_by_id(receiver_id)
     if not receiver:
-        raise HTTPException(status_code=404, detail="Receiver not found")
+        raise HTTPException(status_code=SC.NotFound, detail="Receiver not found")
 
     messages_services.create(message.text, current_user.user_id, receiver_id)
     return f'Message sent'

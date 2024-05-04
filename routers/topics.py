@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Body, HTTPException, Query
-
 from services import topics_services, categories_services
 from common.oauth import OptionalUser, UserAuthDep
-from common.responses import BadRequest, NotFound, Forbidden
+from common.responses import SC
 from data.models.topic import Status, TopicUpdate, TopicCreate, TopicsPaginate
 from data.models.user import AnonymousUser
 from common import utils
-
 # from fastapi_pagination import paginate
 # from fastapi_pagination.links import Page
 from starlette.requests import Request
@@ -26,16 +24,13 @@ def get_all_topics(
         category: str | None = None,
         status: str | None = None
 ):
-    topics = topics_services.get_all(
+    topics, total_topics = topics_services.get_all(
         page=page, size=size, sort=sort, sort_by=sort_by, search=search,
         username=username, category=category, status=status)
     if not topics:
         return []
 
-    #todo miray fix db trigger
-    total_topics = topics_services.get_total_count()
     pagination_info = utils.get_pagination_info(total_topics, page, size)
-
     links = utils.create_links(request, pagination_info)
 
     return TopicsPaginate(
@@ -51,7 +46,7 @@ def get_topic_by_id(topic_id: int, current_user: OptionalUser):
 
     if not current:
         raise HTTPException(
-            status_code=404,
+            status_code=SC.NotFound,
             detail=f"Topic #ID:{topic_id} does not exist"
         )
 
@@ -63,14 +58,14 @@ def get_topic_by_id(topic_id: int, current_user: OptionalUser):
     # Verify category privacy
     if isinstance(current_user, AnonymousUser):
         raise HTTPException(
-            status_code=401,
+            status_code=SC.Unauthorized,
             detail='Login to view topics in private categories'
         )
 
     if not current_user.is_admin and not categories_services.has_access_to_private_category(current_user.user_id,
                                                                                             category.category_id):
         raise HTTPException(
-            status_code=403,
+            status_code=SC.Forbidden,
             detail=f'You do not have permission to access this private category'
         )
 
@@ -82,28 +77,28 @@ def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
     category = categories_services.get_by_id(new_topic.category_id)
 
     if not category:
-        return NotFound(f'Category #ID: {new_topic.category_id} does not exist')
+        raise HTTPException(SC.NotFound, f'Category #ID: {new_topic.category_id} does not exist')
 
     if category.is_locked:
-        return Forbidden(f'Category #ID: {category.category_id}, Name: {category.name} is locked')
+        raise HTTPException(SC.Forbidden, f'Category #ID: {category.category_id}, Name: {category.name} is locked')
 
     if category.is_private:
         if categories_services.has_write_access(current_user.user_id, category.category_id):
             result = topics_services.create(new_topic, current_user)
         else:
-            return Forbidden(f"You do not have permission to post in this private category")
+            raise HTTPException(SC.Forbidden, f"You do not have permission to post in this private category")
 
     result = topics_services.create(new_topic, current_user)
 
     if isinstance(result, int):
         return f'Topic {result} was successfully created!'
-    return BadRequest(result)
+    raise HTTPException(SC.BadRequest, result)
 
 
 @topics_router.patch('/{topic_id}/best-reply')
 def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_update: TopicUpdate = Body(...)):
     if not topic_update.best_reply_id:
-        return BadRequest(f"Data not provided to make changes")
+        raise HTTPException(SC.BadRequest, f"Data not provided to make changes")
 
     error_response = topics_services.validate_topic_access(topic_id, current_user)
     if error_response:
@@ -112,22 +107,27 @@ def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_upda
     topic_replies_ids = topics_services.get_topic_replies(topic_id)
 
     if not topic_replies_ids:
-        return NotFound(f"Topic with id:{topic_id} does not have replies")
+        raise HTTPException(SC.NotFound, f"Topic with id:{topic_id} does not have replies")
 
     if topic_update.best_reply_id in topic_replies_ids:
         return topics_services.update_best_reply(topic_id, topic_update.best_reply_id)
 
     else:
-        return BadRequest("Invalid reply ID")
+        raise HTTPException(SC.BadRequest, "Invalid reply ID")
 
 
 @topics_router.patch('/{topic_id}/locking')
 def switch_topic_locking(topic_id: int, existing_user: UserAuthDep):
+    return switch_topic_locking_helper(topic_id, existing_user)
+
+
+def switch_topic_locking_helper(topic_id, user):
     topic = topics_services.get_by_id(topic_id)
     if not topic:
-        return BadRequest("No such topic")
+        raise HTTPException(SC.BadRequest, "No such topic")
 
-    if topic.user_id != existing_user.user_id:
-        return Forbidden()
+    if not user.is_admin and topic.user_id != user.user_id:  # if user doesn't own topic
+        raise HTTPException(SC.BadRequest, 'You must be admin or owner to switch locking')
+
     topics_services.update_locking(not Status.str_int[topic.status], topic_id)
     return f'Topic {topic.title} is {Status.opposite[topic.status]} now'

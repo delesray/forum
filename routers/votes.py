@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from common.oauth import UserAuthDep
+from common.responses import SC
 from services import votes_services
 from services.replies_services import exists as reply_exists, can_user_access_topic_content
 from services.topics_services import exists as topic_exists
@@ -11,13 +12,13 @@ votes_router = APIRouter(prefix='/topics/{topic_id}/replies/{reply_id}/votes', t
 def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, user: UserAuthDep):
     if not topic_exists(id=topic_id):
         raise HTTPException(
-            status_code=404,
+            status_code=SC.NotFound,
             detail='No such topic'
         )
 
     if not reply_exists(id=reply_id):
         raise HTTPException(
-            status_code=404,
+            status_code=SC.NotFound,
             detail='No such reply'
         )
 
@@ -25,7 +26,7 @@ def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, user: UserA
 
     if not user_modify_vote:
         raise HTTPException(
-            status_code=403,
+            status_code=SC.Forbidden,
             detail=msg
         )
 
@@ -33,17 +34,17 @@ def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, user: UserA
     return result
 
 
-@votes_router.put('/', status_code=201)
+@votes_router.put('/', status_code=SC.Created)
 def add_or_switch(type: str, reply_id, topic_id, user: UserAuthDep):
     if not topic_exists(id=topic_id):
         raise HTTPException(
-            status_code=404,
+            status_code=SC.NotFound,
             detail='No such topic'
         )
 
     if not reply_exists(id=reply_id):
         raise HTTPException(
-            status_code=404,
+            status_code=SC.NotFound,
             detail='No such reply'
         )
 
@@ -51,7 +52,7 @@ def add_or_switch(type: str, reply_id, topic_id, user: UserAuthDep):
 
     if not user_modify_vote:
         raise HTTPException(
-            status_code=403,
+            status_code=SC.Forbidden,
             detail=msg
         )
 
@@ -66,17 +67,17 @@ def add_or_switch(type: str, reply_id, topic_id, user: UserAuthDep):
     return f'Vote switched to {type}vote'
 
 
-@votes_router.delete('/', status_code=204)
+@votes_router.delete('/', status_code=SC.NoContent)
 def remove_vote(topic_id: int, reply_id: int, user: UserAuthDep):
     if not topic_exists(id=topic_id):
         raise HTTPException(
-            status_code=404,
+            status_code=SC.NotFound,
             detail='No such topic'
         )
 
     if not reply_exists(id=reply_id):
         raise HTTPException(
-            status_code=404,
+            status_code=SC.NotFound,
             detail='No such reply'
         )
 
@@ -84,7 +85,7 @@ def remove_vote(topic_id: int, reply_id: int, user: UserAuthDep):
 
     if not user_modify_vote:
         raise HTTPException(
-            status_code=403,
+            status_code=SC.Forbidden,
             detail=msg
         )
 

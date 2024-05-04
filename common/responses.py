@@ -1,6 +1,18 @@
 from fastapi import Response
 
 
+class SC:
+    Created = 201
+    Accepted = 202
+    NoContent = 204
+
+    BadRequest = 400
+    Unauthorized = 401
+    PaymentRequired = 402
+    Forbidden = 403
+    NotFound = 404
+
+
 class BadRequest(Response):
     def __init__(self, content=''):
         super().__init__(status_code=400, content=content)
