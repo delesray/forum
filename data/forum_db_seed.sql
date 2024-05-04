@@ -34,8 +34,8 @@ INSERT INTO topics(title,user_id,category_id) VALUES('Anyone coding in python?',
 INSERT INTO topics(title,user_id,category_id) VALUES('Where to go fishing?', 2,6);
 
 -- INSERTING PERMISSIONS
-INSERT INTO users_categories_permissions(user_id,category_id) VALUES(3,6); --readonly
-INSERT INTO users_categories_permissions(user_id,category_id,write_access) VALUES(4, 6, 1); --write
+INSERT INTO users_categories_permissions(user_id,category_id) VALUES(3,6);
+INSERT INTO users_categories_permissions(user_id,category_id,write_access) VALUES(4, 6, 1);
 
 -- INSERTING REPLIES
 INSERT INTO replies(text,user_id,topic_id) VALUES('By the river',4, 9);
