@@ -11,7 +11,6 @@ from common.oauth import get_user_required
 # from fastapi_pagination.links import Page
 from starlette.requests import Request
 
-
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
 
@@ -26,16 +25,16 @@ def get_all_topics(
         username: str | None = None,
         category: str | None = None,
         status: str | None = None
-    ):
-    
-    topics, pagination = topics_services.get_all(page=page, size=size, sort=sort, sort_by=sort_by, search=search, username=username, 
+):
+    topics, pagination = topics_services.get_all(page=page, size=size, sort=sort, sort_by=sort_by, search=search,
+                                                 username=username,
                                                  category=category, status=status)
-    
+
     if not topics:
         return []
-    
-    links = topics_services.create_links(request, page, size, pagination.total_topics) 
-                                                                         
+
+    links = topics_services.create_links(request, page, size, pagination.total_elements)
+
     # if sort and (sort == 'asc' or sort == 'desc'):
     #     return TopicsPaginate(
     #         topics=topics_services.custom_sort(topics, attribute=sort_by, reverse=sort == 'desc'),
@@ -45,10 +44,10 @@ def get_all_topics(
 
     # else:
     return TopicsPaginate(
-            topics=topics,
-            pagination_info=pagination,
-            links=links
-        )
+        topics=topics,
+        pagination_info=pagination,
+        links=links
+    )
 
 
 @topics_router.get('/{topic_id}')
@@ -72,9 +71,9 @@ def get_topic_by_id(topic_id: int, current_user: OptionalUser):
             status_code=401,
             detail='Login to view topics in private categories'
         )
-        
 
-    if not current_user.is_admin and not categories_services.has_access_to_private_category(current_user.user_id, category.category_id):
+    if not current_user.is_admin and not categories_services.has_access_to_private_category(current_user.user_id,
+                                                                                            category.category_id):
         raise HTTPException(
             status_code=403,
             detail=f'You do not have permission to access this private category'
