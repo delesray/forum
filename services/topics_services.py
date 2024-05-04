@@ -22,7 +22,9 @@ def get_all(
         search: str = None,
         username: str = None,
         category: str = None,
-        status: str = None
+        status: str = None,
+        sort: str = None,
+        sort_by: str = None
 ):
     query_params = ()
     sql = '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
@@ -54,6 +56,10 @@ def get_all(
 
         sql += ' AND t.is_locked = ? '
         query_params += (Status.str_int[status],)
+        
+        
+    if sort and (sort.lower() in ('asc', 'desc')):
+        sql += f' ORDER BY {sort_by} {sort}'
 
     pagination = pagination_info(sql, query_params, page, size)
 

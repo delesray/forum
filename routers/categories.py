@@ -45,7 +45,7 @@ def get_category_by_id(
         if isinstance(current_user, AnonymousUser):
             raise HTTPException(401, 'Login to view private categories')
 
-        if not categories_services.has_access_to_private_category(current_user.user_id,
+        if not current_user.is_admin and not categories_services.has_access_to_private_category(current_user.user_id,
                                                                   category.category_id):
             raise HTTPException(
                 status_code=403,
