@@ -52,7 +52,7 @@ def can_user_access_topic_content(topic_id: int, user_id: int) -> Union[bool, st
     topic: TopicResponse = get_topic_by_id(topic_id)
     category: Category = get_cat_by_id(topic.category_id)
 
-    if category.is_private and not has_write_access(user_id, category.category_id):
+    if category.is_private and not has_write_access(user_id, category.category_id) and topic.user_id != user_id:
         return False, 'You don\'t have permissions to post, modify replies or vote in this topic'
 
     if topic.status == 'locked':
