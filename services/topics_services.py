@@ -15,11 +15,7 @@ _TOPIC_BEST_REPLY = None
 
 def exists(id: int):
     return any(read_query('SELECT 1 from topics WHERE topic_id=?', (id,)))
-
-
-def get_total_count():
-    return read_query('SELECT COUNT(*) FROM topics')[0][0]
-
+    
 
 def get_all(
         page: int,
@@ -65,6 +61,7 @@ def get_all(
     if sort and (sort.lower() in ('asc', 'desc')):
         sql += f' ORDER BY {sort_by} {sort}'
 
+    # finish total_count
     pagination_sql = sql + ' LIMIT ? OFFSET ?'
     query_params += (size, size * (page - 1))
 

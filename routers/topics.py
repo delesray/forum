@@ -32,6 +32,7 @@ def get_all_topics(
     if not topics:
         return []
 
+    #todo miray fix db trigger
     total_topics = topics_services.get_total_count()
     pagination_info = utils.get_pagination_info(total_topics, page, size)
 
