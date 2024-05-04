@@ -5,8 +5,8 @@ from data.models.reply import ReplyResponse
 class Status:
     OPEN = 'open'
     LOCKED = 'locked'
-    str_int = {'open': 1, 'locked': 0}
-    int_str = {1: 'open', 0: 'locked'}
+    str_int = {'open': 0, 'locked': 1}
+    int_str = {0: 'open', 1: 'locked'}
     opposite = {'open': 'locked', 'locked': 'open'}
 
 
@@ -14,7 +14,7 @@ UNCATEGORIZED_ID = 1  # 'Uncategorized' category is created on db initialization
 
 
 class TopicUpdate(BaseModel):
-    #title: str | None = None
+    # title: str | None = None
     best_reply_id: int | None = None
 
 
@@ -86,6 +86,7 @@ class Topic(BaseModel):
             best_reply_id=best_reply_id,
             category_id=category_id
         )
+
 
 class TopicWithReplies(BaseModel):
     topic: TopicResponse
