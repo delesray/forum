@@ -52,7 +52,7 @@ def dto(data):
     return category
 
 
-def get_cat_by_id_with_topics(category_id, search=None, sort=None) -> None | CategoryWithTopics:
+def get_cat_by_id_with_topics(category_id, search=None, sort=None, page=None, size=None) -> None | CategoryWithTopics:
     sql = '''SELECT c.category_id, c.name, c.is_locked, c.is_private,
         t.topic_id, t.title, t.user_id, t.is_locked, t.best_reply_id, t.category_id
         FROM categories as c 
@@ -70,11 +70,14 @@ def get_cat_by_id_with_topics(category_id, search=None, sort=None) -> None | Cat
     if sort and (sort.lower() in ('asc', 'desc')):
         sql += f' ORDER BY t.title {sort}'
 
-    data = read_query(sql, query_params)
+    pagination_sql = sql + ' LIMIT ? OFFSET ?'
+    query_params += (size, size * (page - 1))
+
+    data = read_query(pagination_sql, query_params)
 
     if not data:
         data = read_query(
-            'SELECT category_id, name, is_locked, is_private FROM category WHERE category_id = ?',
+            'SELECT category_id, name, is_locked, is_private FROM categories WHERE category_id = ?',
             (category_id,))
         if not data:
             return None
