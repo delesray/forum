@@ -17,21 +17,19 @@ def verify_password(plain_password, hashed_password) -> bool:
     return pass_context.verify(plain_password, hashed_password)
 
 
-class PaginationInfo:
-    def __init__(self, total_elements, page, size, pages):
-        self.total_elements = total_elements
-        self.page = page
-        self.size = size
-        self.pages = pages
+class PaginationInfo(BaseModel):
+    total_elements: int
+    page: int
+    size: int
+    pages: int
 
 
-class Links:
-    def __init__(self, current, first, last, next=None, prev=None):
-        self.current = current
-        self.first = first
-        self.last = last
-        self.next = next
-        self.prev = prev
+class Links(BaseModel):
+    self: str
+    first: str
+    last: str
+    next: str | None
+    prev: str | None
 
 
 def get_pagination_info(total_elements, page, size) -> PaginationInfo:
@@ -50,7 +48,7 @@ def create_links(request: Request, pagination_info: PaginationInfo) -> Links:
 
     # todo discuss: because self is keyword?
     links = Links(
-        current=f"{request.url}",
+        self=f"{request.url}",
         first=f"{result_url(request, 1, pi.size)}",
         last=f"{result_url(request, pi.pages, pi.size)}",
         next=f"{result_url(request, pi.page + 1, pi.size)}" if pi.page * pi.size < pi.total_elements else None,
