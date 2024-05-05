@@ -20,7 +20,7 @@ def exists(id: int):
 def get_total_count(sql=None, params=None):
     if sql:
         return read_query(f'SELECT COUNT(*) FROM ({sql}) as filtered_topics', params)[0][0]
-    return read_query(f'SELECT COUNT(*) FROM topics')[0][0]
+    return read_query(f'SELECT COUNT(*) FROM topics')[0][0]#sql is never None, we never get here
 
 
 def get_all(
