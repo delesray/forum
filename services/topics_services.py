@@ -68,7 +68,11 @@ def get_all(
         query_params += (Status.str_int[status],)
 
     if sort:
-        sql += f' ORDER BY {sort_by} {sort}'
+        if sort == 'asc':
+            sql += f' ORDER BY {sort_by} IS NULL, {sort_by} ASC'
+        else:
+            sql += f' ORDER BY {sort_by} IS NULL, {sort_by} DESC'
+        #sql += f' ORDER BY {sort_by} {sort}'
 
     total_count = get_total_count(sql, query_params)
 
