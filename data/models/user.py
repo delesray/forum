@@ -1,5 +1,4 @@
 from typing import Annotated
-
 from pydantic import BaseModel, StringConstraints
 
 
@@ -7,7 +6,7 @@ class User(BaseModel):
     user_id: int | None = None
     username: str
     password: str
-    email: str  # constr(pattern='^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
+    email: str
     first_name: str | None = None
     last_name: str | None = None
     is_admin: bool | None = None
@@ -28,20 +27,20 @@ class User(BaseModel):
 class UserRegister(BaseModel):
     username: Annotated[str, StringConstraints(min_length=4)]
     password: Annotated[str, StringConstraints(min_length=4)]
-    email: str  # constr(pattern='^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
-    first_name: str | None = None
-    last_name: str | None = None
+    email: Annotated[str, StringConstraints(pattern='^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')]
+    first_name: Annotated[str, StringConstraints(min_length=2)] = None
+    last_name: Annotated[str, StringConstraints(min_length=2)] = None
 
 
 class UserUpdate(BaseModel):
-    first_name: str | None = None
-    last_name: str | None = None
+    first_name: Annotated[str, StringConstraints(min_length=2)] = None
+    last_name: Annotated[str, StringConstraints(min_length=2)] = None
 
 
 class UserChangePassword(BaseModel):
     current_password: str
-    new_password: str
-    confirm_password: str
+    new_password: Annotated[str, StringConstraints(min_length=4)]
+    confirm_password: Annotated[str, StringConstraints(min_length=4)]
 
 
 class UserDelete(BaseModel):
