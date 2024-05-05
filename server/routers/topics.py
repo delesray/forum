@@ -5,8 +5,6 @@ from common.responses import SC
 from data.models.topic import Status, TopicUpdate, TopicCreate, TopicsPaginate
 from data.models.user import AnonymousUser
 from common import utils
-# from fastapi_pagination import paginate
-# from fastapi_pagination.links import Page
 from starlette.requests import Request
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])

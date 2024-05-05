@@ -47,7 +47,6 @@ def give_user_category_read_access(user_id: int, category_id: int, existing_admi
     if not categories_services.get_by_id(category_id):
         raise HTTPException(SC.BadRequest, 'No such category')
 
-
     if categories_services.is_user_in(user_id, category_id):
         raise HTTPException(SC.BadRequest, 'User is already in the category')
 

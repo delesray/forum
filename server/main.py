@@ -8,11 +8,6 @@ from routers.replies import replies_router
 from routers.votes import votes_router
 from routers.messages import messages_router
 
-# from fastapi_pagination import add_pagination
-
-
-# todo discuss initial_data_seed()
-
 app = FastAPI()
 app.include_router(users_router)
 app.include_router(categories_router)
@@ -21,7 +16,6 @@ app.include_router(admin_router)
 app.include_router(replies_router)
 app.include_router(votes_router)
 app.include_router(messages_router)
-# add_pagination(app)
 
 if __name__ == '__main__':
     uvicorn.run('main:app', host='127.0.0.1', port=8001)

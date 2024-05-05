@@ -18,9 +18,10 @@ def exists(id: int):
 
 
 def get_total_count(sql=None, params=None):
-    if sql:
+    if sql and params:
         return read_query(f'SELECT COUNT(*) FROM ({sql}) as filtered_topics', params)[0][0]
-    return read_query(f'SELECT COUNT(*) FROM topics')[0][0] #ToDo discuss: sql is never None, we never get here -> to be used somewhere else
+    return read_query(f'SELECT COUNT(*) FROM topics')[0][
+        0]  # ToDo discuss: sql is never None, we never get here -> to be used somewhere else
 
 
 def get_all(
@@ -33,39 +34,27 @@ def get_all(
         sort: str = None,
         sort_by: str = None
 ):
-    query_params = ()
+    params, filters = (), []
     sql = '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
              FROM topics t 
              JOIN users u ON t.user_id = u.user_id
              JOIN categories c ON t.category_id = c.category_id'''
 
     if search:
-        sql += ' WHERE t.title LIKE ?'
-        query_params += (f'%{search}%',)
-
+        filters.append('t.title LIKE ?')
+        params += (f'%{search}%',)
     if username:
-        if search:
-            sql += ' AND '
-        else:
-            sql += ' WHERE'
-        sql += ' u.username = ?'
-        query_params += (username,)
-
+        filters.append('u.username = ?')
+        params += (username,)
     if category:
-        if search or username:
-            sql += 'AND '
-        else:
-            sql += ' WHERE'
-        sql += ' c.name = ? '
-        query_params += (category,)
-
+        filters.append('c.name = ?')
+        params += (category,)
     if status:
-        if search or username or category:
-            sql += ' AND'
-        else:
-            sql += ' WHERE' 
-        sql += ' t.is_locked = ? '
-        query_params += (Status.str_int[status],)
+        filters.append('t.is_locked = ?')
+        params += (Status.str_int[status],)
+    sql = (sql + (" WHERE " + " AND ".join(filters) if filters else ""))
+
+    total_count = get_total_count(sql, params)  # get count of filtered topics for pagination info
 
     if sort:
         if sort == 'asc':
@@ -74,12 +63,10 @@ def get_all(
             sql += f' ORDER BY {sort_by} IS NULL, {sort_by} DESC'
         #sql += f' ORDER BY {sort_by} {sort}'
 
-    total_count = get_total_count(sql, query_params)
-
     pagination_sql = sql + ' LIMIT ? OFFSET ?'
-    query_params += (size, size * (page - 1))
+    params += (size, size * (page - 1))
 
-    data = read_query(pagination_sql, query_params)
+    data = read_query(pagination_sql, params)
     topics = [TopicResponse.from_query(*row) for row in data]
     return topics, total_count
 
