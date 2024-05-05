@@ -163,3 +163,4 @@ hidden.py
 secret_key.py
 /.VSCodeCounter
 settings.json
+token.txt
