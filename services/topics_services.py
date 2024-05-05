@@ -19,7 +19,7 @@ def exists(id: int):
 
 def get_total_count(sql=None, params=None):
     if sql:
-        return read_query(f'SELECT COUNT(*) {sql} as filtered_topics', params)[0][0]
+        return read_query(f'SELECT COUNT(*) FROM ({sql}) as filtered_topics', params)[0][0]
     return read_query(f'SELECT COUNT(*) FROM topics')[0][0]
 
 
@@ -40,7 +40,7 @@ def get_all(
              JOIN categories c ON t.category_id = c.category_id'''
 
     if search:
-        sql += ' AND title LIKE ?'
+        sql += ' WHERE t.title LIKE ?'
         query_params += (f'%{search}%',)
 
     if username:
