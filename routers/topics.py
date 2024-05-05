@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body, HTTPException, Query
-from services import topics_services, categories_services
+from services import topics_services, categories_services, users_services
 from common.oauth import OptionalUser, UserAuthDep
 from common.responses import SC
 from data.models.topic import Status, TopicUpdate, TopicCreate, TopicsPaginate
@@ -24,6 +24,36 @@ def get_all_topics(
         category: str | None = None,
         status: str | None = None
 ):
+    if not users_services.exists_by_username(username):
+        raise HTTPException(
+            status_code=SC.NotFound,
+            detail=f"User {username} not found"
+        )
+        
+    if not categories_services.exists_by_name(category):
+        raise HTTPException(
+            status_code=SC.NotFound,
+            detail=f"Category {category} not found"
+        )
+    
+    if status.lower() not in [Status.OPEN, Status.LOCKED]:
+        raise HTTPException(
+            status_code=SC.BadRequest,
+            detail=f"Invalid status value"
+        )
+        
+    if sort.lower() not in ['asc', 'desc']:
+        raise HTTPException(
+            status_code=SC.BadRequest,
+            detail=f"Invalid sort parameter"
+        )
+        
+    if sort_by.lower() not in ['topic_id', 'title', 'user_id', 'status', 'best_reply_id', 'category_id']:
+        raise HTTPException(
+            status_code=SC.BadRequest,
+            detail=f"Invalid sort_by parameter"
+        )
+          
     topics, total_topics = topics_services.get_all(
         page=page, size=size, sort=sort, sort_by=sort_by, search=search,
         username=username, category=category, status=status)

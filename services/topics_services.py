@@ -44,27 +44,30 @@ def get_all(
         query_params += (f'%{search}%',)
 
     if username:
-        if not exists_by_username(username):
-            return None
-
-        sql += ' AND u.username = ?'
+        if search:
+            sql += ' AND '
+        else:
+            sql += ' WHERE'
+        sql += ' u.username = ?'
         query_params += (username,)
 
     if category:
-        if not exists_by_name(category):
-            return None
-
-        sql += ' AND c.name = ? '
+        if search or username:
+            sql += 'AND '
+        else:
+            sql += ' WHERE'
+        sql += ' c.name = ? '
         query_params += (category,)
 
     if status:
-        if status not in [Status.OPEN, Status.LOCKED]:
-            raise HTTPException(status_code=400, detail="Invalid status value")
-
-        sql += ' AND t.is_locked = ? '
+        if search or username or category:
+            sql += ' AND'
+        else:
+            sql += ' WHERE' 
+        sql += ' t.is_locked = ? '
         query_params += (Status.str_int[status],)
 
-    if sort and (sort.lower() in ('asc', 'desc')):
+    if sort:
         sql += f' ORDER BY {sort_by} {sort}'
 
     total_count = get_total_count(sql, query_params)
