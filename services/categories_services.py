@@ -7,7 +7,7 @@ from data.models.topic import TopicResponse, Topic
 
 def exists_by_name(name):
     return any(read_query(
-        '''SELECT 1 FROM category WHERE name = ?''', (name,)))
+        '''SELECT 1 FROM categories WHERE name = ?''', (name,)))
 
 
 def get_all(search: str | None) -> list[Category]:
