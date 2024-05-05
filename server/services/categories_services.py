@@ -1,4 +1,4 @@
-from data.models.category import Category, CategoryWithTopics
+from data.models.category import Category
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 
@@ -26,17 +26,12 @@ def get_all(search: str | None) -> list[Category]:
     return categories
 
 
-def get_by_id(category_id, with_topics_empty=None) -> Category | None | CategoryWithTopics:
+def get_by_id(category_id) -> Category | None:
     data = read_query(
         '''SELECT category_id, name, is_locked, is_private
         FROM categories WHERE category_id = ?''', (category_id,))
-    if not data:
-        return None
-
-    if with_topics_empty:
-        return CategoryWithTopics.from_query(*data[0])
-
-    return Category.from_query(*data[0])
+    if data:
+        return Category.from_query(*data[0])
 
 
 def create(category):

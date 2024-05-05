@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from data.models.topic import Status, TopicResponse, TopicCreate, TopicWithReplies
+from data.models.topic import Status, TopicResponse, TopicCreate
 from data.models.user import User
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
@@ -61,7 +61,7 @@ def get_all(
             sql += f' ORDER BY {sort_by} IS NULL, {sort_by} ASC'
         else:
             sql += f' ORDER BY {sort_by} IS NULL, {sort_by} DESC'
-        #sql += f' ORDER BY {sort_by} {sort}'
+        # sql += f' ORDER BY {sort_by} {sort}'
 
     pagination_sql = sql + ' LIMIT ? OFFSET ?'
     params += (size, size * (page - 1))
@@ -71,7 +71,7 @@ def get_all(
     return topics, total_count
 
 
-def get_by_id(topic_id: int):
+def get_by_id(topic_id: int) -> TopicResponse | None:
     data = read_query(
         '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
                FROM topics t 
@@ -174,36 +174,3 @@ def is_owner(topic_id: int, user_id: int):
     if not data:
         return False
     return True
-
-
-def dto(data):
-    replies = []
-
-    for tid, t_title, tuserid, u_username, tislocked, tbrid, tcategoryid, cname, r_replyid, rtext, r_username in data:
-        if any(data[0][8:]):
-            replies.append(
-                ReplyResponse.from_query(*(r_replyid, rtext, r_username, tid))
-            )
-
-    topic = TopicResponse.from_query(tid, t_title, tuserid, u_username, tislocked, tbrid, tcategoryid, cname)
-
-    topic_with_replies = TopicWithReplies.from_query(topic, replies)
-    return topic_with_replies
-
-
-def get_topic_by_id_with_replies(topic_id: int):
-    data = read_query(
-        '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id,
-           t.category_id, c.name, r.reply_id, r.text, ur.username 
-           FROM topics t 
-           JOIN users u ON t.user_id = u.user_id
-           JOIN categories c ON t.category_id = c.category_id
-           LEFT JOIN replies r ON t.topic_id = r.topic_id
-           LEFT JOIN users ur ON r.user_id = ur.user_id
-           WHERE t.topic_id = ?''', (topic_id,))
-
-    if not data:
-        return None
-
-    topic_dto = dto(data)
-    return topic_dto

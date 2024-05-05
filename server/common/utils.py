@@ -17,6 +17,10 @@ def verify_password(plain_password, hashed_password) -> bool:
     return pass_context.verify(plain_password, hashed_password)
 
 
+class Page:
+    SIZE = 5
+
+
 class PaginationInfo(BaseModel):
     total_elements: int
     page: int

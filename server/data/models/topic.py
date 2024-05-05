@@ -54,6 +54,13 @@ class TopicsPaginate(BaseModel):
     links: Links
 
 
+class TopicRepliesPaginate(BaseModel):
+    topic: TopicResponse
+    replies: list[ReplyResponse]
+    pagination_info: PaginationInfo
+    links: Links
+
+
 class Topic(BaseModel):
     topic_id: int | None = None
     title: str
@@ -72,14 +79,3 @@ class Topic(BaseModel):
             best_reply_id=best_reply_id,
             category_id=category_id
         )
-
-
-class TopicWithReplies(BaseModel):
-    topic: TopicResponse
-    replies: list[ReplyResponse] | str | None = []
-
-    @classmethod
-    def from_query(cls, topic, replies=None):
-        return cls(
-            topic=topic,
-            replies=replies if replies else 'No replies')

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Body, HTTPException, Query
-from services import topics_services, categories_services, users_services
+from services import topics_services, categories_services, users_services, replies_services
 from common.oauth import OptionalUser, UserAuthDep
 from common.responses import SC
-from data.models.topic import Status, TopicUpdate, TopicCreate, TopicsPaginate
+from data.models.topic import Status, TopicUpdate, TopicCreate, TopicsPaginate, TopicRepliesPaginate
 from data.models.user import AnonymousUser
-from common import utils
+from common.utils import get_pagination_info, create_links, Page
 from starlette.requests import Request
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
@@ -14,7 +14,7 @@ topics_router = APIRouter(prefix='/topics', tags=['topics'])
 def get_all_topics(
         request: Request,
         page: int = Query(1, ge=1, description="Page number"),
-        size: int = Query(2, ge=1, le=10, description="Page size"),
+        size: int = Query(Page.SIZE, ge=1, le=15, description="Page size"),
         sort: str | None = None,
         sort_by: str = 'topic_id',
         search: str | None = None,
@@ -58,8 +58,8 @@ def get_all_topics(
     if not topics:
         return []
 
-    pagination_info = utils.get_pagination_info(total_topics, page, size)
-    links = utils.create_links(request, pagination_info)
+    pagination_info = get_pagination_info(total_topics, page, size)
+    links = create_links(request, pagination_info)
 
     return TopicsPaginate(
         topics=topics,
@@ -69,8 +69,14 @@ def get_all_topics(
 
 
 @topics_router.get('/{topic_id}')
-def get_topic_by_id(topic_id: int, current_user: OptionalUser):
-    topic = topics_services.get_topic_by_id_with_replies(topic_id)
+def get_topic_by_id(
+        topic_id: int, current_user: OptionalUser,
+        request: Request,
+        page: int = Query(1, ge=1, description="Page number"),
+        size: int = Query(Page.SIZE, ge=1, le=15, description="Page size"),
+        sort: str | None = None,
+) -> TopicRepliesPaginate:
+    topic = topics_services.get_by_id(topic_id)
 
     if not topic:
         raise HTTPException(
@@ -78,10 +84,18 @@ def get_topic_by_id(topic_id: int, current_user: OptionalUser):
             detail=f"Topic #ID:{topic_id} does not exist"
         )
 
-    category = categories_services.get_by_id(topic.topic.category_id)
+    category = categories_services.get_by_id(topic.category_id)
+    replies = replies_services.get_all(
+        topic_id=topic.topic_id, page=page, size=size, sort=sort)
+
+    pagination_info = get_pagination_info(len(replies), page, size)
+    links = create_links(request, pagination_info)
+
+    result = TopicRepliesPaginate(
+        topic=topic, replies=replies, pagination_info=pagination_info, links=links)
 
     if not category.is_private:
-        return topic
+        return result
 
     if isinstance(current_user, AnonymousUser):
         raise HTTPException(
@@ -96,7 +110,7 @@ def get_topic_by_id(topic_id: int, current_user: OptionalUser):
             detail=f'You do not have permission to access this private category'
         )
 
-    return topic
+    return result
 
 
 @topics_router.post('/')

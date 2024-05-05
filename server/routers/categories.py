@@ -3,9 +3,9 @@ from fastapi import APIRouter, HTTPException, Query
 from common.oauth import OptionalUser
 from common.responses import SC
 from data.models.user import AnonymousUser
-from data.models.category import Category, CategoryTopicsPaginate, CategoryWithTopics
+from data.models.category import Category, CategoryTopicsPaginate
 from services import categories_services, topics_services
-from common.utils import get_pagination_info, create_links
+from common.utils import get_pagination_info, create_links, Page
 
 
 categories_router = APIRouter(prefix='/categories', tags=['categories'])
@@ -29,10 +29,11 @@ def get_category_by_id(
         current_user: OptionalUser,
         request: Request,
         page: int = Query(1, ge=1, description="Page number"),
-        size: int = Query(2, ge=1, le=10, description="Page size"),
+        size: int = Query(Page.SIZE, ge=1, le=15, description="Page size"),
+        search: str | None = None,
         sort: str | None = None,
         sort_by: str = 'topic_id',
-        search: str | None = None) -> CategoryTopicsPaginate:
+) -> CategoryTopicsPaginate:
     
     """
     1. Returns Category with a list of Topics, if Category is public
@@ -40,7 +41,7 @@ def get_category_by_id(
     3. Topics in a Category can be searched by title or sorted by title in alphabetical order (asc / desc)
     """
 
-    category = categories_services.get_by_id(category_id, with_topics_empty=True)
+    category = categories_services.get_by_id(category_id)
 
     if not category:
         raise HTTPException(SC.NotFound, 'Category not found')
@@ -64,9 +65,9 @@ def get_category_by_id(
 
     links = create_links(request, pagination_info)
 
-    category.topics = topics
     return CategoryTopicsPaginate(
         category=category,
+        topics=topics,
         pagination_info=pagination_info,
         links=links
     )
