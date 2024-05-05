@@ -47,21 +47,6 @@ def query_count(sql: str, sql_params=()):
         return cursor.fetchone()[0]
 
 
-# todo discuss
-def initial_data_seed():
-    if query_count('SELECT COUNT(*) from categories') == 0:
-        print('Inserting categories')
-        insert_query("""INSERT INTO categories(name) VALUES 
-                        ('Uncategorized')
-                        """)
-
-    if query_count('SELECT COUNT(*) from users') == 0:
-        print('Inserting users')
-        insert_query(
-            """INSERT INTO users(username, password, email, is_admin) VALUES 
-            ('admin', '$2b$12$snZATHX9lsgnazHFCtW1tuU9FYuGOnQlwKBeTFmIjx3Y.RZF0MNCS', 'admin@gmail.com', true)""")
-
-
-def additional_data_seed():
-    print('Inserting categories')
-    insert_query("""INSERT INTO categories(name) VALUES ('NEW')""")
+# def additional_data_seed():
+#     print('Inserting categories')
+#     insert_query("""INSERT INTO categories(name) VALUES ('NEW')""")
