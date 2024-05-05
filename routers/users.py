@@ -13,7 +13,7 @@ users_router = APIRouter(prefix='/users', tags=['users'])
 
 @users_router.post('/register', status_code=SC.Created)
 def register_user(user: UserRegister):
-    # todo catch username and pass validation errors from Pydantic
+
     result = users_services.register(user)
 
     if not isinstance(result, int):

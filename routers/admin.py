@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-
 from common.responses import SC
 from data.models.category import Category
 from routers.topics import switch_topic_locking_helper
@@ -48,7 +47,7 @@ def give_user_category_read_access(user_id: int, category_id: int, existing_admi
     if not categories_services.get_by_id(category_id):
         raise HTTPException(SC.BadRequest, 'No such category')
 
-    # todo check db
+
     if categories_services.is_user_in(user_id, category_id):
         raise HTTPException(SC.BadRequest, 'User is already in the category')
 
@@ -65,7 +64,7 @@ def revoke_user_category_read_access(user_id: int, category_id: int, existing_ad
 
     categories_services.remove_user(user_id, category_id)
     return 'User is not in that category anymore'
-SC.BadRequest
+
 
 @admin_router.patch('/users/{user_id}/categories/{category_id}/access')
 def switch_user_category_write_access(user_id: int, category_id: int, existing_admin: AdminAuthDep):
@@ -78,7 +77,8 @@ def switch_user_category_write_access(user_id: int, category_id: int, existing_a
     if access is None:
         return "User is not in that category"
 
-    categories_services.update_user_access_level(user_id, category_id, not access)
+    categories_services.update_user_access_level(
+        user_id, category_id, not access)
     return f"User {'cannot' if access else 'can'} write"
 
 

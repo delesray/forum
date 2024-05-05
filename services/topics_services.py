@@ -20,7 +20,7 @@ def exists(id: int):
 def get_total_count(sql=None, params=None):
     if sql:
         return read_query(f'SELECT COUNT(*) FROM ({sql}) as filtered_topics', params)[0][0]
-    return read_query(f'SELECT COUNT(*) FROM topics')[0][0] #ToDo discuss: sql is never None, we never get here
+    return read_query(f'SELECT COUNT(*) FROM topics')[0][0] #ToDo discuss: sql is never None, we never get here -> to be used somewhere else
 
 
 def get_all(
@@ -90,14 +90,6 @@ def get_by_id(topic_id: int):
     return next((TopicResponse.from_query(*row) for row in data), None)
 
 
-# def get_by_id_cat_id(topic_id: int) -> Topic | None:  # Miray
-#     data = read_query(
-#         '''SELECT topic_id, title, user_id, is_locked, best_reply_id, category_id
-#         FROM topics WHERE topic_id = ?''', (topic_id,))
-#
-#     return next((Topic.from_query(*row) for row in data), None)
-
-
 def create(topic: TopicCreate, customer: User):
     try:
         generated_id = insert_query(
@@ -163,39 +155,6 @@ def get_usernames():
 
     usernames = [tupl[0] for tupl in data]
     return usernames
-
-
-# def get_category_by_name(category_name: str) -> Category:
-#     data = read_query(
-#         '''SELECT category_id, name, is_locked, is_private
-#         FROM categories WHERE name = ?''', (category_name,))
-
-#     return next((Category.from_query(*row) for row in data), None)
-
-
-# def topic_with_replies(topic: TopicResponse):
-#     replies = get_all_replies(topic.topic_id)
-
-#     topic_with_replies = {
-#         "topic": topic,
-#         "replies": replies if replies else []
-#     }
-
-#     return topic_with_replies
-
-
-# def get_topics_from_private_categories(current_user: User) -> list[TopicResponse]:
-#     data = read_query(
-#         '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
-#            FROM topics t
-#            JOIN users u ON t.user_id = u.user_id
-#            JOIN categories c ON t.category_id = c.category_id
-#            JOIN users_categories_permissions ucp ON c.category_id = ucp.category_id
-#            WHERE c.is_private = ?
-#            AND ucp.user_id = ?''', (1, current_user.user_id))
-
-#     topics = [TopicResponse.from_query(*row) for row in data]
-#     return topics
 
 
 def validate_topic_access(topic_id: int, user: User):

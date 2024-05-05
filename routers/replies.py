@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-
 from common.responses import SC
 from data.models.reply import ReplyCreateUpdate
 from services import replies_services
@@ -9,8 +8,6 @@ from services.replies_services import get_by_id as get_reply_by_id, can_user_acc
 
 replies_router = APIRouter(prefix='/topics/{topic_id}/replies', tags=['replies'])
 
-
-# todo see is owner
 
 @replies_router.post('/', status_code=SC.Created)
 def add_reply(topic_id: int, reply: ReplyCreateUpdate, user: UserAuthDep):

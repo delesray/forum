@@ -22,12 +22,10 @@ def get_by_id(user_id):
     data = read_query(
         '''SELECT username, email, first_name, last_name
         FROM users WHERE user_id = ? AND NOT is_deleted = ?''', (user_id, 1))
+    
+    if data:
+        return UserInfo.from_query(*data[0])
 
-    user = [UserInfo.from_query(*row) for row in data]
-    if not user:
-        return None
-
-    return user[0]
 
 
 def find_by_username(username: str) -> User | None:

@@ -85,7 +85,6 @@ def get_topic_by_id(topic_id: int, current_user: OptionalUser):
     if not category.is_private:
         return current
 
-    # Verify category privacy
     if isinstance(current_user, AnonymousUser):
         raise HTTPException(
             status_code=SC.Unauthorized,
