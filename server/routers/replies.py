@@ -10,14 +10,14 @@ replies_router = APIRouter(prefix='/topics/{topic_id}/replies', tags=['replies']
 
 
 @replies_router.post('/', status_code=SC.Created)
-def add_reply(topic_id: int, reply: ReplyCreateUpdate, user: UserAuthDep):
+def add_reply(topic_id: int, reply: ReplyCreateUpdate, current_user: UserAuthDep):
     if not exists(id=topic_id):
         raise HTTPException(
             status_code=404,
             detail='No such topic'
         )
 
-    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
+    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
 
     if not user_modify_reply:
         raise HTTPException(
@@ -25,12 +25,12 @@ def add_reply(topic_id: int, reply: ReplyCreateUpdate, user: UserAuthDep):
             detail=msg
         )
 
-    reply_id = replies_services.create_reply(topic_id, reply, user.user_id)
+    reply_id = replies_services.create_reply(topic_id, reply, current_user.user_id)
     return f'Reply with ID {reply_id} successfully added'
 
 
 @replies_router.put('/{reply_id}', status_code=SC.NoContent)
-def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, user: UserAuthDep):
+def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, current_user: UserAuthDep):
     if not exists(id=topic_id):
         raise HTTPException(
             status_code=404,
@@ -42,7 +42,7 @@ def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, user: Us
     if not reply_to_update:
         raise HTTPException(status_code=SC.NotFound)
 
-    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
+    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
 
     if not user_modify_reply:
         raise HTTPException(
@@ -54,7 +54,7 @@ def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, user: Us
 
 
 @replies_router.delete('/{reply_id}', status_code=SC.NoContent)
-def delete_reply(topic_id: int, reply_id: int, user: UserAuthDep):
+def delete_reply(topic_id: int, reply_id: int, current_user: UserAuthDep):
     if not exists(id=topic_id):
         raise HTTPException(
             status_code=404,
@@ -66,7 +66,7 @@ def delete_reply(topic_id: int, reply_id: int, user: UserAuthDep):
     if not reply_to_delete:
         raise HTTPException(status_code=SC.NotFound)
 
-    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
+    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
 
     if not user_modify_reply:
         raise HTTPException(

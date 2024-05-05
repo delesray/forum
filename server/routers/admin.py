@@ -11,7 +11,7 @@ admin_router = APIRouter(prefix='/admin', tags=['admin'])
 # ============================== Categories ==============================
 
 @admin_router.post('/categories', status_code=201)
-def create_category(category: Category, existing_admin: AdminAuthDep):
+def create_category(category: Category, current_admin: AdminAuthDep):
     result = categories_services.create(category)
     if isinstance(result, Category):
         return result
@@ -19,7 +19,7 @@ def create_category(category: Category, existing_admin: AdminAuthDep):
 
 
 @admin_router.patch('/categories/{category_id}/privacy', status_code=202)
-def switch_category_privacy(category_id: int, existing_admin: AdminAuthDep):
+def switch_category_privacy(category_id: int, current_admin: AdminAuthDep):
     category = categories_services.get_by_id(category_id)
     if not category:
         raise HTTPException(SC.BadRequest, "No such category")
@@ -29,7 +29,7 @@ def switch_category_privacy(category_id: int, existing_admin: AdminAuthDep):
 
 
 @admin_router.patch('/categories/{category_id}/locking', status_code=202)
-def switch_category_locking(category_id: int, existing_admin: AdminAuthDep):
+def switch_category_locking(category_id: int, current_admin: AdminAuthDep):
     category = categories_services.get_by_id(category_id)
     if not category:
         raise HTTPException(SC.BadRequest, "No such category")
@@ -41,7 +41,7 @@ def switch_category_locking(category_id: int, existing_admin: AdminAuthDep):
 # ============================== Users ==============================
 
 @admin_router.post('/users/{user_id}/categories/{category_id}')
-def give_user_category_read_access(user_id: int, category_id: int, existing_admin: AdminAuthDep):
+def give_user_category_read_access(user_id: int, category_id: int, current_admin: AdminAuthDep):
     if not users_services.get_by_id(user_id):
         raise HTTPException(SC.BadRequest, 'No such user')
     if not categories_services.get_by_id(category_id):
@@ -55,7 +55,7 @@ def give_user_category_read_access(user_id: int, category_id: int, existing_admi
 
 
 @admin_router.delete('/users/{user_id}/categories/{category_id}')
-def revoke_user_category_read_access(user_id: int, category_id: int, existing_admin: AdminAuthDep):
+def revoke_user_category_read_access(user_id: int, category_id: int, current_admin: AdminAuthDep):
     if not users_services.get_by_id(user_id):
         raise HTTPException(SC.BadRequest, 'No such user')
     if not categories_services.get_by_id(category_id):
@@ -66,7 +66,7 @@ def revoke_user_category_read_access(user_id: int, category_id: int, existing_ad
 
 
 @admin_router.patch('/users/{user_id}/categories/{category_id}/access')
-def switch_user_category_write_access(user_id: int, category_id: int, existing_admin: AdminAuthDep):
+def switch_user_category_write_access(user_id: int, category_id: int, current_admin: AdminAuthDep):
     if not users_services.get_by_id(user_id):
         raise HTTPException(SC.BadRequest, 'No such user')
     if not categories_services.get_by_id(category_id):
@@ -82,7 +82,7 @@ def switch_user_category_write_access(user_id: int, category_id: int, existing_a
 
 
 @admin_router.get('/users/categories/{category_id}')
-def view_privileged_users(category_id: int, existing_admin: AdminAuthDep):
+def view_privileged_users(category_id: int, current_admin: AdminAuthDep):
     category = categories_services.get_by_id(category_id)
     if not category:
         raise HTTPException(SC.BadRequest, 'No such category')
@@ -100,5 +100,5 @@ def view_privileged_users(category_id: int, existing_admin: AdminAuthDep):
 # ============================== Topics ==============================
 
 @admin_router.patch('/topics/{topic_id}/locking')
-def switch_topic_locking(topic_id: int, existing_admin: AdminAuthDep):
-    return switch_topic_locking_helper(topic_id, existing_admin)
+def switch_topic_locking(topic_id: int, current_admin: AdminAuthDep):
+    return switch_topic_locking_helper(topic_id, current_admin)

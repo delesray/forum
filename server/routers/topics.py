@@ -27,31 +27,31 @@ def get_all_topics(
             status_code=SC.NotFound,
             detail=f"User {username} not found"
         )
-        
+
     if category and not categories_services.exists_by_name(category):
         raise HTTPException(
             status_code=SC.NotFound,
             detail=f"Category {category} not found"
         )
-    
+
     if status and status.lower() not in [Status.OPEN, Status.LOCKED]:
         raise HTTPException(
             status_code=SC.BadRequest,
             detail=f"Invalid status value"
         )
-        
+
     if sort and sort.lower() not in ['asc', 'desc']:
         raise HTTPException(
             status_code=SC.BadRequest,
             detail=f"Invalid sort parameter"
         )
-        
+
     if sort_by and sort_by.lower() not in ['topic_id', 'title', 'user_id', 'status', 'best_reply_id', 'category_id']:
         raise HTTPException(
             status_code=SC.BadRequest,
             detail=f"Invalid sort_by parameter"
         )
-          
+
     topics, total_topics = topics_services.get_all(
         page=page, size=size, sort=sort, sort_by=sort_by, search=search,
         username=username, category=category, status=status)
@@ -70,18 +70,18 @@ def get_all_topics(
 
 @topics_router.get('/{topic_id}')
 def get_topic_by_id(topic_id: int, current_user: OptionalUser):
-    current = topics_services.get_topic_by_id_with_replies(topic_id)
+    topic = topics_services.get_topic_by_id_with_replies(topic_id)
 
-    if not current:
+    if not topic:
         raise HTTPException(
             status_code=SC.NotFound,
             detail=f"Topic #ID:{topic_id} does not exist"
         )
 
-    category = categories_services.get_by_id(current.topic.category_id)
+    category = categories_services.get_by_id(topic.topic.category_id)
 
     if not category.is_private:
-        return current
+        return topic
 
     if isinstance(current_user, AnonymousUser):
         raise HTTPException(
@@ -96,7 +96,7 @@ def get_topic_by_id(topic_id: int, current_user: OptionalUser):
             detail=f'You do not have permission to access this private category'
         )
 
-    return current
+    return topic
 
 
 @topics_router.post('/')

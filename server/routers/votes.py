@@ -9,7 +9,7 @@ votes_router = APIRouter(prefix='/topics/{topic_id}/replies/{reply_id}/votes', t
 
 
 @votes_router.get('/', status_code=200)
-def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, user: UserAuthDep):
+def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, current_user: UserAuthDep):
     if not topic_exists(id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
@@ -22,7 +22,7 @@ def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, user: UserA
             detail='No such reply'
         )
 
-    user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
+    user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
 
     if not user_modify_vote:
         raise HTTPException(
@@ -35,7 +35,7 @@ def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, user: UserA
 
 
 @votes_router.put('/', status_code=SC.Created)
-def add_or_switch(type: str, reply_id, topic_id, user: UserAuthDep):
+def add_or_switch(type: str, reply_id, topic_id, current_user: UserAuthDep):
     if not topic_exists(id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
@@ -48,7 +48,7 @@ def add_or_switch(type: str, reply_id, topic_id, user: UserAuthDep):
             detail='No such reply'
         )
 
-    user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
+    user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
 
     if not user_modify_vote:
         raise HTTPException(
@@ -56,19 +56,19 @@ def add_or_switch(type: str, reply_id, topic_id, user: UserAuthDep):
             detail=msg
         )
 
-    vote = votes_services.find_vote(reply_id=reply_id, user_id=user.user_id)
+    vote = votes_services.find_vote(reply_id=reply_id, user_id=current_user.user_id)
 
     if not vote:
-        votes_services.add_vote(user_id=user.user_id, reply_id=reply_id, type=type)
+        votes_services.add_vote(user_id=current_user.user_id, reply_id=reply_id, type=type)
         return f'You {type}voted reply with ID: {reply_id}'
 
-    votes_services.switch_vote(user_id=user.user_id,
+    votes_services.switch_vote(user_id=current_user.user_id,
                                reply_id=reply_id, type=type)
     return f'Vote switched to {type}vote'
 
 
 @votes_router.delete('/', status_code=SC.NoContent)
-def remove_vote(topic_id: int, reply_id: int, user: UserAuthDep):
+def remove_vote(topic_id: int, reply_id: int, current_user: UserAuthDep):
     if not topic_exists(id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
@@ -81,7 +81,7 @@ def remove_vote(topic_id: int, reply_id: int, user: UserAuthDep):
             detail='No such reply'
         )
 
-    user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=user.user_id)
+    user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
 
     if not user_modify_vote:
         raise HTTPException(
@@ -89,4 +89,4 @@ def remove_vote(topic_id: int, reply_id: int, user: UserAuthDep):
             detail=msg
         )
 
-    votes_services.delete_vote(reply_id=reply_id, user_id=user.user_id)
+    votes_services.delete_vote(reply_id=reply_id, user_id=current_user.user_id)
