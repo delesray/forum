@@ -56,11 +56,7 @@ def get_all(
     total_count = get_total_count(sql, params)  # get count of filtered topics for pagination info
 
     if sort:
-        if sort == 'asc':
-            sql += f' ORDER BY {sort_by} IS NULL, {sort_by} ASC'
-        else:
-            sql += f' ORDER BY {sort_by} IS NULL, {sort_by} DESC'
-        
+        sql += f' ORDER BY {sort_by} IS NULL, {sort_by} {sort.upper()}'
 
     pagination_sql = sql + ' LIMIT ? OFFSET ?'
     params += (size, size * (page - 1))
@@ -167,7 +163,7 @@ def update_locking(locking: bool, topic_id: int):
                  (locking, topic_id))
 
 
-def is_owner(topic_id: int, user_id: int):
+def is_owner(topic_id: int, user_id: int) -> bool:
     data = read_query('SELECT FROM topics = ? WHERE topic_id = ? AND user_id = ?',
                       (topic_id, topic_id))
     if not data:
