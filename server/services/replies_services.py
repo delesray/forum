@@ -9,16 +9,13 @@ from services.categories_services import get_by_id as get_cat_by_id, has_write_a
 
 
 # if search is implemented or other filters, will raise complexity
-def get_all(topic_id: int, page: int, size: int, sort=None, search=None) -> list[ReplyResponse]:
-    params, filters = (topic_id,), []
+def get_all(topic_id: int, page: int, size: int) -> list[ReplyResponse]:
+    params = (topic_id,)
 
     sql = '''SELECT r.reply_id, r.text, u.username, r.topic_id
             FROM replies r 
             JOIN users u ON r.user_id = u.user_id
             WHERE topic_id = ?'''
-
-    if sort:
-        sql += f' ORDER BY reply_id {sort.upper()}'
 
     pagination_sql = sql + ' LIMIT ? OFFSET ?'
     params += (size, size * (page - 1))
