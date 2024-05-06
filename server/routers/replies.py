@@ -6,18 +6,20 @@ from services.topics_services import exists
 from common.oauth import UserAuthDep
 from services.replies_services import get_by_id as get_reply_by_id, can_user_access_topic_content
 
-replies_router = APIRouter(prefix='/topics/{topic_id}/replies', tags=['replies'])
+replies_router = APIRouter(
+    prefix='/topics/{topic_id}/replies', tags=['replies'])
 
 
 @replies_router.post('/', status_code=SC.Created)
 def add_reply(topic_id: int, reply: ReplyCreateUpdate, current_user: UserAuthDep):
     if not exists(id=topic_id):
         raise HTTPException(
-            status_code=404,
+            status_code=SC.NotFound,
             detail='No such topic'
         )
 
-    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
+    user_modify_reply, msg = can_user_access_topic_content(
+        topic_id=topic_id, user_id=current_user.user_id)
 
     if not user_modify_reply:
         raise HTTPException(
@@ -25,7 +27,8 @@ def add_reply(topic_id: int, reply: ReplyCreateUpdate, current_user: UserAuthDep
             detail=msg
         )
 
-    reply_id = replies_services.create_reply(topic_id, reply, current_user.user_id)
+    reply_id = replies_services.create_reply(
+        topic_id, reply, current_user.user_id)
     return f'Reply with ID {reply_id} successfully added'
 
 
@@ -33,7 +36,7 @@ def add_reply(topic_id: int, reply: ReplyCreateUpdate, current_user: UserAuthDep
 def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, current_user: UserAuthDep):
     if not exists(id=topic_id):
         raise HTTPException(
-            status_code=404,
+            status_code=SC.NotFound,
             detail='No such topic'
         )
 
@@ -42,7 +45,8 @@ def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, current_
     if not reply_to_update:
         raise HTTPException(status_code=SC.NotFound)
 
-    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
+    user_modify_reply, msg = can_user_access_topic_content(
+        topic_id=topic_id, user_id=current_user.user_id)
 
     if not user_modify_reply:
         raise HTTPException(
@@ -57,7 +61,7 @@ def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, current_
 def delete_reply(topic_id: int, reply_id: int, current_user: UserAuthDep):
     if not exists(id=topic_id):
         raise HTTPException(
-            status_code=404,
+            status_code=SC.NotFound,
             detail='No such topic'
         )
 
@@ -66,7 +70,8 @@ def delete_reply(topic_id: int, reply_id: int, current_user: UserAuthDep):
     if not reply_to_delete:
         raise HTTPException(status_code=SC.NotFound)
 
-    user_modify_reply, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
+    user_modify_reply, msg = can_user_access_topic_content(
+        topic_id=topic_id, user_id=current_user.user_id)
 
     if not user_modify_reply:
         raise HTTPException(

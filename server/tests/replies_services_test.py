@@ -174,7 +174,7 @@ class RepliesServices_Should(unittest.TestCase):
             self.assertEqual(expected, result)
 
     # cat not private, topic locked
-    def test_CanUserAccessTopicContent_returnsTrueAndOk_whenCatNotPrivate_TopicLocked(self):
+    def test_CanUserAccessTopicContent_returnsFalseAndCorrectMsg_whenCatNotPrivate_TopicLocked(self):
         with patch('services.replies_services.get_cat_by_id') as mock_get_cat, \
                 patch('services.replies_services.has_write_access') as mock_has_write_access, \
                 patch('services.replies_services.get_topic_by_id') as mock_get_topic:
