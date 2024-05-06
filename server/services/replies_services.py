@@ -8,7 +8,6 @@ from data.database import read_query, update_query, insert_query
 from services.categories_services import get_by_id as get_cat_by_id, has_write_access
 
 
-# if search is implemented or other filters, will raise complexity
 def get_all(topic_id: int, page: int, size: int) -> list[ReplyResponse]:
     params = (topic_id,)
 
@@ -55,7 +54,7 @@ def delete_reply(id: int):
     )
 
 
-def can_user_access_topic_content(topic_id: int, user_id: int) -> (bool, str):
+def can_user_access_topic_content(topic_id: int, user_id: int) -> Union[bool, str]:
     topic: TopicResponse = get_topic_by_id(topic_id)
     category: Category = get_cat_by_id(topic.category_id)
 
