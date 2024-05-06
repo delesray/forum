@@ -27,7 +27,7 @@ class User(BaseModel):
 class UserRegister(BaseModel):
     username: Annotated[str, StringConstraints(min_length=4)]
     password: Annotated[str, StringConstraints(min_length=4)]
-    email: Annotated[str, StringConstraints(pattern=r'^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')]
+    email: Annotated[str, StringConstraints(pattern=r'^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')]='user@example.com'
     first_name: Annotated[str, StringConstraints(min_length=2)] = None
     last_name: Annotated[str, StringConstraints(min_length=2)] = None
 
