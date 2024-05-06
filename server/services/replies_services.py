@@ -1,10 +1,10 @@
 from __future__ import annotations
-from services.topics_services import get_by_id as get_topic_by_id
 from typing import Union
 from data.models.category import Category
 from data.models.reply import ReplyCreateUpdate, ReplyResponse
 from data.models.topic import TopicResponse
 from data.database import read_query, update_query, insert_query
+from services.topics_services import get_by_id as get_topic_by_id
 from services.categories_services import get_by_id as get_cat_by_id, has_write_access
 
 

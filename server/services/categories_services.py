@@ -1,11 +1,10 @@
 from data.models.category import Category
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
+from data.models.topic import TopicResponse
 
-from data.models.topic import TopicResponse, Topic
 
-
-def exists_by_name(name):
+def exists_by_name(name) -> bool:
     return any(read_query(
         '''SELECT 1 FROM categories WHERE name = ?''', (name,)))
 
@@ -34,7 +33,7 @@ def get_by_id(category_id) -> Category | None:
         return Category.from_query(*data[0])
 
 
-def create(category):
+def create(category) -> Category:
     """
     Handles unique columns violations with try/except
     """
@@ -50,7 +49,7 @@ def create(category):
         return e
 
 
-def has_access_to_private_category(user_id: int, category_id: int):
+def has_access_to_private_category(user_id: int, category_id: int) -> bool:
     return any(read_query(
         '''SELECT 1
            FROM users_categories_permissions
@@ -58,12 +57,12 @@ def has_access_to_private_category(user_id: int, category_id: int):
         (user_id, category_id)))
 
 
-def update_privacy(privacy: bool, category_id: int):
+def update_privacy(privacy: bool, category_id: int) -> None:
     update_query('UPDATE categories SET is_private = ? WHERE category_id = ?',
                  (privacy, category_id))
 
 
-def update_locking(locking: bool, category_id: int):
+def update_locking(locking: bool, category_id: int) -> None:
     update_query('UPDATE categories SET is_locked = ? WHERE category_id = ?',
                  (locking, category_id))
 
@@ -77,7 +76,7 @@ def get_user_access_level(user_id: int, category_id: int) -> bool | None:
         return data[0][0]
 
 
-def update_user_access_level(user_id: int, category_id: int, access: bool):
+def update_user_access_level(user_id: int, category_id: int, access: bool) -> None:
     update_query(
         '''UPDATE users_categories_permissions SET write_access = ?
         WHERE user_id = ? AND category_id = ?''', (access, user_id, category_id)
@@ -92,17 +91,17 @@ def is_user_in(user_id: int, category_id: int) -> bool:
     return data[0][0] > 0
 
 
-def add_user(user_id: int, category_id: int):
+def add_user(user_id: int, category_id: int) -> None:
     insert_query('INSERT INTO users_categories_permissions(user_id,category_id) VALUES(?,?)',
                  (user_id, category_id))
 
 
-def remove_user(user_id: int, category_id: int):
+def remove_user(user_id: int, category_id: int) -> None:
     update_query('DELETE FROM users_categories_permissions WHERE user_id = ? AND category_id = ?',
                  (user_id, category_id,))
 
 
-def has_write_access(user_id: int, category_id: int):
+def has_write_access(user_id: int, category_id: int) -> bool:
     return any(read_query(
         '''SELECT 1
            FROM users_categories_permissions
@@ -111,7 +110,7 @@ def has_write_access(user_id: int, category_id: int):
     )
 
 
-def get_privileged_users(category_id):
+def get_privileged_users(category_id) -> list:
     data = read_query(
         '''SELECT ucp.user_id, u.username, ucp.write_access
         FROM users_categories_permissions as ucp JOIN users as u
@@ -121,7 +120,7 @@ def get_privileged_users(category_id):
         return data
 
 
-def response_obj_privileged_users(category: Category, users: list[tuple]):
+def response_obj_privileged_users(category: Category, users: list[tuple]) -> dict:
     """
     Shows the bigger access users first
     """
@@ -136,7 +135,7 @@ def response_obj_privileged_users(category: Category, users: list[tuple]):
     }
 
 
-def get_topics_by_cat_id(category_id: int):
+def get_topics_by_cat_id(category_id: int) -> TopicResponse:
     data = read_query(
         '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
                FROM topics t 
