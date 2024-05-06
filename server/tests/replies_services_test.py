@@ -97,7 +97,7 @@ class RepliesServices_Should(unittest.TestCase):
             add_reply.return_value = reply_id
 
             expected = 1
-            result = replies.create_reply(topic_id=TOPIC_ID, 
+            result = replies.create_reply(topic_id=TOPIC_ID,
                                           reply=ReplyCreateUpdate(text='text'), user_id=USER_ID)
 
             self.assertEqual(expected, result)
@@ -174,7 +174,7 @@ class RepliesServices_Should(unittest.TestCase):
             self.assertEqual(expected, result)
 
     # cat not private, topic locked
-    def test_CanUserAccessTopicContent_returnsTrueAndOk_whenCatNotPrivate_TopicNotLocked(self):
+    def test_CanUserAccessTopicContent_returnsTrueAndOk_whenCatNotPrivate_TopicLocked(self):
         with patch('services.replies_services.get_cat_by_id') as mock_get_cat, \
                 patch('services.replies_services.has_write_access') as mock_has_write_access, \
                 patch('services.replies_services.get_topic_by_id') as mock_get_topic:
@@ -191,4 +191,3 @@ class RepliesServices_Should(unittest.TestCase):
             result = replies.can_user_access_topic_content(TOPIC_ID, USER_ID)
 
             self.assertEqual(expected, result)
-            
