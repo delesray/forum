@@ -74,8 +74,15 @@ class TopicsServices_Should(TestCase):
         
         self.assertFalse(result)
         
-    def test_getTotalCount_returns_countOfTopics(self):
-        pass    
+    def test_getTotalCount_returns_countOfTopics_when_SqlAndParams_areProvided(self):
+        mock_db.query_count.return_value = 10
+        sql = 'SQL QUERY TO BE EXECUTED'
+        params = ('filter_1', 'filter_2')
+        expected = 10
+        
+        result = topics_services.get_total_count(sql, params) 
+        
+        self.assertEqual(expected, result) 
     
     def test_getAll_returns_ListOfTopicsAndTotalCount_when_noFilters(self):
         pass

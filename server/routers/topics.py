@@ -76,6 +76,7 @@ def get_topic_by_id(
         size: int = Query(Page.SIZE, ge=1, le=15, description="Page size"),
         sort: str | None = None,
 ) -> TopicRepliesPaginate:
+    
     topic = topics_services.get_by_id(topic_id)
 
     if not topic:
@@ -85,6 +86,22 @@ def get_topic_by_id(
         )
 
     category = categories_services.get_by_id(topic.category_id)
+    
+    if category.is_private:
+        
+        if isinstance(current_user, AnonymousUser):
+            raise HTTPException(
+                status_code=SC.Unauthorized,
+                detail='Login to view topics in private categories'
+           )
+
+        if not current_user.is_admin and not categories_services.has_access_to_private_category(current_user.user_id,
+                                                                                            category.category_id):
+            raise HTTPException(
+                status_code=SC.Forbidden,
+                detail=f'You do not have permission to access this private category'
+            )
+    
     replies = replies_services.get_all(
         topic_id=topic.topic_id, page=page, size=size, sort=sort)
 
@@ -93,22 +110,6 @@ def get_topic_by_id(
 
     result = TopicRepliesPaginate(
         topic=topic, replies=replies, pagination_info=pagination_info, links=links)
-
-    if not category.is_private:
-        return result
-
-    if isinstance(current_user, AnonymousUser):
-        raise HTTPException(
-            status_code=SC.Unauthorized,
-            detail='Login to view topics in private categories'
-        )
-
-    if not current_user.is_admin and not categories_services.has_access_to_private_category(current_user.user_id,
-                                                                                            category.category_id):
-        raise HTTPException(
-            status_code=SC.Forbidden,
-            detail=f'You do not have permission to access this private category'
-        )
 
     return result
 

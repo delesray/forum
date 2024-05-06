@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from data.models.topic import Status, TopicResponse, TopicCreate
 from data.models.user import User
-from data.database import read_query, update_query, insert_query
+from data.database import read_query, update_query, insert_query, query_count
 from mariadb import IntegrityError
 from fastapi import HTTPException
 from common.responses import NotFound, Forbidden
@@ -19,9 +19,8 @@ def exists(id: int):
 
 def get_total_count(sql=None, params=None):
     if sql and params:
-        return read_query(f'SELECT COUNT(*) FROM ({sql}) as filtered_topics', params)[0][0]
-    return read_query(f'SELECT COUNT(*) FROM topics')[0][
-        0]  # ToDo discuss: sql is never None, we never get here -> to be used somewhere else
+        return query_count(f'SELECT COUNT(*) FROM ({sql}) as filtered_topics', params)
+    return query_count('SELECT COUNT(*) FROM topics')
 
 
 def get_all(
@@ -61,7 +60,7 @@ def get_all(
             sql += f' ORDER BY {sort_by} IS NULL, {sort_by} ASC'
         else:
             sql += f' ORDER BY {sort_by} IS NULL, {sort_by} DESC'
-        # sql += f' ORDER BY {sort_by} {sort}'
+        
 
     pagination_sql = sql + ' LIMIT ? OFFSET ?'
     params += (size, size * (page - 1))
