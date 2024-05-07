@@ -1,20 +1,11 @@
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from routers import replies as replies_router
-from data.models.reply import ReplyCreateUpdate
 from routers.replies import HTTPException
-
-TOPIC_ID = 1
-REPLY_ID = 1
-reply = ReplyCreateUpdate(text='sometext')
+from tests.test_utils import TOPIC_ID, REPLY_ID, fake_user, fake_create_update_reply
 
 
-def fake_user():
-    user = Mock()
-    user.user_id = 1
-
-    return user
-
+reply = fake_create_update_reply()
 
 class RepliesRouter_Should(unittest.TestCase):
 

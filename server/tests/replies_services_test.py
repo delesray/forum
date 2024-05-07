@@ -1,16 +1,13 @@
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from data.models.reply import ReplyResponse, ReplyCreateUpdate
 from services import replies_services as replies
+from tests.test_utils import TOPIC_ID, REPLY_ID, USER_ID, fake_category, fake_topic
 
 
 # REPLY
 TEXT = 'sometext'
 USERNAME = 'someuser'
-TOPIC_ID = 1
-REPLY_ID = 1
-
-USER_ID = 1
 
 # pagination params
 PAGE = 1
@@ -23,22 +20,6 @@ def create_reply(reply_id):
         text=TEXT,
         username=USERNAME,
         topic_id=TOPIC_ID)
-
-
-def fake_category(is_private: bool):
-    category = Mock()
-    category.category_id = 1
-    category.is_private = is_private
-
-    return category
-
-
-def fake_topic(status: str):
-    topic = Mock()
-    topic.category_id = 1
-    topic.status = status
-
-    return topic
 
 
 class RepliesServices_Should(unittest.TestCase):

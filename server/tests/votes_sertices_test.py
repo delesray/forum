@@ -1,12 +1,7 @@
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from services import votes_services as votes
-
-
-REPLY_ID = 1
-USER_ID = 1
-VOTE_TYPE_STR = 'up'
-VOTE_TYPE_INT = 1
+from tests.test_utils import REPLY_ID, USER_ID, VOTE_TYPE_INT, VOTE_TYPE_STR
 
 
 class VotesServices_Should(unittest.TestCase):
