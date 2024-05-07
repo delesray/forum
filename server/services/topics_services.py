@@ -165,7 +165,7 @@ def update_locking(locking: bool, topic_id: int):
 
 def is_owner(topic_id: int, user_id: int) -> bool:
     data = read_query('SELECT FROM topics = ? WHERE topic_id = ? AND user_id = ?',
-                      (topic_id, topic_id))
+                      (topic_id, user_id))
     if not data:
         return False
     return True
