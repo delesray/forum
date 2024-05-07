@@ -44,7 +44,8 @@ def create_reply(topic_id: int, reply: ReplyCreateUpdate, user_id: int) -> int:
 def update_reply(id: int, text: str):
     edited = 1  # True
     update_query(
-        '''UPDATE replies SET text = ?, edited = ? WHERE reply_id = ?''', (text, edited, id)
+        '''UPDATE replies SET text = ?, edited = ? WHERE reply_id = ?''', (
+            text, edited, id)
     )
 
 
@@ -54,7 +55,7 @@ def delete_reply(id: int):
     )
 
 
-def can_user_access_topic_content(topic_id: int, user_id: int) -> (bool, str):
+def can_user_access_topic_content(topic_id: int, user_id: int) -> tuple[bool, str]:
     topic: TopicResponse = get_topic_by_id(topic_id)
     category: Category = get_cat_by_id(topic.category_id)
 
@@ -67,5 +68,5 @@ def can_user_access_topic_content(topic_id: int, user_id: int) -> (bool, str):
     return True, "OK"
 
 
-def exists(id: int):
-    return any(read_query('SELECT 1 FROM replies WHERE reply_id=?', (id,)))
+def exists(reply_id: int, topic_id):
+    return any(read_query('SELECT 1 FROM replies WHERE reply_id=? and topic_id=?', (reply_id, topic_id)))
