@@ -76,11 +76,11 @@ def get_by_id(topic_id: int) -> TopicResponse | None:
     return next((TopicResponse.from_query(*row) for row in data), None)
 
 
-def create(topic: TopicCreate, customer: User):
+def create(topic: TopicCreate, user_id: int):
     try:
         generated_id = insert_query(
             'INSERT INTO topics(title, user_id, is_locked, best_reply_id, category_id) VALUES(?,?,?,?,?)',
-            (topic.title, customer.user_id, Status.str_int["open"], _TOPIC_BEST_REPLY, topic.category_id))
+            (topic.title, user_id, Status.str_int["open"], _TOPIC_BEST_REPLY, topic.category_id))
 
         return generated_id  # return TopicResponse()
     except IntegrityError as e:

@@ -130,7 +130,7 @@ def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
         else:
             raise HTTPException(SC.Forbidden, f"You do not have permission to post in this private category")
 
-    result = topics_services.create(new_topic, current_user)
+    result = topics_services.create(new_topic, current_user.user_id)
 
     if isinstance(result, int):
         return f'Topic {result} was successfully created!'
