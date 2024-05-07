@@ -15,7 +15,11 @@ allowed_vote_type = Annotated[str, StringConstraints(pattern=r'^(up|down)$')]
 
 
 @votes_router.get('/', status_code=200)
-def get_all_votes_for_reply(reply_id: int, topic_id: int, type: allowed_vote_type, current_user: UserAuthDep):
+def get_all_votes_for_reply_by_type(reply_id: int, topic_id: int, type: allowed_vote_type, current_user: UserAuthDep):
+    """
+    Returns all votes for a reply by type (up|down)
+    """
+
     if not topic_exists(id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
@@ -44,6 +48,15 @@ def get_all_votes_for_reply(reply_id: int, topic_id: int, type: allowed_vote_typ
 @votes_router.put('/', status_code=SC.Created)
 def add_or_switch(type: allowed_vote_type,
                   reply_id: int, topic_id: int, current_user: UserAuthDep):
+    """
+    1. Creates a vote of the specified type (up|down), if:
+        - topic exists
+        - reply exists in this topic
+        - user can modify content in this topic
+    2. If the user has already up/down voted this reply and
+        the vote type given is different, switches the vote type
+    """
+
     if not topic_exists(id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
@@ -75,6 +88,7 @@ def add_or_switch(type: allowed_vote_type,
 
     votes_services.switch_vote(user_id=current_user.user_id,
                                reply_id=reply_id, type=type)
+
     return f'Vote switched to {type}vote'
 
 
