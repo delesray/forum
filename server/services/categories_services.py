@@ -9,7 +9,7 @@ def exists_by_name(name) -> bool:
         '''SELECT 1 FROM categories WHERE name = ?''', (name,)))
 
 
-def get_all(search: str | None) -> list[Category]:
+def get_all(search: str | None = None) -> list[Category]:
     sql = '''SELECT category_id, name, is_locked, is_private
         FROM categories'''
 
@@ -33,11 +33,10 @@ def get_by_id(category_id) -> Category | None:
         return Category.from_query(*data[0])
 
 
-def create(category) -> Category:
+def create(category: Category) -> Category | IntegrityError:
     """
     Handles unique columns violations with try/except
     """
-
     try:
         generated_id = insert_query(
             'INSERT INTO categories(name) VALUES(?)',
@@ -54,17 +53,17 @@ def has_access_to_private_category(user_id: int, category_id: int) -> bool:
         '''SELECT 1
            FROM users_categories_permissions
            WHERE user_id = ? AND category_id = ?''',
-        (user_id, category_id)))
+        (user_id, category_id,)))
 
 
 def update_privacy(privacy: bool, category_id: int) -> None:
     update_query('UPDATE categories SET is_private = ? WHERE category_id = ?',
-                 (privacy, category_id))
+                 (privacy, category_id,))
 
 
 def update_locking(locking: bool, category_id: int) -> None:
     update_query('UPDATE categories SET is_locked = ? WHERE category_id = ?',
-                 (locking, category_id))
+                 (locking, category_id,))
 
 
 def get_user_access_level(user_id: int, category_id: int) -> bool | None:
@@ -85,7 +84,7 @@ def update_user_access_level(user_id: int, category_id: int, access: bool) -> No
 
 def is_user_in(user_id: int, category_id: int) -> bool:
     data = read_query(
-        '''SELECT COUNT(*) FROM users_categories_permissions 
+        '''SELECT COUNT_1(*) FROM users_categories_permissions 
         WHERE user_id = ? AND category_id = ?''', (user_id, category_id,)
     )
     return data[0][0] > 0
@@ -93,7 +92,7 @@ def is_user_in(user_id: int, category_id: int) -> bool:
 
 def add_user(user_id: int, category_id: int) -> None:
     insert_query('INSERT INTO users_categories_permissions(user_id,category_id) VALUES(?,?)',
-                 (user_id, category_id))
+                 (user_id, category_id,))
 
 
 def remove_user(user_id: int, category_id: int) -> None:
@@ -135,12 +134,11 @@ def response_obj_privileged_users(category: Category, users: list[tuple]) -> dic
     }
 
 
-def get_topics_by_cat_id(category_id: int) -> TopicResponse:
+def get_topics_by_cat_id(category_id: int) -> list[TopicResponse] | None:
     data = read_query(
         '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
                FROM topics t 
                JOIN users u ON t.user_id = u.user_id
                JOIN categories c ON t.category_id = c.category_id WHERE t.category_id = ?''', (category_id,))
 
-    if data:
-        return [TopicResponse.from_query(*row) for row in data]
+    return [TopicResponse.from_query(*row) for row in data] if data else None

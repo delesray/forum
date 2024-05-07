@@ -19,8 +19,8 @@ def exists(id: int):
 
 def get_total_count(sql=None, params=None):
     if sql and params:
-        return query_count(f'SELECT COUNT(*) FROM ({sql}) as filtered_topics', params)
-    return query_count('SELECT COUNT(*) FROM topics')
+        return query_count(f'SELECT COUNT_1(*) FROM ({sql}) as filtered_topics', params)
+    return query_count('SELECT COUNT_1(*) FROM topics')
 
 
 def get_all(

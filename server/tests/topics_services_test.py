@@ -92,7 +92,7 @@ class TopicsServices_Should(TestCase):
         
            self.assertEqual(expected, result)
            mock_query_count.assert_called_once_with(
-                'SELECT COUNT(*) FROM (SELECT * FROM table) as filtered_topics',
+                'SELECT COUNT_1(*) FROM (SELECT * FROM table) as filtered_topics',
                 ('filter_1', 'filter_2')
             ) 
     
