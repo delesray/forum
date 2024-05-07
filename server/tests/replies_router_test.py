@@ -28,6 +28,21 @@ def fake_user():
 client = TestClient(app)
 
 
+def temp():
+    from routers.replies import HTTPException
+    from unittest import TestCase
+    from unittest.mock import patch
+    from routers import replies as r
+
+    class RepliesRouter_Should(TestCase):
+        @patch('routers.replies.exists')
+        def test_m_raisesHTTPException_statusCode404_whenTopicNotExists(self, mock_exists):
+            mock_exists.return_value = False
+
+            with self.assertRaises(HTTPException):
+                r.add_reply(TOPIC_ID, REPLY, fake_user())
+
+
 class RepliesRouter_Should(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -52,16 +67,16 @@ class RepliesRouter_Should(unittest.TestCase):
         # arrange
         mock_topics_service.exists = False
 
-        reply_data = reply.model_dump()  # Assuming reply.model_dump converts to a serializable format
+        reply_data = reply.model_dump()  # Assuming REPLY.model_dump converts to a serializable format
 
         with self.assertRaises(HTTPException) as excinfo:
-            response = client.post("/topics/{TOPIC_ID}/replies", json={"reply": reply_data})
+            response = client.post("/topics/{TOPIC_ID}/replies", json={"REPLY": reply_data})
 
         # Assert status code within the context manager
         self.assertEqual(excinfo.exception.status_code, 404)
 
         # Assert detail message (optional)
-        self.assertEqual(excinfo.exception.detail, "No such topic") 
+        self.assertEqual(excinfo.exception.detail, "No such topic")
 
     def test_raisesHTTPException_statusCode403_whenUsedNotHasAccessToTopic(self):
         pass

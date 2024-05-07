@@ -137,7 +137,7 @@ def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
     raise HTTPException(SC.BadRequest, result)
 
 
-@topics_router.patch('/{topic_id}/best-reply')
+@topics_router.patch('/{topic_id}/best-REPLY')
 def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_update: TopicUpdate = Body(...)):
     if not topic_update.best_reply_id:
         raise HTTPException(SC.BadRequest, f"Data not provided to make changes")
@@ -155,7 +155,7 @@ def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_upda
         return topics_services.update_best_reply(topic_id, topic_update.best_reply_id)
 
     else:
-        raise HTTPException(SC.BadRequest, "Invalid reply ID")
+        raise HTTPException(SC.BadRequest, "Invalid REPLY ID")
 
 
 @topics_router.patch('/{topic_id}/locking')

@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch, Mock
 from data.models.category import Category
 from services import categories_services as s
-from services.categories_services import IntegrityError  # !
+from services.categories_services import IntegrityError
 
 CAT1_ID = 1
 CAT1_NAME = 'test'

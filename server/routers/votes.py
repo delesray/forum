@@ -19,7 +19,7 @@ def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, current_use
     if not reply_exists(id=reply_id):
         raise HTTPException(
             status_code=SC.NotFound,
-            detail='No such reply'
+            detail='No such REPLY'
         )
 
     user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
@@ -45,7 +45,7 @@ def add_or_switch(type: str, reply_id, topic_id, current_user: UserAuthDep):
     if not reply_exists(id=reply_id):
         raise HTTPException(
             status_code=SC.NotFound,
-            detail='No such reply'
+            detail='No such REPLY'
         )
 
     user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
@@ -60,7 +60,7 @@ def add_or_switch(type: str, reply_id, topic_id, current_user: UserAuthDep):
 
     if not vote:
         votes_services.add_vote(user_id=current_user.user_id, reply_id=reply_id, type=type)
-        return f'You {type}voted reply with ID: {reply_id}'
+        return f'You {type}voted REPLY with ID: {reply_id}'
 
     votes_services.switch_vote(user_id=current_user.user_id,
                                reply_id=reply_id, type=type)
@@ -78,7 +78,7 @@ def remove_vote(topic_id: int, reply_id: int, current_user: UserAuthDep):
     if not reply_exists(id=reply_id):
         raise HTTPException(
             status_code=SC.NotFound,
-            detail='No such reply'
+            detail='No such REPLY'
         )
 
     user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
