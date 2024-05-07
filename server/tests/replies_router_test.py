@@ -1,8 +1,11 @@
 import unittest
+from http.client import HTTPException
 from unittest.mock import Mock, patch
 from routers import replies as replies_router
 from routers import topics as topics_router
 from data.models.reply import ReplyCreateUpdate
+from fastapi.testclient import TestClient
+from main import app
 
 mock_replies_service = Mock(autospec=True)
 mock_topics_service = Mock(autospec=True)
@@ -20,6 +23,9 @@ def fake_user():
     user.user_id = 1
 
     return user
+
+
+client = TestClient(app)
 
 
 class RepliesRouter_Should(unittest.TestCase):
@@ -42,10 +48,20 @@ class RepliesRouter_Should(unittest.TestCase):
         # assert
         self.assertEqual(expected, result)
 
-
     def test_raisesHTTPException_statusCode404_whenTopicNotExists(self):
-        pass
+        # arrange
+        mock_topics_service.exists = False
 
+        reply_data = reply.model_dump()  # Assuming reply.model_dump converts to a serializable format
+
+        with self.assertRaises(HTTPException) as excinfo:
+            response = client.post("/topics/{TOPIC_ID}/replies", json={"reply": reply_data})
+
+        # Assert status code within the context manager
+        self.assertEqual(excinfo.exception.status_code, 404)
+
+        # Assert detail message (optional)
+        self.assertEqual(excinfo.exception.detail, "No such topic") 
 
     def test_raisesHTTPException_statusCode403_whenUsedNotHasAccessToTopic(self):
         pass
