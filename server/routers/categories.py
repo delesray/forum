@@ -7,20 +7,14 @@ from data.models.category import Category, CategoryTopicsPaginate
 from services import categories_services, topics_services
 from common.utils import get_pagination_info, create_links, Page
 
-
 categories_router = APIRouter(prefix='/categories', tags=['categories'])
 
 
 @categories_router.get('/')
 def get_all_categories(
-        sort: str | None = None,
         search: str | None = None) -> list[Category]:
-
-    if sort and (sort.lower() in ('asc', 'desc')):
-        return sorted(categories_services.get_all(search=search),
-                      key=lambda x: x.name, reverse=sort == 'desc')
-
-    return categories_services.get_all(search=search)
+    categories = categories_services.get_all(search=search)
+    return categories
 
 
 @categories_router.get('/{category_id}')
@@ -34,7 +28,6 @@ def get_category_by_id(
         sort: str | None = None,
         sort_by: str = 'topic_id',
 ) -> CategoryTopicsPaginate:
-    
     """
     1. Returns Category with a list of Topics, if Category is public
     2. If Category is private requires authentication

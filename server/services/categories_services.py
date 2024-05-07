@@ -19,6 +19,7 @@ def get_all(search: str | None = None) -> list[Category]:
         sql += ' WHERE name LIKE ?'
         query_params += (f'%{search}%',)
 
+
     result = read_query(sql, query_params)
     categories = [Category.from_query(*row) for row in result]
 
