@@ -32,7 +32,7 @@ class VotesServices_Should(unittest.TestCase):
 
             self.assertEqual(expected, result)
 
-    def test_voteExists_returnsVoteTrue_ifVote(self):
+    def test_voteExists_returnsTrue_ifVote(self):
         with patch('services.votes_services.read_query') as get_vote_type:
 
             get_vote_type.return_value = [(1,)]
@@ -43,7 +43,7 @@ class VotesServices_Should(unittest.TestCase):
 
             self.assertEqual(expected, result)
 
-    def test_fVoteExists_returnsFalse_ifNotVote(self):
+    def test_voteExists_returnsFalse_ifNotVote(self):
         with patch('services.votes_services.read_query') as get_vote_type:
 
             get_vote_type.return_value = []
