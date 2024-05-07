@@ -16,10 +16,10 @@ def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, current_use
             detail='No such topic'
         )
 
-    if not reply_exists(id=reply_id):
+    if not reply_exists(reply_id=reply_id, topic_id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
-            detail='No such REPLY'
+            detail='No such reply in this topic'
         )
 
     user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
@@ -31,7 +31,7 @@ def get_all_votes_for_reply(reply_id: int, topic_id: int, type: str, current_use
         )
 
     result = votes_services.get_all(reply_id=reply_id, type=type)
-    return result
+    return {f'Total {type}votes': result}
 
 
 @votes_router.put('/', status_code=SC.Created)
@@ -42,10 +42,10 @@ def add_or_switch(type: str, reply_id, topic_id, current_user: UserAuthDep):
             detail='No such topic'
         )
 
-    if not reply_exists(id=reply_id):
+    if not reply_exists(reply_id=reply_id, topic_id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
-            detail='No such REPLY'
+            detail='No such reply in this topic'
         )
 
     user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)
@@ -56,7 +56,7 @@ def add_or_switch(type: str, reply_id, topic_id, current_user: UserAuthDep):
             detail=msg
         )
 
-    vote = votes_services.find_vote(reply_id=reply_id, user_id=current_user.user_id)
+    vote = votes_services.vote_exists(reply_id=reply_id, user_id=current_user.user_id)
 
     if not vote:
         votes_services.add_vote(user_id=current_user.user_id, reply_id=reply_id, type=type)
@@ -75,10 +75,10 @@ def remove_vote(topic_id: int, reply_id: int, current_user: UserAuthDep):
             detail='No such topic'
         )
 
-    if not reply_exists(id=reply_id):
+    if not reply_exists(reply_id=reply_id, topic_id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
-            detail='No such REPLY'
+            detail='No such reply in this topic'
         )
 
     user_modify_vote, msg = can_user_access_topic_content(topic_id=topic_id, user_id=current_user.user_id)

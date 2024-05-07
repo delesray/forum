@@ -7,13 +7,13 @@ def get_all(reply_id: int, type: str):
                       WHERE reply_id=?
                       AND type=?''', 
                       (reply_id, VoteStatus.str_to_int[type]))
-    return data[0]
+    if data:
+        return data[0][0]
 
 
-def find_vote(reply_id: int, user_id: int):
-    vote = read_query('SELECT type FROM votes WHERE reply_id=? AND user_id=?', 
-                      (reply_id, user_id))
-    return vote
+def vote_exists(reply_id: int, user_id: int):
+    return any(read_query('SELECT 1 FROM votes WHERE reply_id=? AND user_id=?', 
+                      (reply_id, user_id)))
 
 
 def add_vote(user_id, reply_id: int, type: str):
