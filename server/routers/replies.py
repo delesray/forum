@@ -55,6 +55,7 @@ def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, current_
         )
 
     replies_services.update_reply(reply_id, update.text)
+    return f'Reply with ID {reply_id} successfully updated'
 
 
 @replies_router.delete('/{reply_id}', status_code=SC.NoContent)
@@ -80,3 +81,4 @@ def delete_reply(topic_id: int, reply_id: int, current_user: UserAuthDep):
         )
 
     replies_services.delete_reply(reply_id)
+    return 'Reply deleted'
