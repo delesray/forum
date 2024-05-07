@@ -8,6 +8,7 @@ from services import replies_services as replies
 TEXT = 'sometext'
 USERNAME = 'someuser'
 TOPIC_ID = 1
+REPLY_ID = 1
 
 USER_ID = 1
 
@@ -189,5 +190,27 @@ class RepliesServices_Should(unittest.TestCase):
 
             expected = (False, 'This topic is read-only')
             result = replies.can_user_access_topic_content(TOPIC_ID, USER_ID)
+
+            self.assertEqual(expected, result)
+
+    def test_replyExists_returnsTrue_ifReply(self):
+        with patch('services.replies_services.read_query') as exists:
+
+            exists.return_value = [(1,)]
+
+            expected = True
+
+            result = replies.exists(reply_id=REPLY_ID, topic_id=TOPIC_ID)
+
+            self.assertEqual(expected, result)
+
+    def test_replyExists_returnsFalse_ifNotReply(self):
+        with patch('services.votes_services.read_query') as get_vote_type:
+
+            get_vote_type.return_value = []
+
+            expected = False
+
+            result = replies.exists(reply_id=REPLY_ID, topic_id=TOPIC_ID)
 
             self.assertEqual(expected, result)
