@@ -39,8 +39,8 @@ async def read_item(request: Request, id: str):
     )
 
 
-@app.get("/categories_view", response_class=HTMLResponse)
-async def categories_view(
+@app.get("/categories_demo", response_class=HTMLResponse)
+async def categories_demo_view(
         request: Request,
         search: str | None = None
 ):
@@ -48,7 +48,7 @@ async def categories_view(
     categories = get_all(search=search)
 
     return templates.TemplateResponse(
-        request=request, name="categories.html", context={'categories': categories}
+        request=request, name="categories_demo.html", context={'categories': categories}
     )
 
 
