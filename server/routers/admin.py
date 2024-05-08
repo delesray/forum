@@ -33,7 +33,7 @@ def switch_category_privacy(category_id: int, current_admin: AdminAuthDep):
 def switch_category_locking(category_id: int, current_admin: AdminAuthDep):
     category = categories_services.get_by_id(category_id)
     if not category:
-        raise HTTPException(SC.BadRequest, "No such category")
+        raise HTTPNotFound("No such category")
 
     categories_services.update_locking(not category.is_locked, category_id)
     return f'Category {category.name} is {'unlocked' if category.is_locked else 'locked'} now'
@@ -43,13 +43,11 @@ def switch_category_locking(category_id: int, current_admin: AdminAuthDep):
 
 @admin_router.post('/users/{user_id}/categories/{category_id}')
 def give_user_category_read_access(user_id: int, category_id: int, current_admin: AdminAuthDep):
-    if not users_services.get_by_id(user_id):
-        raise HTTPException(SC.BadRequest, 'No such user')
-    if not categories_services.get_by_id(category_id):
-        raise HTTPException(SC.BadRequest, 'No such category')
+    if not users_services.get_by_id(user_id) or not categories_services.get_by_id(category_id):
+        raise HTTPNotFound('No such user or category')
 
     if categories_services.is_user_in(user_id, category_id):
-        raise HTTPException(SC.BadRequest, 'User is already in the category')
+        raise HTTPBaRequest('User is already in the category')
 
     categories_services.add_user(user_id, category_id)
     return 'User successfully added to that category and he can read'
@@ -57,10 +55,8 @@ def give_user_category_read_access(user_id: int, category_id: int, current_admin
 
 @admin_router.delete('/users/{user_id}/categories/{category_id}')
 def revoke_user_category_read_access(user_id: int, category_id: int, current_admin: AdminAuthDep):
-    if not users_services.get_by_id(user_id):
-        raise HTTPException(SC.BadRequest, 'No such user')
-    if not categories_services.get_by_id(category_id):
-        raise HTTPException(SC.BadRequest, 'No such category')
+    if not users_services.get_by_id(user_id) or not categories_services.get_by_id(category_id):
+        raise HTTPNotFound('No such user or category')
 
     categories_services.remove_user(user_id, category_id)
     return 'User is not in that category anymore'
@@ -68,10 +64,8 @@ def revoke_user_category_read_access(user_id: int, category_id: int, current_adm
 
 @admin_router.patch('/users/{user_id}/categories/{category_id}/access')
 def switch_user_category_write_access(user_id: int, category_id: int, current_admin: AdminAuthDep):
-    if not users_services.get_by_id(user_id):
-        raise HTTPException(SC.BadRequest, 'No such user')
-    if not categories_services.get_by_id(category_id):
-        raise HTTPException(SC.BadRequest, 'No such category')
+    if not users_services.get_by_id(user_id) or not categories_services.get_by_id(category_id):
+        raise HTTPNotFound('No such user or category')
 
     access = categories_services.get_user_access_level(user_id, category_id)
     if access is None:
@@ -86,7 +80,7 @@ def switch_user_category_write_access(user_id: int, category_id: int, current_ad
 def view_privileged_users(category_id: int, current_admin: AdminAuthDep):
     category = categories_services.get_by_id(category_id)
     if not category:
-        raise HTTPException(SC.BadRequest, 'No such category')
+        raise HTTPNotFound('No such category')
     elif not category.is_private:
         return f'This category is public'
 
