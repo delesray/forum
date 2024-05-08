@@ -1,4 +1,10 @@
-from fastapi import Response
+from fastapi import Response, HTTPException
+
+
+class BRequest(HTTPException):
+    def __init__(self, detail=''):
+        super().__init__(status_code=401, detail=detail)
+
 
 
 class SC:

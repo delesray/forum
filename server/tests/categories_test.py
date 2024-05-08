@@ -1,6 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, Mock
-
+from data.models.topic import TopicResponse
+from common.utils import PaginationInfo, Links
 import routers.categories
 from routers import categories as r
 
@@ -116,21 +117,35 @@ class CategoryRouter_Should(TestCase):
 
     @patch('routers.categories.get_pagination_info')
     @patch('routers.categories.create_links')
-    def test_get_category_by_id_returns_correct_CategoryTopicsPaginate(  # name ?
+    def test_get_category_by_id_HappyCase_correct_CategoryTopicsPaginate(  # name ?
             self, mock_create_links, mock_get_pagination_info
     ):
-        public_category_mock = Mock(is_private=False)
+        public_category_mock = Mock(spec=r.Category, is_private=False)
+        public_category_mock.name = CAT1.NAME
         guest_user = Mock()  # AnonymousUser ?
 
-        mock_category_services.get_by_id = lambda category_id: public_category_mock
-        topics = [Mock() for _ in range(2)]  # Mock list of 2 topics
+        # mock_category_services.get_by_id = lambda category_id: public_category_mock
+        topics = [Mock(spec=TopicResponse) for _ in range(2)]  # Mock list of 2 topics
 
-        mock_topic_services.get_all = \
-            lambda page, size, sort, sort_by, search, category: (topics, 10)  # Return topics and total count
+        # mock_topic_services.get_all = \
+        #     lambda page, size, sort, sort_by, search, category=2: (topics, 10)  # Return topics and total count
 
-        mock_get_pagination_info.return_value = Mock()  # ?
-        mock_create_links.return_value = Mock()  # ?
+        mock_get_pagination_info.return_value = Mock(spec=PaginationInfo)  # ?
+        mock_create_links.return_value = Mock(spec=Links)  # ?
 
+        mock_category_services.f = lambda request, page, size, sort, sort_by, search, category: \
+            (topics, mock_get_pagination_info.return_value, mock_create_links.return_value)
+
+        expected = {
+            'category': public_category_mock,
+            'topics': topics,
+            'pagination_info': mock_get_pagination_info.return_value,
+            'links': mock_create_links.return_value,
+        }
         result = r.get_category_by_id(
             category_id=CAT1.ID, current_user=guest_user,
             request=Mock())  # page=TST.page, size=TST.size ?
+
+        self.assertEqual(expected['category'], result.category)
+        self.assertEqual(expected['category'], result.category)
+        self.assertIsInstance(result.category, r.Category)
