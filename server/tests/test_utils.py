@@ -1,12 +1,21 @@
 from unittest.mock import Mock
 
+# topics
 TOPIC_ID = 1
 REPLY_ID = 1
 USER_ID = 1
 
+# votes
 VOTE_TYPE_STR = 'up'
 VOTE_TYPE_INT = 1
 NEW_VOTE_TYPE = 'down'
+
+# users
+USERNAME = 'username'
+PASSWORD = 'hashed_password'
+EMAIL = 'email@mail.com'
+FIRST_NAME = 'FirstName'
+LAST_NAME = 'LastName'
 
 
 def fake_category(is_private: bool):
