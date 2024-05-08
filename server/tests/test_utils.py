@@ -1,4 +1,6 @@
 from unittest.mock import Mock
+from data.models.user import Token, User, UserInfo
+
 
 # topics
 TOPIC_ID = 1
@@ -46,3 +48,22 @@ def fake_create_update_reply(text: str):
     reply.text = text
 
     return reply
+
+
+def create_user_info(username: str ='username'):
+    return UserInfo(username=username,
+                    email=EMAIL,
+                    first_name=FIRST_NAME,
+                    last_name=LAST_NAME)
+
+
+def create_user(is_admin: bool = False):
+    return User(user_id=USER_ID,
+                username=USERNAME,
+                password=PASSWORD,
+                email=EMAIL,
+                first_name=FIRST_NAME,
+                last_name=LAST_NAME,
+                is_admin=is_admin)
+
+fake_token = Mock(spec=Token)

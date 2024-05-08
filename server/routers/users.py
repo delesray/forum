@@ -22,12 +22,10 @@ def register_user(user: UserRegister):
     return f"User with ID: {result} registered"
 
 
-# now login works through Swagger docs but use form data in Postman
 @users_router.post('/login')
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user = users_services.try_login(form_data.username, form_data.password)
 
-    # to display the error in Swagger - HTTPException
     if not user:
         raise HTTPException(
             status_code=SC.Unauthorized,
@@ -35,7 +33,8 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    token = create_access_token(TokenData(username=user.username, is_admin=user.is_admin))
+    token = create_access_token(
+        TokenData(username=user.username, is_admin=user.is_admin))
     return token
 
 
@@ -68,9 +67,9 @@ def change_user_password(data: UserChangePassword, existing_user: UserAuthDep):
     3. Updates in db with new_hashed_password
     """
     if not utils.verify_password(data.current_password, existing_user.password):
-        return HTTPException(SC.Unauthorized, "Current password does not match")
+        raise HTTPException(SC.Unauthorized, "Current password does not match")
     if not data.new_password == data.confirm_password:
-        return HTTPException(SC.Unauthorized, "New password does not match")
+        raise HTTPException(SC.Unauthorized, "New password does not match")
 
     new_hashed_password = utils.hash_pass(data.new_password)
     users_services.change_password(existing_user.user_id, new_hashed_password)
@@ -84,7 +83,8 @@ def delete_user_by_id(existing_user: UserAuthDep, body: UserDelete):
     2. Flags the user as deleted in db
         2.1 Triggers an object in db that deletes his messages
     """
-    if not verify_password(body.current_password, existing_user.password):
-        raise HTTPException(status_code=SC.BadRequest, detail=f"Current password does not match")
+    if not utils.verify_password(body.current_password, existing_user.password):
+        raise HTTPException(status_code=SC.BadRequest,
+                            detail=f"Current password does not match")
 
     users_services.delete(existing_user.user_id)
