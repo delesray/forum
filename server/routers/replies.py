@@ -12,6 +12,11 @@ replies_router = APIRouter(
 
 @replies_router.post('/', status_code=SC.Created)
 def add_reply(topic_id: int, reply: ReplyCreateUpdate, current_user: UserAuthDep):
+    """
+    Creates reply, if:
+        - topic exists
+        - user has access to this topic
+    """
     if not exists(id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
@@ -34,6 +39,11 @@ def add_reply(topic_id: int, reply: ReplyCreateUpdate, current_user: UserAuthDep
 
 @replies_router.put('/{reply_id}', status_code=SC.NoContent)
 def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, current_user: UserAuthDep):
+    """
+    Modifies reply, if:
+        - topic exists
+        - user has access to topic
+    """
     if not exists(id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
@@ -60,6 +70,11 @@ def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, current_
 
 @replies_router.delete('/{reply_id}', status_code=SC.NoContent)
 def delete_reply(topic_id: int, reply_id: int, current_user: UserAuthDep):
+    """
+    Deletes reply, if:
+        - topic exists
+        - user has access to topic
+    """
     if not exists(id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,

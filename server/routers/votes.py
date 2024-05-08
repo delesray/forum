@@ -101,7 +101,7 @@ def remove_vote(topic_id: int, reply_id: int, current_user: UserAuthDep):
         - topic exists
         - reply exists in this topic
         - user can modify content in this topic
-    2. Does nothing if no such vote
+    2. Does nothing, if no such vote
     """
     if not topic_exists(id=topic_id):
         raise HTTPException(
