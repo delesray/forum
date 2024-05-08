@@ -6,6 +6,9 @@ from data.models.user import User
 from data.database import read_query, update_query, insert_query, query_count
 from mariadb import IntegrityError
 from common.responses import NotFound, Forbidden
+from common.utils import get_pagination_info, create_links
+from starlette.requests import Request
+
 
 _TOPIC_BEST_REPLY = None
 
@@ -16,11 +19,12 @@ def exists(id: int):
 
 def get_total_count(sql=None, params=None):
     if sql and params:
-        return query_count(f'SELECT COUNT_1(*) FROM ({sql}) as filtered_topics', params)
-    return query_count('SELECT COUNT_1(*) FROM topics')
+        return query_count(f'SELECT COUNT(*) FROM ({sql}) as filtered_topics', params)
+    return query_count('SELECT COUNT(*) FROM topics')
 
 
 def get_all(
+        request: Request,
         page: int,
         size: int,
         search: str = None,
@@ -61,8 +65,11 @@ def get_all(
 
     data = read_query(pagination_sql, params)
     topics = [TopicResponse.from_query(*row) for row in data]
-    return topics, total_count
+    pagination_info = get_pagination_info(total_count, page, size)
+    links = create_links(request, pagination_info)
 
+    return topics, pagination_info, links
+      
 
 def get_by_id(topic_id: int) -> TopicResponse | None:
     data = read_query(

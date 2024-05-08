@@ -25,13 +25,13 @@ def get_all_topics(
     if username and not users_services.exists_by_username(username):
         raise HTTPException(
             status_code=SC.NotFound,
-            detail=f"User {username} not found"
+            detail=f"User not found"
         )
 
     if category and not categories_services.exists_by_name(category):
         raise HTTPException(
             status_code=SC.NotFound,
-            detail=f"Category {category} not found"
+            detail=f"Category not found"
         )
 
     if status and status.lower() not in [Status.OPEN, Status.LOCKED]:
@@ -52,14 +52,12 @@ def get_all_topics(
             detail=f"Invalid sort_by parameter"
         )
 
-    topics, total_topics = topics_services.get_all(
-        page=page, size=size, sort=sort, sort_by=sort_by, search=search,
-        username=username, category=category, status=status)
+    topics, pagination_info, links = topics_services.get_all(
+        request=request,page=page, size=size, sort=sort, sort_by=sort_by,
+        search=search, username=username, category=category, status=status)
+    
     if not topics:
         return []
-
-    pagination_info = get_pagination_info(total_topics, page, size)
-    links = create_links(request, pagination_info)
 
     return TopicsPaginate(
         topics=topics,
