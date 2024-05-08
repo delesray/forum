@@ -4,7 +4,7 @@ from mariadb import IntegrityError
 from common.utils import hash_pass, verify_password
 
 
-def get_all():
+def get_all() -> list[UserInfo]:
     data = read_query(
         '''SELECT username, email, first_name, last_name
         FROM users WHERE NOT is_deleted = ?''', (1,))
@@ -13,19 +13,18 @@ def get_all():
     return users
 
 
-def exists_by_username(username):
+def exists_by_username(username) -> bool:
     return any(read_query(
         '''SELECT 1 FROM users WHERE username = ? AND NOT is_deleted = ?''', (username, 1)))
 
 
-def get_by_id(user_id):
+def get_by_id(user_id) -> UserInfo:
     data = read_query(
         '''SELECT username, email, first_name, last_name
         FROM users WHERE user_id = ? AND NOT is_deleted = ?''', (user_id, 1))
-    
+
     if data:
         return UserInfo.from_query(*data[0])
-
 
 
 def find_by_username(username: str) -> User | None:
@@ -50,7 +49,8 @@ def register(user: UserRegister) -> User | IntegrityError:
     try:
         generated_id = insert_query(
             'INSERT INTO users(username, password, email, first_name, last_name) VALUES(?,?,?,?,?)',
-            (user.username, hashed_password, user.email, user.first_name, user.last_name)
+            (user.username, hashed_password, user.email,
+             user.first_name, user.last_name)
         )
         return generated_id
     except IntegrityError as e:
@@ -64,7 +64,7 @@ def try_login(username: str, password: str) -> User | None:
         return user
 
 
-def update(old: User, new: UserUpdate):
+def update(old: User, new: UserUpdate) -> UserUpdate:
     """
     Merges new user with old
     Handles columns violations with try/except
@@ -83,11 +83,12 @@ def update(old: User, new: UserUpdate):
     return merged
 
 
-def change_password(user_id: int, new_hashed_password: str):
-    update_query('UPDATE users SET password = ? WHERE user_id = ?', (new_hashed_password, user_id))
+def change_password(user_id: int, new_hashed_password: str) -> None:
+    update_query('UPDATE users SET password = ? WHERE user_id = ?',
+                 (new_hashed_password, user_id))
 
 
-def delete(user_id: int):
+def delete(user_id: int) -> None:
     update_query(
         'UPDATE users SET is_deleted = ? WHERE user_id = ?;', (True, user_id)
     )

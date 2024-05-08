@@ -14,7 +14,7 @@ votes_router = APIRouter(
 allowed_vote_type = Annotated[str, StringConstraints(pattern=r'^(up|down)$')]
 
 
-@votes_router.get('/', status_code=200)
+@votes_router.get('/')
 def get_all_votes_for_reply_by_type(reply_id: int, topic_id: int, type: allowed_vote_type, current_user: UserAuthDep):
     """
     Returns all votes for a reply by type (up|down)
