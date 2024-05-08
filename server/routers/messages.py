@@ -10,6 +10,11 @@ messages_router = APIRouter(prefix='/messages', tags=['messages'])
 
 @messages_router.post('/{receiver_id}', status_code=201)
 def send_message(receiver_id: int, message: MessageText, current_user: UserAuthDep):
+    """
+    - Sends message, if:
+        - text is not empty string
+        - receiver exists
+    """
     if not message.text:
         raise HTTPException(status_code=SC.BadRequest, detail="Message text is required")
 
@@ -23,6 +28,10 @@ def send_message(receiver_id: int, message: MessageText, current_user: UserAuthD
 
 @messages_router.get('/users')
 def get_all_conversations(current_user: UserAuthDep):
+    """
+    - Returns list of users the current user has messaged or received messages from
+    - Returns 'No conversations', if no conversations
+    """
     result = messages_services.get_all_conversations(current_user.user_id)
 
     return result or 'No conversations'
@@ -30,6 +39,10 @@ def get_all_conversations(current_user: UserAuthDep):
 
 @messages_router.get('/{receiver_id}')
 def get_conversation(receiver_id: int, current_user: UserAuthDep):
+    """
+    - Returns list of messages the current user has exchanged with another user
+    - Returns 'No such conversation', if no messages
+    """
     result = messages_services.get_conversation(current_user.user_id, receiver_id)
 
     return result or 'No such conversation'
@@ -37,6 +50,9 @@ def get_conversation(receiver_id: int, current_user: UserAuthDep):
 
 @messages_router.patch('/{message_id}')
 def update_message(message_id: int, message: MessageText, current_user: UserAuthDep):
+    """
+    - Edits message, if it exists
+    """
     if messages_services.exists(message_id):
         raise HTTPException(404, 'No such message')
     messages_services.update_text(message_id, message.text)
