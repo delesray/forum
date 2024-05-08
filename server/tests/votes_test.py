@@ -63,10 +63,10 @@ class VotesRouter_Should(unittest.TestCase):
 
             expected = {f'Total {VOTE_TYPE_STR}votes': fake_votes_total}
 
-            result = votes_router.get_all_votes_for_reply_by_type(
+            actual = votes_router.get_all_votes_for_reply_by_type(
                 reply_id=REPLY_ID, topic_id=TOPIC_ID, type=VOTE_TYPE_STR, current_user=fake_user())
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_addOrSwitch_raises404_ifNoSuchTopic(self):
         with patch('routers.votes.topic_exists') as mock_exists:
@@ -126,10 +126,10 @@ class VotesRouter_Should(unittest.TestCase):
 
             expected = f'You {VOTE_TYPE_STR}voted REPLY with ID: {REPLY_ID}'
 
-            result = votes_router.add_or_switch(
+            actual = votes_router.add_or_switch(
                 type=VOTE_TYPE_STR, reply_id=REPLY_ID, topic_id=TOPIC_ID, current_user=fake_user())
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_addOrSwitch_returnsVoteSwitched_ifTopicExistsReplyExists_userHasAccess_voteExists_typeNotChanged(self):
         with patch('routers.votes.topic_exists') as mock_t_exists, \
@@ -147,10 +147,10 @@ class VotesRouter_Should(unittest.TestCase):
             expected = f'''Reply already {
                 VOTE_TYPE_STR}voted. Choose different type to switch it'''
 
-            result = votes_router.add_or_switch(
+            actual = votes_router.add_or_switch(
                 type=VOTE_TYPE_STR, reply_id=REPLY_ID, topic_id=TOPIC_ID, current_user=fake_user())
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_addOrSwitch_returnsVoteSwitched_ifTopicExistsReplyExists_userHasAccess_voteExists_typeChanged(self):
         with patch('routers.votes.topic_exists') as mock_t_exists, \
@@ -167,10 +167,10 @@ class VotesRouter_Should(unittest.TestCase):
 
             expected = f'Vote switched to {NEW_VOTE_TYPE}vote'
 
-            result = votes_router.add_or_switch(
+            actual = votes_router.add_or_switch(
                 type=NEW_VOTE_TYPE, reply_id=REPLY_ID, topic_id=TOPIC_ID, current_user=fake_user())
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_removeVote_raises404_ifNoSuchTopic(self):
         with patch('routers.votes.topic_exists') as mock_exists:
@@ -226,7 +226,7 @@ class VotesRouter_Should(unittest.TestCase):
 
             expected = None
 
-            result = votes_router.remove_vote(
+            actual = votes_router.remove_vote(
                 topic_id=TOPIC_ID, reply_id=REPLY_ID, current_user=fake_user())
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)

@@ -21,10 +21,10 @@ class RepliesRouter_Should(unittest.TestCase):
 
             expected = f'Reply with ID {REPLY_ID} successfully added'
 
-            result = replies_router.add_reply(topic_id=TOPIC_ID, reply=reply,
+            actual = replies_router.add_reply(topic_id=TOPIC_ID, reply=reply,
                                               current_user=fake_user())
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_addReply_raises404_whenTopicNotExists(self):
         with patch('routers.replies.exists') as mock_exists:
@@ -75,10 +75,10 @@ class RepliesRouter_Should(unittest.TestCase):
 
             expected = f'Reply with ID {REPLY_ID} successfully updated'
 
-            result = replies_router.edit_reply(topic_id=TOPIC_ID, reply_id=REPLY_ID, update=reply,
+            actual = replies_router.edit_reply(topic_id=TOPIC_ID, reply_id=REPLY_ID, update=reply,
                                                current_user=fake_user())
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_editReply_raises404_whenTopicNotExists(self):
         with patch('routers.replies.exists') as mock_exists:
@@ -142,10 +142,10 @@ class RepliesRouter_Should(unittest.TestCase):
             mock_delete_reply.return_value = True
 
             expected = f'Reply deleted'
-            result = replies_router.delete_reply(topic_id=TOPIC_ID, reply_id=REPLY_ID,
+            actual = replies_router.delete_reply(topic_id=TOPIC_ID, reply_id=REPLY_ID,
                                                  current_user=fake_user())
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_deleteReply_raises404_whenTopicNotExists(self):
         with patch('routers.replies.exists') as mock_exists:

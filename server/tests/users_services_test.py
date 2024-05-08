@@ -23,18 +23,18 @@ class UsersServices_Should(unittest.TestCase):
                         create_user_info(username2),
                         create_user_info(username3)]
 
-            result = users.get_all()
+            actual = users.get_all()
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_getAll_returnsEmptyList_ifNotUsers(self):
         with patch('services.users_services.read_query') as mock_get_all_users:
             mock_get_all_users.return_value = []
             expected = []
 
-            result = users.get_all()
+            actual = users.get_all()
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_getById_returnsUserInfoObject_ifUser(self):
         with patch('services.users_services.read_query') as mock_get_user:
@@ -42,18 +42,18 @@ class UsersServices_Should(unittest.TestCase):
                 (username1, EMAIL, FIRST_NAME, LAST_NAME)]
             expected = create_user_info(username1)
 
-            result = users.get_by_id(user_id=USER_ID)
+            actual = users.get_by_id(user_id=USER_ID)
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_getById_returnsNone_ifNotUser(self):
         with patch('services.users_services.read_query') as mock_get_user:
             mock_get_user.return_value = []
             expected = None
 
-            result = users.get_by_id(user_id=USER_ID)
+            actual = users.get_by_id(user_id=USER_ID)
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_findByUsername_returnsUser_ifUser(self):
         with patch('services.users_services.read_query') as mock_find_by_name:
@@ -61,18 +61,18 @@ class UsersServices_Should(unittest.TestCase):
                 (USER_ID, USERNAME, PASSWORD, EMAIL, FIRST_NAME, LAST_NAME, False)]
             expected = create_user()
 
-            result = users.find_by_username(username=USERNAME)
+            actual = users.find_by_username(username=USERNAME)
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_findByUsername_returnsNone_ifNotUser(self):
         with patch('services.users_services.read_query') as mock_find_by_name:
             mock_find_by_name.return_value = []
             expected = None
 
-            result = users.find_by_username(username=USERNAME)
+            actual = users.find_by_username(username=USERNAME)
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_registerReturnsUser_ifSuccessful(self):
         with patch('services.users_services.hash_pass') as mock_hash_pass, \
@@ -82,13 +82,13 @@ class UsersServices_Should(unittest.TestCase):
             mock_register_user.return_value = USER_ID
             expected = USER_ID
 
-            result = users.register(user=UserRegister(username=USERNAME,
+            actual = users.register(user=UserRegister(username=USERNAME,
                                                       password=PASSWORD,
                                                       email=EMAIL,
                                                       first_name=FIRST_NAME,
                                                       last_name=LAST_NAME))
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_registerReturnsIntegrityError_ifRaised(self):
         with patch('services.users_services.hash_pass') as mock_hash_pass, \
@@ -113,10 +113,10 @@ class UsersServices_Should(unittest.TestCase):
             mock_verify_pass.return_value = True
             excepted = user
 
-            result = users.try_login(
+            actual = users.try_login(
                 username=user.username, password=user.password)
 
-            self.assertEqual(excepted, result)
+            self.assertEqual(excepted, actual)
 
     def test_tryLogin_returnsNone_ifNotUser(self):
         with patch('services.users_services.find_by_username') as mock_find_user:
@@ -125,10 +125,10 @@ class UsersServices_Should(unittest.TestCase):
             mock_find_user.return_value = None
             excepted = None
 
-            result = users.try_login(
+            actual = users.try_login(
                 username=user.username, password=user.password)
 
-            self.assertEqual(excepted, result)
+            self.assertEqual(excepted, actual)
 
     def test_tryLogin_returnsNone_ifUserAndNotPass(self):
         with patch('services.users_services.find_by_username') as mock_find_user, \
@@ -139,10 +139,10 @@ class UsersServices_Should(unittest.TestCase):
             mock_verify_pass.return_value = False
             excepted = None
 
-            result = users.try_login(
+            actual = users.try_login(
                 username=user.username, password=user.password)
 
-            self.assertEqual(excepted, result)
+            self.assertEqual(excepted, actual)
 
     def test_updateReturnsUserUpdateObject_ifUpdates(self):
         with patch('services.users_services.update_query') as mock_update:
@@ -152,9 +152,9 @@ class UsersServices_Should(unittest.TestCase):
             expected = UserUpdate(first_name=edited_user.first_name,
                                   last_name=user.last_name)
 
-            result = users.update(old=user, new=edited_user)
+            actual = users.update(old=user, new=edited_user)
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
 
     def test_updateReturnsUserUpdateObject_ifNotUpdates(self):
         with patch('services.users_services.update_query') as mock_update:
@@ -164,6 +164,6 @@ class UsersServices_Should(unittest.TestCase):
             expected = UserUpdate(first_name=user.first_name,
                                   last_name=user.last_name)
 
-            result = users.update(old=user, new=edited_user)
+            actual = users.update(old=user, new=edited_user)
 
-            self.assertEqual(expected, result)
+            self.assertEqual(expected, actual)
