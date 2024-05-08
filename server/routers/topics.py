@@ -52,9 +52,10 @@ def get_all_topics(
             detail=f"Invalid sort_by parameter"
         )
 
-    topics, pagination_info, links = topics_services.get_all(
-        request=request,page=page, size=size, sort=sort, sort_by=sort_by,
-        search=search, username=username, category=category, status=status)
+    topics, pagination_info, links = topics_services.get_topics_paginate_links(
+              request=request, page=page, size=size, sort=sort, sort_by=sort_by,
+              search=search, username=username, category=category, status=status
+    )
     
     if not topics:
         return []

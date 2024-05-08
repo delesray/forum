@@ -24,7 +24,6 @@ def get_total_count(sql=None, params=None):
 
 
 def get_all(
-        request: Request,
         page: int,
         size: int,
         search: str = None,
@@ -65,10 +64,8 @@ def get_all(
 
     data = read_query(pagination_sql, params)
     topics = [TopicResponse.from_query(*row) for row in data]
-    pagination_info = get_pagination_info(total_count, page, size)
-    links = create_links(request, pagination_info)
-
-    return topics, pagination_info, links
+    
+    return topics, total_count
       
 
 def get_by_id(topic_id: int) -> TopicResponse | None:
@@ -177,10 +174,12 @@ def is_owner(topic_id: int, user_id: int) -> bool:
     return True
 
 
-def get_topics_paginate_links(request, page, size, sort, sort_by, search, category):
+def get_topics_paginate_links(request, page, size, sort, sort_by,
+        search, username, category, status):
+    
     topics, total_topics = get_all(
-        page=page, size=size, sort=sort, sort_by=sort_by, search=search,
-        category=category.name
+        page=page, size=size, sort=sort, sort_by=sort_by,
+        search=search, username=username, category=category, status=status
     )
     pagination_info = get_pagination_info(total_topics, page, size)
     links = create_links(request, pagination_info)
