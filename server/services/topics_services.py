@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from common.utils import get_pagination_info, create_links
 from data.models.topic import Status, TopicResponse, TopicCreate
 from data.models.user import User
 from data.database import read_query, update_query, insert_query, query_count
@@ -166,3 +168,13 @@ def is_owner(topic_id: int, user_id: int) -> bool:
     if not data:
         return False
     return True
+
+
+def get_topics_paginate_links(request, page, size, sort, sort_by, search, category):
+    topics, total_topics = get_all(
+        page=page, size=size, sort=sort, sort_by=sort_by, search=search,
+        category=category.name
+    )
+    pagination_info = get_pagination_info(total_topics, page, size)
+    links = create_links(request, pagination_info)
+    return topics, pagination_info, links

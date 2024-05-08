@@ -50,7 +50,7 @@ def get_category_by_id(
                 detail=f'You do not have permission to access this private category'
             )
 
-    topics, pagination_info, links = categories_services.get_topics_paginate_links(
+    topics, pagination_info, links = topics_services.get_topics_paginate_links(
         request, page, size, sort, sort_by, search, category)
 
     return CategoryTopicsPaginate(

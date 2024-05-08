@@ -1,9 +1,7 @@
-from common.utils import get_pagination_info, create_links
 from data.models.category import Category
 from data.database import read_query, update_query, insert_query
 from mariadb import IntegrityError
 from data.models.topic import TopicResponse
-from services import topics_services
 
 
 def exists_by_name(name) -> bool:
@@ -144,13 +142,3 @@ def get_topics_by_cat_id(category_id: int) -> list[TopicResponse] | None:
                JOIN categories c ON t.category_id = c.category_id WHERE t.category_id = ?''', (category_id,))
 
     return [TopicResponse.from_query(*row) for row in data] if data else None
-
-
-def get_topics_paginate_links(request, page, size, sort, sort_by, search, category):
-    topics, total_topics = topics_services.get_all(
-        page=page, size=size, sort=sort, sort_by=sort_by, search=search,
-        category=category.name
-    )
-    pagination_info = get_pagination_info(total_topics, page, size)
-    links = create_links(request, pagination_info)
-    return topics, pagination_info, links
