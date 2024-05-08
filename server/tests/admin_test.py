@@ -14,7 +14,7 @@ class AdminRouter_Should(TestCase):
         mock_create.return_value = Mock(
             spec=r.categories_services.IntegrityError, msg=dummy_string)
 
-        with self.assertRaises(r.HTTPBaRequest):
+        with self.assertRaises(r.HTTPBadRequest):
             r.create_category(Mock(), global_admin_mock)
 
     @patch('routers.admin.categories_services.get_by_id')
@@ -60,7 +60,7 @@ class AdminRouter_Should(TestCase):
         mock_get_by_id.return_value = True
         mock_is_user_in.return_value = True
 
-        with self.assertRaises(r.HTTPBaRequest):
+        with self.assertRaises(r.HTTPBadRequest):
             r.give_user_category_read_access(Mock(), Mock(), global_admin_mock)
 
     @patch('routers.admin.categories_services.add_user')

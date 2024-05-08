@@ -13,7 +13,7 @@ class SC:
     NotFound = 404
 
 
-class HTTPBaRequest(HTTPException):
+class HTTPBadRequest(HTTPException):
     def __init__(self, detail=''):
         super().__init__(status_code=SC.BadRequest, detail=detail)
 

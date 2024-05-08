@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from common.responses import SC, HTTPBaRequest, HTTPForbidden, HTTPNotFound, HTTPUnauthorized
+from common.responses import SC, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPUnauthorized
 from data.models.category import Category
 from routers.topics import switch_topic_locking_helper
 from services import categories_services, users_services
@@ -14,7 +14,7 @@ admin_router = APIRouter(prefix='/admin', tags=['admin'])
 def create_category(category: Category, current_admin: AdminAuthDep):
     result = categories_services.create(category)
     if isinstance(result, categories_services.IntegrityError):
-        raise HTTPBaRequest(result.msg)
+        raise HTTPBadRequest(result.msg)
 
     raise result
 
@@ -47,7 +47,7 @@ def give_user_category_read_access(user_id: int, category_id: int, current_admin
         raise HTTPNotFound('No such user or category')
 
     if categories_services.is_user_in(user_id, category_id):
-        raise HTTPBaRequest('User is already in the category')
+        raise HTTPBadRequest('User is already in the category')
 
     categories_services.add_user(user_id, category_id)
     return 'User successfully added to that category and he can read'
