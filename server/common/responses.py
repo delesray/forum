@@ -6,7 +6,6 @@ class BRequest(HTTPException):
         super().__init__(status_code=401, detail=detail)
 
 
-
 class SC:
     Created = 201
     Accepted = 202

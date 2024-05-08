@@ -22,12 +22,6 @@ class CAT1:
 class TST:
     page = 2
     size = 3
-    # category_topics_paginate = r.CategoryTopicsPaginate(
-    #     category=CAT1.OBJ,
-    #     topics=None,  # list[TopicsResponse]
-    #     pagination_info=None,  # PaginationInfo obj ?
-    #     links=None  # Links obj ?
-    # )
 
 
 class CAT2:

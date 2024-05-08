@@ -146,13 +146,11 @@ def get_topics_by_cat_id(category_id: int) -> list[TopicResponse] | None:
     return [TopicResponse.from_query(*row) for row in data] if data else None
 
 
-def f(request, page, size, sort, sort_by, search, category):
+def get_topics_paginate_links(request, page, size, sort, sort_by, search, category):
     topics, total_topics = topics_services.get_all(
         page=page, size=size, sort=sort, sort_by=sort_by, search=search,
         category=category.name
     )
-
     pagination_info = get_pagination_info(total_topics, page, size)
-
     links = create_links(request, pagination_info)
     return topics, pagination_info, links
