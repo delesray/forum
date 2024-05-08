@@ -6,6 +6,7 @@ USER_ID = 1
 
 VOTE_TYPE_STR = 'up'
 VOTE_TYPE_INT = 1
+NEW_VOTE_TYPE = 'down'
 
 
 def fake_category(is_private: bool):

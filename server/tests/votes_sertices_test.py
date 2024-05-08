@@ -27,24 +27,26 @@ class VotesServices_Should(unittest.TestCase):
 
             self.assertEqual(expected, result)
 
-    def test_voteExists_returnsTrue_ifVote(self):
+    def test_getVoteWithType_returnsVoteType_ifVote(self):
         with patch('services.votes_services.read_query') as get_vote_type:
 
-            get_vote_type.return_value = [(1,)]
+            get_vote_type.return_value = [(VOTE_TYPE_INT,)]
 
-            expected = True
+            expected = VOTE_TYPE_STR
 
-            result = votes.vote_exists(reply_id=REPLY_ID, user_id=USER_ID)
+            result = votes.get_vote_with_type(
+                reply_id=REPLY_ID, user_id=USER_ID)
 
             self.assertEqual(expected, result)
 
-    def test_voteExists_returnsFalse_ifNotVote(self):
+    def test_getVoteWithType_returnsNone_ifNotVote(self):
         with patch('services.votes_services.read_query') as get_vote_type:
 
             get_vote_type.return_value = []
 
-            expected = False
+            expected = None
 
-            result = votes.vote_exists(reply_id=REPLY_ID, user_id=USER_ID)
+            result = votes.get_vote_with_type(
+                reply_id=REPLY_ID, user_id=USER_ID)
 
             self.assertEqual(expected, result)
