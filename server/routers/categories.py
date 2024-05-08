@@ -51,7 +51,7 @@ def get_category_by_id(
             )
 
     topics, pagination_info, links = topics_services.get_topics_paginate_links(
-        request, page, size, sort, sort_by, search, category)
+        request=request, page=page, size=size, sort=sort, sort_by=sort_by, search=search, category=category.name)
 
     return CategoryTopicsPaginate(
         category=category,

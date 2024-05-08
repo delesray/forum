@@ -174,8 +174,17 @@ def is_owner(topic_id: int, user_id: int) -> bool:
     return True
 
 
-def get_topics_paginate_links(request, page, size, sort, sort_by,
-        search, username, category, status):
+def get_topics_paginate_links(
+        request: Request,
+        page: int,
+        size: int,
+        sort: str = None,
+        sort_by: str = None,
+        search: str = None,
+        username: str = None,
+        category: str = None,
+        status: str = None
+):
     
     topics, total_topics = get_all(
         page=page, size=size, sort=sort, sort_by=sort_by,
