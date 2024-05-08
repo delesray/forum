@@ -4,7 +4,7 @@ from common.oauth import OptionalUser, UserAuthDep
 from common.responses import SC
 from data.models.topic import Status, TopicUpdate, TopicCreate, TopicsPaginate, TopicRepliesPaginate
 from data.models.user import AnonymousUser
-from common.utils import get_pagination_info, create_links, Page
+from common.utils import Page
 from starlette.requests import Request
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
@@ -69,11 +69,11 @@ def get_all_topics(
 
 @topics_router.get('/{topic_id}')
 def get_topic_by_id(
-        topic_id: int, current_user: OptionalUser,
+        topic_id: int, 
+        current_user: OptionalUser,
         request: Request,
         page: int = Query(1, ge=1, description="Page number"),
-        size: int = Query(Page.SIZE, ge=1, le=15, description="Page size"),
-        sort: str | None = None,
+        size: int = Query(Page.SIZE, ge=1, le=15, description="Page size")
 ) -> TopicRepliesPaginate:
     
     topic = topics_services.get_by_id(topic_id)
@@ -101,11 +101,7 @@ def get_topic_by_id(
                 detail=f'You do not have permission to access this private category'
             )
     
-    replies = replies_services.get_all(
-        topic_id=topic.topic_id, page=page, size=size, sort=sort)
-
-    pagination_info = get_pagination_info(len(replies), page, size)
-    links = create_links(request, pagination_info)
+    replies, pagination_info, links = replies_services.get_all(topic_id=topic.topic_id, request=request, page=page, size=size)
 
     result = TopicRepliesPaginate(
         topic=topic, replies=replies, pagination_info=pagination_info, links=links)

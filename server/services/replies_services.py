@@ -6,9 +6,11 @@ from data.models.topic import TopicResponse
 from data.database import read_query, update_query, insert_query
 from services.topics_services import get_by_id as get_topic_by_id
 from services.categories_services import get_by_id as get_cat_by_id, has_write_access
+from common.utils import get_pagination_info, create_links
+from starlette.requests import Request
 
 
-def get_all(topic_id: int, page: int, size: int) -> list[ReplyResponse]:
+def get_all(topic_id: int, request: Request, page: int, size: int) -> list[ReplyResponse]:
     params = (topic_id,)
 
     sql = '''SELECT r.reply_id, r.text, u.username, r.topic_id
@@ -20,7 +22,11 @@ def get_all(topic_id: int, page: int, size: int) -> list[ReplyResponse]:
     params += (size, size * (page - 1))
 
     data = read_query(pagination_sql, params)
-    return [ReplyResponse.from_query(*row) for row in data]
+    replies = [ReplyResponse.from_query(*row) for row in data]
+    pagination_info = get_pagination_info(len(replies), page, size)
+    links = create_links(request, pagination_info)
+    
+    return replies, pagination_info, links
 
 
 def get_by_id(id: int) -> Union[ReplyResponse, None]:
