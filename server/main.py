@@ -39,6 +39,7 @@ async def read_item(request: Request, id: str):
     )
 
 
+# todo visit http://127.0.0.1:8000/categories_demo
 @app.get("/categories_demo", response_class=HTMLResponse)
 async def categories_demo_view(
         request: Request,
