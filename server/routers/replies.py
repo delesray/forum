@@ -31,13 +31,16 @@ def add_reply(topic_id: int, reply: ReplyCreateUpdate, current_user: UserAuthDep
             status_code=SC.Forbidden,
             detail=msg
         )
+    
+    if not reply.text:
+        raise HTTPException(status_code=SC.BadRequest, detail="Reply text is required")
 
     reply_id = replies_services.create_reply(
         topic_id, reply, current_user.user_id)
     return f'Reply with ID {reply_id} successfully added'
 
 
-@replies_router.put('/{reply_id}', status_code=SC.NoContent)
+@replies_router.put('/{reply_id}')
 def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, current_user: UserAuthDep):
     """
     - Modifies reply, if:
@@ -63,12 +66,15 @@ def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, current_
             status_code=SC.Forbidden,
             detail=msg
         )
+    
+    if not update.text:
+        raise HTTPException(status_code=SC.BadRequest, detail="Reply text is required")
 
     replies_services.update_reply(reply_id, update.text)
     return f'Reply with ID {reply_id} successfully updated'
 
 
-@replies_router.delete('/{reply_id}', status_code=SC.NoContent)
+@replies_router.delete('/{reply_id}')
 def delete_reply(topic_id: int, reply_id: int, current_user: UserAuthDep):
     """
     - Deletes reply, if:

@@ -32,8 +32,8 @@ def fake_user():
     return user
 
 
-def fake_create_update_reply():
+def fake_create_update_reply(text: str):
     reply = Mock()
-    reply.text = 'sometxt'
+    reply.text = text
 
     return reply

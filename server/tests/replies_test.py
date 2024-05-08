@@ -5,7 +5,9 @@ from routers.replies import HTTPException
 from tests.test_utils import TOPIC_ID, REPLY_ID, fake_user, fake_create_update_reply
 
 
-reply = fake_create_update_reply()
+reply = fake_create_update_reply(text='sometxt')
+empty_reply = fake_create_update_reply(text='')
+
 
 class RepliesRouter_Should(unittest.TestCase):
 
@@ -35,7 +37,7 @@ class RepliesRouter_Should(unittest.TestCase):
                 self.assertEqual(404, ex.exception.status_code)
                 self.assertEqual('No such topic', ex.exception.detail)
 
-    def test_addReply_raises403_whenUsedNotHasAccessToTopic(self):
+    def test_addReply_raises403_whenUserNotHasAccessToTopic(self):
         with patch('routers.replies.exists') as mock_exists, \
                 patch('routers.replies.can_user_access_topic_content') as mock_access:
             mock_exists.return_value = True
@@ -49,6 +51,19 @@ class RepliesRouter_Should(unittest.TestCase):
                 self.assertEqual(403, ex.exception.status_code)
                 self.assertEqual(
                     'You don\'t have permissions to post, modify replies or vote in this topic', ex.exception.detail)
+                
+    def test_addReply_raises400_whenReplyEmpty(self):
+        with patch('routers.replies.exists') as mock_exists, \
+                patch('routers.replies.can_user_access_topic_content') as mock_access:
+            mock_exists.return_value = True
+            mock_access.return_value = (True, 'OK')
+
+            with self.assertRaises(HTTPException) as ex:
+                replies_router.add_reply(topic_id=TOPIC_ID, reply=empty_reply,
+                                              current_user=fake_user())
+
+                self.assertEqual(400, ex.exception.status_code)
+                self.assertEqual('Reply text is required', ex.exception.detail)
 
     def test_editReply_returnsCorrectMsg_whenTopicExists_userHasAccessToTopic(self):
         with patch('routers.replies.exists') as mock_exists, \
@@ -104,6 +119,19 @@ class RepliesRouter_Should(unittest.TestCase):
                 self.assertEqual(403, ex.exception.status_code)
                 self.assertEqual(
                     'You don\'t have permissions to post, modify replies or vote in this topic', ex.exception.detail)
+                
+    def test_editReply_raises400_whenReplyEmpty(self):
+        with patch('routers.replies.exists') as mock_exists, \
+                patch('routers.replies.can_user_access_topic_content') as mock_access:
+            mock_exists.return_value = True
+            mock_access.return_value = (True, 'OK')
+
+            with self.assertRaises(HTTPException) as ex:
+                replies_router.edit_reply(topic_id=TOPIC_ID, reply_id=REPLY_ID, update=empty_reply,
+                                               current_user=fake_user())
+
+                self.assertEqual('Reply text is required', ex.exception.detail)
+                self.assertEqual(400, ex.exception.status_code)
 
     def test_deleteReply_returnsCorrectMsg_whenTopicExists_userHasAccessToTopic(self):
         with patch('routers.replies.exists') as mock_exists, \
@@ -114,7 +142,6 @@ class RepliesRouter_Should(unittest.TestCase):
             mock_delete_reply.return_value = True
 
             expected = f'Reply deleted'
-
             result = replies_router.delete_reply(topic_id=TOPIC_ID, reply_id=REPLY_ID,
                                                  current_user=fake_user())
 
