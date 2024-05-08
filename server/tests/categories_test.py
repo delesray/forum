@@ -95,20 +95,6 @@ class CategoryRouter_Should(TestCase):
 
         self.assertEqual(r.SC.Forbidden, e.exception.status_code)
 
-    def test_get_category_by_id_raises_HTTPException_if_cat_private_and_user_HAS_permission(self):
-        #   53-
-        test_user = Mock(is_admin=False)
-        private_category_mock = Mock(is_private=True)
-        mock_category_services.get_by_id = lambda category_id: private_category_mock
-        mock_category_services.has_access_to_private_category = lambda x, y: True
-
-        mock_topic_services.get_all = lambda p, s: None, None
-
-        with self.assertRaises(r.HTTPException) as e:
-            r.get_category_by_id(CAT1.ID, test_user, Mock())
-
-        self.assertEqual(r.SC.Forbidden, e.exception.status_code)
-
     @patch('routers.categories.get_pagination_info')
     @patch('routers.categories.create_links')
     def test_get_category_by_id_HappyCase_correct_CategoryTopicsPaginate(  # name ?
@@ -116,18 +102,15 @@ class CategoryRouter_Should(TestCase):
     ):
         public_category_mock = Mock(spec=r.Category, is_private=False)
         public_category_mock.name = CAT1.NAME
-        guest_user = Mock()  # AnonymousUser ?
+        guest_user = Mock(is_admin=False)
 
-        # mock_category_services.get_by_id = lambda category_id: public_category_mock
-        topics = [Mock(spec=TopicResponse) for _ in range(2)]  # Mock list of 2 topics
+        mock_category_services.get_by_id = lambda category_id: public_category_mock
 
-        # mock_topic_services.get_all = \
-        #     lambda page, size, sort, sort_by, search, category=2: (topics, 10)  # Return topics and total count
+        topics = [Mock(spec=TopicResponse) for _ in range(2)]
+        mock_get_pagination_info.return_value = Mock(spec=PaginationInfo)
+        mock_create_links.return_value = Mock(spec=Links)
 
-        mock_get_pagination_info.return_value = Mock(spec=PaginationInfo)  # ?
-        mock_create_links.return_value = Mock(spec=Links)  # ?
-
-        mock_category_services.f = lambda request, page, size, sort, sort_by, search, category: \
+        mock_topic_services.get_topics_paginate_links = lambda request, page, size, sort, sort_by, search, category: \
             (topics, mock_get_pagination_info.return_value, mock_create_links.return_value)
 
         expected = {
@@ -141,5 +124,8 @@ class CategoryRouter_Should(TestCase):
             request=Mock())  # page=TST.page, size=TST.size ?
 
         self.assertEqual(expected['category'], result.category)
-        self.assertEqual(expected['category'], result.category)
         self.assertIsInstance(result.category, r.Category)
+        self.assertIsInstance(result.topics, list)
+        self.assertIsInstance(result.topics[0], TopicResponse)
+        self.assertIsInstance(result.pagination_info, PaginationInfo)
+        self.assertIsInstance(result.links, Links)
