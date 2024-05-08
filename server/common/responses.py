@@ -1,11 +1,6 @@
 from fastapi import Response, HTTPException
 
 
-class BRequest(HTTPException):
-    def __init__(self, detail=''):
-        super().__init__(status_code=401, detail=detail)
-
-
 class SC:
     Created = 201
     Accepted = 202
@@ -16,6 +11,26 @@ class SC:
     PaymentRequired = 402
     Forbidden = 403
     NotFound = 404
+
+
+class HTTPBaRequest(HTTPException):
+    def __init__(self, detail=''):
+        super().__init__(status_code=SC.BadRequest, detail=detail)
+
+
+class HTTPForbidden(HTTPException):
+    def __init__(self, detail=''):
+        super().__init__(status_code=SC.Forbidden, detail=detail)
+
+
+class HTTPUnauthorized(HTTPException):
+    def __init__(self, detail=''):
+        super().__init__(status_code=SC.Unauthorized, detail=detail)
+
+
+class HTTPNotFound(HTTPException):
+    def __init__(self, detail=''):
+        super().__init__(status_code=SC.NotFound, detail=detail)
 
 
 class BadRequest(Response):

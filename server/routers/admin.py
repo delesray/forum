@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from common.responses import SC
+from common.responses import SC, HTTPBaRequest, HTTPForbidden, HTTPNotFound, HTTPUnauthorized
 from data.models.category import Category
 from routers.topics import switch_topic_locking_helper
 from services import categories_services, users_services
@@ -13,16 +13,17 @@ admin_router = APIRouter(prefix='/admin', tags=['admin'])
 @admin_router.post('/categories', status_code=201)
 def create_category(category: Category, current_admin: AdminAuthDep):
     result = categories_services.create(category)
-    if isinstance(result, Category):
-        return result
-    raise HTTPException(SC.BadRequest, result.msg)
+    if isinstance(result, categories_services.IntegrityError):
+        raise HTTPBaRequest(result.msg)
+
+    raise result
 
 
 @admin_router.patch('/categories/{category_id}/privacy', status_code=202)
 def switch_category_privacy(category_id: int, current_admin: AdminAuthDep):
     category = categories_services.get_by_id(category_id)
     if not category:
-        raise HTTPException(SC.BadRequest, "No such category")
+        raise HTTPNotFound()
 
     categories_services.update_privacy(not category.is_private, category_id)
     return f'Category {category.name} is {'public' if category.is_private else 'private'} now'
