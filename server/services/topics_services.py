@@ -1,14 +1,9 @@
 from __future__ import annotations
-
 from data.models.topic import Status, TopicResponse, TopicCreate
 from data.models.user import User
 from data.database import read_query, update_query, insert_query, query_count
 from mariadb import IntegrityError
-from fastapi import HTTPException
 from common.responses import NotFound, Forbidden
-from data.models.reply import ReplyResponse
-from services.users_services import exists_by_username
-from services.categories_services import exists_by_name
 
 _TOPIC_BEST_REPLY = None
 
@@ -53,7 +48,8 @@ def get_all(
         params += (Status.str_int[status],)
     sql = (sql + (" WHERE " + " AND ".join(filters) if filters else ""))
 
-    total_count = get_total_count(sql, params)  # get count of filtered topics for pagination info
+    # get count of filtered topics for pagination info
+    total_count = get_total_count(sql, params)
 
     if sort:
         sql += f' ORDER BY {sort_by} IS NULL, {sort_by} {sort.upper()}'
@@ -112,7 +108,8 @@ def update_best_reply(topic_id, best_reply_id):
 def custom_sort(topics: list[TopicResponse], attribute, reverse=False):
     return sorted(
         topics,
-        key=lambda t: getattr(t, attribute) if getattr(t, attribute) is not None else float('inf'),
+        key=lambda t: getattr(t, attribute) if getattr(
+            t, attribute) is not None else float('inf'),
         # float('inf') - positive infinity, None values are treated as if are greater than any real val
         reverse=reverse)
 
