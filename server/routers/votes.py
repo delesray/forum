@@ -53,8 +53,8 @@ def add_or_switch(type: allowed_vote_type,
         - topic exists
         - reply exists in this topic
         - user can modify content in this topic
-    2. If the user has already up/down voted this reply and
-        the vote type given is different, switches the vote type
+    2. If the user has already up/down voted this reply, switches it, if different
+    3. If the vote type given is the same as before, displays a message
     """
 
     if not topic_exists(id=topic_id):
@@ -78,7 +78,7 @@ def add_or_switch(type: allowed_vote_type,
             detail=msg
         )
 
-    vote = votes_services.vote_exists(
+    vote = votes_services.get_vote_with_type(
         reply_id=reply_id, user_id=current_user.user_id)
 
     if not vote:
@@ -86,14 +86,23 @@ def add_or_switch(type: allowed_vote_type,
             user_id=current_user.user_id, reply_id=reply_id, type=type)
         return f'You {type}voted REPLY with ID: {reply_id}'
 
-    votes_services.switch_vote(user_id=current_user.user_id,
-                               reply_id=reply_id, type=type)
+    if vote != type:
+        votes_services.switch_vote(user_id=current_user.user_id,
+                                   reply_id=reply_id, type=vote)
+        return f'Vote switched to {type}vote'
 
-    return f'Vote switched to {type}vote'
+    return f'Reply already {type}voted. Choose different type to switch it'
 
 
 @votes_router.delete('/', status_code=SC.NoContent)
 def remove_vote(topic_id: int, reply_id: int, current_user: UserAuthDep):
+    """
+    1. Removes user's vote, if:
+        - topic exists
+        - reply exists in this topic
+        - user can modify content in this topic
+    2. Does nothing if no such vote
+    """
     if not topic_exists(id=topic_id):
         raise HTTPException(
             status_code=SC.NotFound,
