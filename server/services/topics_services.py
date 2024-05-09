@@ -34,10 +34,13 @@ def get_all(
         sort_by: str = None
 ):
     params, filters = (), []
-    sql = '''SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name
-             FROM topics t 
-             JOIN users u ON t.user_id = u.user_id
-             JOIN categories c ON t.category_id = c.category_id'''
+    sql = (
+'SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name ' 
+'FROM topics t ' 
+'JOIN users u ON t.user_id = u.user_id ' 
+'JOIN categories c ON t.category_id = c.category_id '
+) 
+
 
     if search:
         filters.append('t.title LIKE ?')
@@ -51,7 +54,7 @@ def get_all(
     if status:
         filters.append('t.is_locked = ?')
         params += (Status.str_int[status],)
-    sql = (sql + (" WHERE " + " AND ".join(filters) if filters else ""))
+    sql = (sql + ("WHERE " + " AND ".join(filters) if filters else ""))
 
     # get count of filtered topics for pagination info
     total_count = get_total_count(sql, params)

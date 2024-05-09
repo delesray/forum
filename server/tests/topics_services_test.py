@@ -87,7 +87,7 @@ class TopicsServices_Should(TestCase):
         
            self.assertEqual(expected, result)
            mock_query_count.assert_called_once_with(
-                'SELECT COUNT_1(*) FROM (SELECT * FROM table) as filtered_topics',
+                'SELECT COUNT(*) FROM (SELECT * FROM table) as filtered_topics',
                 ('filter_1', 'filter_2')
             ) 
     
@@ -168,19 +168,19 @@ class TopicsServices_Should(TestCase):
             search_filter = 'example'
             username_filter = AUTHOR
             category_filter = CATEGORY_NAME
-            status_filter = 'open'
+            status_filter = 0
             sort = 'asc'
             sort_by = 'title'
             limit = SIZE
             offset = SIZE * (PAGE - 1)  
-            expected_params = (f'%{search_filter}%', username_filter, category_filter, status_filter, sort, sort_by, limit, offset) 
+            expected_params = (f'%{search_filter}%', username_filter, category_filter, status_filter, limit, offset) 
             
             topics.get_all(PAGE,
                            SIZE, 
                            search=search_filter, 
                            username=username_filter,
                            category=category_filter,
-                           status=status_filter,
+                           status='open',
                            sort=sort,
                            sort_by=sort_by
                        ) 
