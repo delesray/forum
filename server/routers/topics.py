@@ -22,6 +22,24 @@ def get_all_topics(
         category: str | None = None,
         status: str | None = None
 ):
+    
+    """
+    - User can view all Topics
+    - Topics can be sorted by:
+        - topic_id
+        - title 
+        - user_id of the author
+        - status (open or locked)
+        - best_reply_id
+        - category_id
+    - Topics can be searched by:
+        - title
+        - username (of the author)
+        - category name
+        - status (open or locked)
+    - User can choose number of pages displayed (1 by default) and number of items per page (1 by default, maximum 15)
+    """
+
     if username and not users_services.exists_by_username(username):
         raise HTTPException(
             status_code=SC.NotFound,
@@ -76,6 +94,11 @@ def get_topic_by_id(
         size: int = Query(Page.SIZE, ge=1, le=15, description="Page size")
 ) -> TopicRepliesPaginate:
     
+    """
+    - A guest can view a Topic with all of its Replies, if the Topic belongs to a public Category
+    - If the Category is private, authentication is required
+    """
+    
     topic = topics_services.get_by_id(topic_id)
 
     if not topic:
@@ -111,6 +134,11 @@ def get_topic_by_id(
 
 @topics_router.post('/')
 def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
+
+    """
+    - User can create a Topic, if the User has write access to the designated Category
+    """
+        
     category = categories_services.get_by_id(new_topic.category_id)
 
     if not category:
@@ -132,8 +160,13 @@ def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
     raise HTTPException(SC.BadRequest, result)
 
 
-@topics_router.patch('/{topic_id}/best-REPLY')
+@topics_router.patch('/{topic_id}/bestReply')
 def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_update: TopicUpdate = Body(...)):
+    
+    """
+    - User can choose a best Reply to a Topic, if the User owns the Topic
+    """
+
     if not topic_update.best_reply_id:
         raise HTTPException(SC.BadRequest, f"Data not provided to make changes")
 
@@ -155,6 +188,10 @@ def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_upda
 
 @topics_router.patch('/{topic_id}/locking')
 def switch_topic_locking(topic_id: int, existing_user: UserAuthDep):
+    
+    """
+    - User can lock or unlock a Topic, if the User owns the Topic
+    """
     return switch_topic_locking_helper(topic_id, existing_user)
 
 

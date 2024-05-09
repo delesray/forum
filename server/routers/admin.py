@@ -120,7 +120,7 @@ def view_privileged_users(category_id: int, current_admin: AdminAuthDep):
 @admin_router.patch('/topics/{topic_id}/locking')
 def switch_topic_locking(topic_id: int, current_admin: AdminAuthDep):
     """
-    - Admin can lock a Topic
+    - Admin can lock/unlock a Topic
     - A locked Topic no longer accepts Replies
     """
     return switch_topic_locking_helper(topic_id, current_admin)
