@@ -13,7 +13,13 @@ users_router = APIRouter(prefix='/users', tags=['users'])
 
 @users_router.post('/register', status_code=SC.Created)
 def register_user(user: UserRegister):
-
+    """
+    - Register the user, if:
+        - username is at least 4 chars and is not already taken
+        - password is at least 4 chars
+        - email follows the example
+    - First name and last name are not required upon registration
+    """
     result = users_services.register(user)
 
     if not isinstance(result, int):
@@ -24,6 +30,10 @@ def register_user(user: UserRegister):
 
 @users_router.post('/login')
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    """
+    - Logs the user, if username and password are correct
+    - Logging can also happen through the Authorize button above
+    """
     user = users_services.try_login(form_data.username, form_data.password)
 
     if not user:
@@ -46,6 +56,9 @@ def get_all_users():
 
 @users_router.get('/{user_id}')
 def get_user_by_id(user_id: int):
+    """
+    - Returns a user by ID, if the user exists
+    """
     user = users_services.get_by_id(user_id)
 
     if not user:
@@ -55,6 +68,9 @@ def get_user_by_id(user_id: int):
 
 @users_router.put('/')
 def update_user(user: UserUpdate, existing_user: UserAuthDep):
+    """
+    - Updates first name and/or last name of the authenticated user
+    """
     result = users_services.update(existing_user, user)
     return result
 
@@ -79,9 +95,9 @@ def change_user_password(data: UserChangePassword, existing_user: UserAuthDep):
 @users_router.delete('/', status_code=SC.NoContent)
 def delete_user_by_id(existing_user: UserAuthDep, body: UserDelete):
     """
-    1. Verifies the current password
-    2. Flags the user as deleted in db
-        2.1 Triggers an object in db that deletes his messages
+    - Verifies the current password
+    - Flags the user as deleted in db
+        - Triggers an object in db that deletes his messages
     """
     if not utils.verify_password(body.current_password, existing_user.password):
         raise HTTPException(status_code=SC.BadRequest,

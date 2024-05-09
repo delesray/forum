@@ -29,7 +29,7 @@ def send_message(receiver_id: int, message: MessageText, current_user: UserAuthD
 @messages_router.get('/users')
 def get_all_conversations(current_user: UserAuthDep):
     """
-    - Returns list of users the current user has messaged or received messages from
+    - Returns all users the current user has messaged or received messages from
     - Returns 'No conversations', if no conversations
     """
     result = messages_services.get_all_conversations(current_user.user_id)
@@ -40,7 +40,7 @@ def get_all_conversations(current_user: UserAuthDep):
 @messages_router.get('/{receiver_id}')
 def get_conversation(receiver_id: int, current_user: UserAuthDep):
     """
-    - Returns list of messages the current user has exchanged with another user
+    - Returns all messages the current user has exchanged with another user
     - Returns 'No such conversation', if no messages
     """
     result = messages_services.get_conversation(current_user.user_id, receiver_id)

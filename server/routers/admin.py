@@ -12,6 +12,10 @@ admin_router = APIRouter(prefix='/admin', tags=['admin'])
 
 @admin_router.post('/categories', status_code=201)
 def create_category(category: Category, current_admin: AdminAuthDep):
+    """
+    - Admin can create a Category
+    - Category names must be unique
+    """
     result = categories_services.create(category)
     if isinstance(result, categories_services.IntegrityError):
         raise HTTPBadRequest(result.msg)
@@ -21,6 +25,9 @@ def create_category(category: Category, current_admin: AdminAuthDep):
 
 @admin_router.patch('/categories/{category_id}/privacy', status_code=202)
 def switch_category_privacy(category_id: int, current_admin: AdminAuthDep):
+    """
+    - Admin can make a Category private or public, if it exists
+    """
     category = categories_services.get_by_id(category_id)
     if not category:
         raise HTTPNotFound()
@@ -31,6 +38,10 @@ def switch_category_privacy(category_id: int, current_admin: AdminAuthDep):
 
 @admin_router.patch('/categories/{category_id}/locking', status_code=202)
 def switch_category_locking(category_id: int, current_admin: AdminAuthDep):
+    """
+    - Admin can lock or unlock a Category, if it exists
+    - Locked Categories don't accept new Topics
+    """
     category = categories_services.get_by_id(category_id)
     if not category:
         raise HTTPNotFound("No such category")
@@ -43,6 +54,9 @@ def switch_category_locking(category_id: int, current_admin: AdminAuthDep):
 
 @admin_router.post('/users/{user_id}/categories/{category_id}')
 def give_user_category_read_access(user_id: int, category_id: int, current_admin: AdminAuthDep):
+    """
+    - Admin can give a regular user read access to a private Category
+    """
     if not users_services.get_by_id(user_id) or not categories_services.get_by_id(category_id):
         raise HTTPNotFound('No such user or category')
 
@@ -55,6 +69,9 @@ def give_user_category_read_access(user_id: int, category_id: int, current_admin
 
 @admin_router.delete('/users/{user_id}/categories/{category_id}')
 def revoke_user_category_read_access(user_id: int, category_id: int, current_admin: AdminAuthDep):
+    """
+    - Admin can revoke a regular user's read access to a private Category
+    """
     if not users_services.get_by_id(user_id) or not categories_services.get_by_id(category_id):
         raise HTTPNotFound('No such user or category')
 
@@ -64,6 +81,9 @@ def revoke_user_category_read_access(user_id: int, category_id: int, current_adm
 
 @admin_router.patch('/users/{user_id}/categories/{category_id}/access')
 def switch_user_category_write_access(user_id: int, category_id: int, current_admin: AdminAuthDep):
+    """
+    - Admin can give / revoke a regular user's write access to a private Category
+    """
     if not users_services.get_by_id(user_id) or not categories_services.get_by_id(category_id):
         raise HTTPNotFound('No such user or category')
 
@@ -78,6 +98,9 @@ def switch_user_category_write_access(user_id: int, category_id: int, current_ad
 
 @admin_router.get('/users/categories/{category_id}')
 def view_privileged_users(category_id: int, current_admin: AdminAuthDep):
+    """
+    - Admin can view all regular users who have access to a private Category
+    """
     category = categories_services.get_by_id(category_id)
     if not category:
         raise HTTPNotFound('No such category')
@@ -96,4 +119,8 @@ def view_privileged_users(category_id: int, current_admin: AdminAuthDep):
 
 @admin_router.patch('/topics/{topic_id}/locking')
 def switch_topic_locking(topic_id: int, current_admin: AdminAuthDep):
+    """
+    - Admin can lock a Topic
+    - A locked Topic no longer accepts Replies
+    """
     return switch_topic_locking_helper(topic_id, current_admin)
