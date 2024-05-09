@@ -25,7 +25,7 @@ def create_reply(reply_id):
 
 class RepliesServices_Should(unittest.TestCase):
 
-    def test_getAll_returnsListOfReplyResponseObjects_whenRepliesExist(self):
+    def test_getAll_returnsListOfReplyResponseObjectsPaginationInfoAndLinks_whenRepliesExist(self):
         with patch('services.replies_services.read_query') as mock_get_all_replies, \
                 patch('services.replies_services.get_pagination_info') as mock_pagination_info, \
                 patch('services.replies_services.create_links') as mock_create_links:
@@ -51,7 +51,7 @@ class RepliesServices_Should(unittest.TestCase):
 
             self.assertEqual(expected, actual)
 
-    def test_getAll_returnsEmptyList_whenNoReplies(self):
+    def test_getAll_returnsEmptyListPaginationInfoAndLinks_whenNoReplies(self):
         with patch('services.replies_services.read_query') as mock_get_all_replies, \
                 patch('services.replies_services.get_pagination_info') as mock_pagination_info, \
                 patch('services.replies_services.create_links') as mock_create_links:
