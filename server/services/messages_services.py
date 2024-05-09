@@ -27,9 +27,10 @@ def get_all_conversations(user_id: int):
 def get_conversation(sender_id: int, receiver_id: int):
     data = read_query('''SELECT message_id, text, sender_id, receiver_id
                       FROM messages
-                      WHERE sender_id=? AND receiver_id=?''',
-                      (sender_id, receiver_id))
-
+                      WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+                      ORDER BY message_id ASC''',
+                      (sender_id, receiver_id, receiver_id, sender_id))
+ 
     return [Message.from_query(*row) for row in data]
 
 
