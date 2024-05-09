@@ -4,7 +4,7 @@ from data.database import read_query, update_query, insert_query
 
 
 def exists(message_id):
-    return any(read_query('SELECT COUNT_1(*) FROM messages WHERE message_id = ?',
+    return any(read_query('SELECT COUNT(*) FROM messages WHERE message_id = ?',
                           (message_id,)))
 
 

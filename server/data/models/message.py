@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Message(BaseModel):
@@ -18,4 +18,4 @@ class Message(BaseModel):
 
 
 class MessageText(BaseModel):
-    text: str
+    text: str  # = Field(..., min_length=1)
