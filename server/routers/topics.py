@@ -114,10 +114,10 @@ def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
     category = categories_services.get_by_id(new_topic.category_id)
 
     if not category:
-        raise HTTPException(SC.NotFound, f'Category #ID: {new_topic.category_id} does not exist')
+        raise HTTPException(SC.NotFound, f'Category #ID:{new_topic.category_id} does not exist')
 
     if category.is_locked:
-        raise HTTPException(SC.Forbidden, f'Category #ID: {category.category_id}, Name: {category.name} is locked')
+        raise HTTPException(SC.Forbidden, f'Category #ID:{category.category_id}, Name: {category.name} is locked')
 
     if category.is_private:
         if categories_services.has_write_access(current_user.user_id, category.category_id):
