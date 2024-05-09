@@ -26,7 +26,7 @@ def get_category_by_id(
         size: int = Query(Page.SIZE, ge=1, le=15, description="Page size"),
         search: str | None = None,
         sort: str | None = None,
-        sort_by: str = 'topic_id',
+        sort_by: str | None = 'topic_id',
 ) -> CategoryTopicsPaginate:
     """
     1. Returns Category with a list of Topics, if Category is public
@@ -49,6 +49,18 @@ def get_category_by_id(
                 status_code=SC.Forbidden,
                 detail=f'You do not have permission to access this private category'
             )
+            
+    if sort and sort.lower() not in ['asc', 'desc']:
+        raise HTTPException(
+            status_code=SC.BadRequest,
+            detail=f"Invalid sort parameter"
+        )
+
+    if sort_by and sort_by.lower() not in ['topic_id', 'title', 'user_id', 'status', 'best_reply_id', 'category_id']:
+        raise HTTPException(
+            status_code=SC.BadRequest,
+            detail=f"Invalid sort_by parameter"
+        )
 
     topics, pagination_info, links = topics_services.get_topics_paginate_links(
         request=request, page=page, size=size, sort=sort, sort_by=sort_by, search=search, category=category.name)

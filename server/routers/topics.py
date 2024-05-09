@@ -16,7 +16,7 @@ def get_all_topics(
         page: int = Query(1, ge=1, description="Page number"),
         size: int = Query(Page.SIZE, ge=1, le=15, description="Page size"),
         sort: str | None = None,
-        sort_by: str = 'topic_id',
+        sort_by: str | None = 'topic_id',
         search: str | None = None,
         username: str | None = None,
         category: str | None = None,

@@ -57,6 +57,15 @@ def get_all(
     total_count = get_total_count(sql, params)
 
     if sort:
+        if sort_by == 'user_id':
+            sort_by ='t.user_id'
+            
+        if sort_by == 'category_id':
+            sort_by ='t.category_id'
+            
+        if sort_by == 'status':
+            sort_by = 't.is_locked'
+            
         sql += f' ORDER BY {sort_by} IS NULL, {sort_by} {sort.upper()}'
 
     pagination_sql = sql + ' LIMIT ? OFFSET ?'
