@@ -1,6 +1,7 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from data.models.reply import ReplyResponse, ReplyCreateUpdate
+from common.utils import PaginationInfo
 from services import replies_services as replies
 from tests.test_utils import TOPIC_ID, REPLY_ID, USER_ID, fake_category, fake_topic
 
@@ -25,27 +26,52 @@ def create_reply(reply_id):
 class RepliesServices_Should(unittest.TestCase):
 
     def test_getAll_returnsListOfReplyResponseObjects_whenRepliesExist(self):
-        with patch('services.replies_services.read_query') as mock_get_all_replies:
+        with patch('services.replies_services.read_query') as mock_get_all_replies, \
+                patch('services.replies_services.get_pagination_info') as mock_pagination_info, \
+                patch('services.replies_services.create_links') as mock_create_links:
             reply_id_1, reply_id_2, reply_id_3 = 1, 2, 3
             mock_get_all_replies.return_value = [(reply_id_1, TEXT, USERNAME, TOPIC_ID),
-                                            (reply_id_2, TEXT, USERNAME, TOPIC_ID),
-                                            (reply_id_3, TEXT, USERNAME, TOPIC_ID)]
+                                                 (reply_id_2, TEXT,
+                                                  USERNAME, TOPIC_ID),
+                                                 (reply_id_3, TEXT, USERNAME, TOPIC_ID)]
 
-            expected = [create_reply(reply_id_1),
-                        create_reply(reply_id_2),
-                        create_reply(reply_id_3)]
+            mock_pagination_info.return_value = PaginationInfo(total_elements=len(mock_get_all_replies.return_value),
+                                                               page=PAGE,
+                                                               size=SIZE,
+                                                               pages=1)
+            request = Mock()
+            links = Mock()
+            mock_create_links.return_value = links
 
-            actual = replies.get_all(topic_id=TOPIC_ID, page=PAGE, size=SIZE)
+            expected = [create_reply(reply_id_1), create_reply(reply_id_2), create_reply(reply_id_3)], PaginationInfo(
+                total_elements=len(mock_get_all_replies.return_value), page=PAGE, size=SIZE, pages=1), links
+
+            actual = replies.get_all(
+                topic_id=TOPIC_ID, request=request, page=PAGE, size=SIZE)
 
             self.assertEqual(expected, actual)
 
     def test_getAll_returnsEmptyList_whenNoReplies(self):
-        with patch('services.replies_services.read_query') as mock_get_all_replies:
+        with patch('services.replies_services.read_query') as mock_get_all_replies, \
+                patch('services.replies_services.get_pagination_info') as mock_pagination_info, \
+                patch('services.replies_services.create_links') as mock_create_links:
+
             mock_get_all_replies.return_value = []
+            mock_pagination_info.return_value = PaginationInfo(total_elements=len(mock_get_all_replies.return_value),
+                                                               page=PAGE,
+                                                               size=SIZE,
+                                                               pages=0)
+            request = Mock()
+            links = Mock()
+            mock_create_links.return_value = links
 
-            expected = []
+            expected = [], PaginationInfo(total_elements=0,
+                                          page=PAGE,
+                                          size=SIZE,
+                                          pages=0), links
 
-            actual = replies.get_all(topic_id=TOPIC_ID, page=PAGE, size=SIZE)
+            actual = replies.get_all(
+                topic_id=TOPIC_ID, request=request, page=PAGE, size=SIZE)
 
             self.assertEqual(expected, actual)
 
