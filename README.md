@@ -29,9 +29,9 @@ git clone https://github.com/ForumTelerik/forum.git
 git clone git@github.com:ForumTelerik/forum.git
 ```
 
-### 2. Install the packages listed in the **requirements.txt** file in a virtual environment using pip and venv (make sure you're in the `forum/server` directory)
+### 2. Navigate to `forum/server` directory and install the packages listed in the **requirements.txt** file
 
-**Inctructions on creating and activating a virtual environment:** [Link](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/)
+(Optional) **Inctructions on creating and activating a virtual environment:** [Link](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/)
 
 ```
 pip install -r requirements.txt
