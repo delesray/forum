@@ -14,7 +14,7 @@ users_router = APIRouter(prefix='/users', tags=['users'])
 @users_router.post('/register', status_code=SC.Created)
 def register_user(user: UserRegister):
     """
-    - Register the user, if:
+    - Registers the user, if:
         - username is at least 4 chars and is not already taken
         - password is at least 4 chars
         - email follows the example
@@ -32,7 +32,7 @@ def register_user(user: UserRegister):
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     """
     - Logs the user, if username and password are correct
-    - Logging can also happen through the Authorize button above
+    - Returns access Token
     """
     user = users_services.try_login(form_data.username, form_data.password)
 
@@ -84,6 +84,8 @@ def change_user_password(data: UserChangePassword, existing_user: UserAuthDep):
     """
     if not utils.verify_password(data.current_password, existing_user.password):
         raise HTTPException(SC.Unauthorized, "Current password does not match")
+    if not data.current_password != data.new_password:
+        raise HTTPException(SC.BadRequest, "New password must be different from current password")
     if not data.new_password == data.confirm_password:
         raise HTTPException(SC.Unauthorized, "New password does not match")
 
