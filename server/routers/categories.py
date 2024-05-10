@@ -5,16 +5,31 @@ from common.responses import SC
 from data.models.user import AnonymousUser
 from data.models.category import Category, CategoryTopicsPaginate
 from services import categories_services, topics_services
-from common.utils import get_pagination_info, create_links, Page
+from common.utils import Page
+from routers.main_router import templates
+from fastapi.responses import HTMLResponse
 
 categories_router = APIRouter(prefix='/categories', tags=['categories'])
 
 
-@categories_router.get('/')
-def get_all_categories(
-        search: str | None = None) -> list[Category]:
-    categories = categories_services.get_all(search=search)
-    return categories
+@categories_router.get("/",
+                       response_class=HTMLResponse,
+                       name='categories_demo_view', )
+def categories_demo_view(
+        request: Request,
+):
+    categories = categories_services.get_all()
+
+    return templates.TemplateResponse(
+        request=request, name="categories_demo.html", context={'categories': categories}
+    )
+
+
+# @categories_router.get('/')
+# def get_all_categories(
+#         search: str | None = None) -> list[Category]:
+#     categories = categories_services.get_all(search=search)
+#     return categories
 
 
 @categories_router.get('/{category_id}')
@@ -49,7 +64,7 @@ def get_category_by_id(
                 status_code=SC.Forbidden,
                 detail=f'You do not have permission to access this private category'
             )
-            
+
     if sort and sort.lower() not in ['asc', 'desc']:
         raise HTTPException(
             status_code=SC.BadRequest,

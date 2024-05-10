@@ -1,0 +1,97 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Forum</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/all-styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', path='images/sg-logo.svg') }}">
+</head>
+
+<body style="background-color: #F2F4F5">
+<div class="container"></div>
+
+<nav class="navbar bg-black navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('home_page_view') }}">
+            <img src=static/images/sg-logo.svg alt="logo" class="d-inline-block align-text-center"
+            height="50" width="50">
+            Forum
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll"
+                aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarScroll">
+            <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('categories_demo_view') }}">Categories</a>
+                </li>
+
+                {% if not request.user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user register' %}">Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user login' %}">Login</a>
+                </li>
+                <li class="nav-item welcome position-absolute top-50 start-50 translate-middle">
+                    Welcome!
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user details' pk=request.user.pk %}">Profile</a>
+                </li>
+
+                <li class="nav-item welcome position-absolute top-50 start-50 translate-middle">
+                    Welcome, {{ request.user.username }}!
+                </li>
+                {% endif %}
+            </ul>
+            {% if request.user.is_authenticated %}
+            <ul class="nav justify-content-end">
+                <li class="nav-item float-left">
+                    <a class="nav-link" href="{% url 'list favourite items' username=request.user.username %}">
+                        Favorites {{ request.user.favourite_set.all.count }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user logout' %}">Logout</a>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<main>
+    {% block content %}
+    {% endblock %}
+</main>
+
+
+<footer style="text-align: center">
+    © 2024 Forum
+    <span style="float: left"> phone: +359 88 9357 231</span>
+    <span style="float: right">email: forum@forum.com </span>
+</footer>
+
+<!--<script src="{% static 'js/bootstrap.bundle.js' %}"></script>-->
+</body>
+</html>
+
+<!--<li class="nav-item dropdown">-->
+
+<!--    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"-->
+<!--       aria-expanded="false">-->
+<!--        Link-->
+<!--    </a>-->
+<!--    <ul class="dropdown-menu" style="background: black">-->
+<!--        <li><a class="dropdown-item" href="#" style="color: #C9C9C9">Action</a></li>-->
+<!--        <li><a class="dropdown-item" href="#" style="color: #C9C9C9">Another action</a></li>-->
+<!--        <li>-->
+<!--            <hr class="dropdown-divider" style="border-color: #C9C9C9">-->
+<!--        </li>-->
+<!--        <li><a class="dropdown-item" href="#" style="color: #C9C9C9">Something else here</a></li>-->
+<!--    </ul>-->
+<!--</li>-->

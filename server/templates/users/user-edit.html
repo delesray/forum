@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h1 align="center">USER EDIT</h1>
+
+    <div class="user-edit-container container border border-dark rounded box">
+        <form method="post" action="{% url 'user edit' pk=current_user.pk%}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+                <p class="error" style="color: orangered">
+                        {{ field.errors }}
+                </p>
+                <div class="label-input">
+                    <label>{{ field.label }}</label>
+
+                    {% if field.label == "Genders:" %}
+                        <div class="list-choice">
+                            <div class="list-choice-title">Gender</div>
+                            <div class="list-choice-objects">
+
+                                {% for type, value in form.fields.gender.choices %}
+                                    <label>
+                                        <input type="radio" value="{{ value }}" name="gender"
+                                                {% if form.gender.value == value %}
+                                               checked
+                                                {% endif %}/>
+                                        <span>{{ value }}</span>
+                                    </label>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+
+                </div>
+                <br>
+            {% endfor %}
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button class="btn btn-edit" type="submit">Edit</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

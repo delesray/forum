@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block content %}
+
+
+    <h1 align="center" style="color: #2D1A32">REGISTER</h1>
+    <div class="container box box-logreg">
+        <div class="log-reg-box">
+            <form style="vertical-align: middle" method="post" action="{% url 'user register' %}">
+                {% csrf_token %}
+
+                {{ form.username.label }}
+                {{ form.username.errors }}
+                {{ form.username|placeholder:'username' }}
+
+                {{ form.email.label }}
+                {{ form.email.errors }}
+                {{ form.email|placeholder:'some@email.com' }}
+
+                {{ form.password1.label }}
+                {{ form.password1|placeholder:'password' }}
+                {{ form.password2.label }}
+                {{ form.password2|placeholder:'repeat password' }}
+                {{ form.password1.errors }}
+                {{ form.password2.errors }}
+
+                <input type="hidden" name="next" value="{{ next }}">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <button type="submit" class="btn btn-register">Register</button>
+                </div>
+            </form>
+            <p>Don't have account? <a href="{% url 'user login' %}">Login</a></p>
+        </div>
+    </div>
+
+{% endblock %}

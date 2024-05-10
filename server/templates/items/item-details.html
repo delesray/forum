@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load humanize %}
+
+    {% load static %}
+    <br>
+    <div id="item-details-grid">
+
+        <div class="container">
+            {# ---------------------------------------------------------------------------------------------------------------- #}
+            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="false">
+                <ol class="carousel-indicators">
+                    <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"
+                        aria-current="true"></li>
+                    {% for i in indicators %}
+                        <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{ i }}"></li>
+                    {% endfor %}
+                </ol>
+                <div class="carousel-inner">
+
+                    <div class="carousel-item active">
+                        <img height="650"
+                             src="{{ current_item.image_main.url }} " class=" w-100 img-carousel" alt="main-image">
+                    </div>
+                    {% for img in images %}
+                        <div class="carousel-item">
+                            <img height="650"
+                                    src="{{ img.image.url }}" class="w-100 img-carousel" alt="image">
+                        </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
+                        data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon my-arrows" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"
+                        data-bs-slide="next">
+                    <span class="carousel-control-next-icon my-arrows" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+            {# ------------------------------------------------------------------------------------------------------- #}
+        </div>
+
+        <div class="container box">
+            <h1>{{ current_item.title }}</h1>
+
+            <!-- USER OWNER-->
+            {% if is_owner %}
+                <!-- EDIT DELETE buttons-->
+                <a href="{% url 'item edit' username=current_item.user.username slug=current_item.slug %}">
+                    <img class="edit-img" src="{% static 'images/edit-pen-icon-6.jpg' %}" alt="edit button">
+                </a>
+
+                <a href="{% url 'item delete' username=current_item.user.username slug=current_item.slug %}">
+                    <img class="bin-img" src="{% static 'images/icon-remove-22.jpg' %}" alt="bin button">
+                </a>
+            {% else %}
+                <h5>Owner: {{ current_item.user }}</h5>
+            {% endif %}
+
+            <!-- PHONE -->
+            {% if current_item.phone %}
+                <h5>phone: {{ current_item.phone }}</h5>
+            {% elif current_item.user.phone %}
+                <h5>phone: {{ current_item.user.phone }}</h5>
+            {% endif %}
+
+            <!-- EMAIL-->
+            {% if current_item.email %}
+                <h5>email: {{ current_item.email }}</h5>
+            {% elif current_item.user.email %}
+                <h5>email: {{ current_item.user.email }}</h5>
+            {% endif %}
+
+            <!-- LOCATION-->
+            {% if current_item.location %}
+                <h5>location: {{ current_item.location }}</h5>
+            {% elif current_item.user.location %}
+                <h5>location: {{ current_item.user.location }}</h5>
+            {% endif %}
+
+            <hr> <!-- SEPARATOR-->
+
+            <!-- Favourite Button-->
+            <p>
+                <a href="{% url 'add a favourite' item_pk=current_item.pk %}">
+                    {% if is_favoured %}
+                        {% include 'partials/heart-red.html' %}
+                    {% else %}
+                        {% include 'partials/heart-empty.html' %}
+                    {% endif %}
+                </a>
+
+            <!-- Condition: IS_NEW-->
+            <div class="form-check">
+                <input class="form-check-input my-isnew" type="checkbox" value=""
+                       id="flexCheckChecked" {% if current_item.is_new %}checked{% endif %}>
+                <label class="form-check-label" for="flexCheckChecked">
+                    new
+                </label>
+            </div>
+                <!-- CATEGORY-->
+            <h5>category: {{ current_item.category }}</h5>
+
+
+            <!-- PRICE-->
+            <h5 style="color: #0D6EFD">price: {{ current_item.price | intcomma }} BGN</h5>
+
+            <hr> <!-- SEPARATOR-->
+
+            <!--DESCRIPTION -->
+            <h5>description: {{ current_item.description }}</h5>
+
+            <span style="margin-top: 100% ">Aded: {{ current_item.date_added | timesince }} ago</span>
+
+            <!--todo MESSAGE-->
+            {#            <input type="text" placeholder="send message" style="background-color: lightcoral">#}
+
+        </div>
+    </div>
+{% endblock %}
+

@@ -1,0 +1,19 @@
+{% load mptt_tags %}
+
+<h3>Categories</h3>
+<ul class="dropdown">
+    {% recursetree categories %}
+        <li>
+            <a class="category-li" href="{% url 'list categorized items' pk=node.pk title=node.title%}"
+               >{{ node.title }}</a>
+            {% if not node.is_leaf_node %}
+                <ul class="children">
+                    {{ children }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endrecursetree %}
+</ul>
+
+
+

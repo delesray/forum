@@ -1,0 +1,52 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.navbar-brand {
+    color: var(--my_silver);
+    /*padding-right: 1rem;*/
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(245,245,222)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
+
+.nav-link {
+    color: var(--my_silver);
+    border-radius: 3px;
+}
+
+.nav-link:hover {
+    color: black;
+    background-color: var(--my_silver);
+
+}
+
+.nav-item {
+    color: var(--my_silver);
+    font-weight: bold;
+}
+
+footer {
+    background: black;
+    width: 100%;
+    height: 30px; /* Height of the footer */
+    color: #C9C9C9;
+    margin-top: auto;
+}
+
+footer span {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.welcome {
+    color: var(--my_silver);
+}

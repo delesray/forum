@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load static %}
+
+    <div id="user-details-grid" class="container">
+        <div class="container">
+            <img width="300" height="300"
+                    src="{{ current_user.personal_photo.url }}" alt="{{ current_user.username }}`s image">
+        </div>
+        <div class="container box">
+            <h1>{{ current_user.username }}</h1>
+            {% if is_owner %}
+
+                <a href="{% url 'user edit' pk=current_user.pk %}">
+                    <img class="edit-img" src="{% static 'images/edit-pen-icon-6.jpg' %}" alt="edit button">
+                </a>
+
+                <a href="{% url 'user delete' pk=current_user.pk %}">
+                    <img class="bin-img" src="{% static 'images/icon-remove-22.jpg' %}" alt="bin button">
+                </a>
+            {% endif %}
+            <h5>email: {{ current_user.email }}</h5>
+
+
+            {% if current_user.get_full_name %}
+                <h5>full name: {{ current_user.get_full_name }}</h5>
+            {% endif %}
+            {% if current_user.gender %}
+                <h5>gender: {{ current_user.gender }}</h5>
+            {% endif %}
+            {% if current_user.phone %}
+                <h5>phone: {{ current_user.phone }}</h5>
+            {% endif %}
+            {% if current_user.location %}
+                <h5>location: {{ current_user.location }}</h5>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load humanize %}
+    <div class="grid-sm-big">
+
+        <div class="container">
+            {% include 'partials/category-side-bar.html' %}
+        </div>
+
+        <div class="container">
+
+            {% if items %}
+                <h3 class="text-center mb-3 result-message">Your favorites</h3>
+                {% for item in items %}
+                    <div class="card mb-3
+                        {% if request.user.is_authenticated and request.user == item.user %}
+                        mark-mine
+                        {% endif %}">{# style max-width 540 was #}
+                        <div class="row g-0">
+                            <div class="col-md-2">
+                                <img src="{{ item.image_main.url }}" class="img-fluid rounded-start" alt="img">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title c-t">
+                                        {{ item.title }} &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                                        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                                        {{ item.price|intcomma }} BGN
+                                    </h5>
+                                    <p class="card-text">{{ item.phone }}
+                                    </p>
+                                    <p>
+                                        <a href="{% url 'add a favourite' item_pk=item.pk %}">
+                                            {% if item in items %}
+                                                {% include 'partials/heart-red.html' %}
+                                            {% else %}
+                                                {% include 'partials/heart-empty.html' %}
+                                            {% endif %}
+                                        </a>
+                                    </p>
+                                    <div class="form-check">
+                                        <input class="form-check-input my-isnew" type="checkbox" value=""
+                                               id="flexCheckChecked" {% if item.is_new %}checked{% endif %}>
+                                        <label class="form-check-label" for="flexCheckChecked">
+                                            new
+                                        </label>
+                                    </div>
+
+                                    <p class="card-text"><small
+                                            class="text-muted">{{ item.date_added | timesince }}</small></p>
+                                </div>
+                            </div>
+                            <a href="{% url 'item details' username=item.user.username slug=item.slug %}" class="btn">details</a>
+                        </div>
+                    </div>
+                {% endfor %}
+
+{#                {% include 'partials/page-navigation.html' %}#}
+
+            {% else %}
+                <h3 class="text-center mb-3 p-lg-5"
+                    style="background: palevioletred">No Favourite Items</h3>
+            {% endif %}
+        </div>
+    </div>
+
+
+{% endblock %}

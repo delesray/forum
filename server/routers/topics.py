@@ -7,10 +7,13 @@ from data.models.user import AnonymousUser
 from common.utils import Page
 from starlette.requests import Request
 
+from routers.main_router import templates
+from fastapi.responses import HTMLResponse
+
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
 
 
-@topics_router.get('/')
+@topics_router.get('/', response_class=HTMLResponse, name='get_all_topics')
 def get_all_topics(
         request: Request,
         page: int = Query(1, ge=1, description="Page number"),
@@ -20,14 +23,13 @@ def get_all_topics(
         search: str | None = None,
         username: str | None = None,
         category: str | None = None,
-        status: str | None = None
+        status: str | None = None,
 ):
-    
     """
     - User can view all Topics
     - Topics can be sorted by:
         - topic_id
-        - title 
+        - title
         - user_id of the author
         - status (open or locked)
         - best_reply_id
@@ -71,34 +73,42 @@ def get_all_topics(
         )
 
     topics, pagination_info, links = topics_services.get_topics_paginate_links(
-              request=request, page=page, size=size, sort=sort, sort_by=sort_by,
-              search=search, username=username, category=category, status=status
+        request=request, page=page, size=size, sort=sort, sort_by=sort_by,
+        search=search, username=username, category=category, status=status
     )
-    
-    if not topics:
-        return []
 
-    return TopicsPaginate(
-        topics=topics,
-        pagination_info=pagination_info,
-        links=links
+    if not topics:
+        context = {'topics': None}
+    else:
+        context = {
+            'topics ': topics,
+            'pagination_info ': pagination_info,
+            'links ': links,
+
+        }
+        # context = TopicsPaginate(
+        #     topics=topics,
+        #     pagination_info=pagination_info,
+        #     links=links
+        # )
+    return templates.TemplateResponse(
+        request=request, name="topics_demo.html", context=context
     )
 
 
 @topics_router.get('/{topic_id}')
 def get_topic_by_id(
-        topic_id: int, 
+        topic_id: int,
         current_user: OptionalUser,
         request: Request,
         page: int = Query(1, ge=1, description="Page number"),
         size: int = Query(Page.SIZE, ge=1, le=15, description="Page size")
 ) -> TopicRepliesPaginate:
-    
     """
     - A guest can view a Topic with all of its Replies, if the Topic belongs to a public Category
     - If the Category is private, authentication is required
     """
-    
+
     topic = topics_services.get_by_id(topic_id)
 
     if not topic:
@@ -108,23 +118,24 @@ def get_topic_by_id(
         )
 
     category = categories_services.get_by_id(topic.category_id)
-    
+
     if category.is_private:
-        
+
         if isinstance(current_user, AnonymousUser):
             raise HTTPException(
                 status_code=SC.Unauthorized,
                 detail='Login to view topics in private categories'
-           )
+            )
 
         if not current_user.is_admin and not categories_services.has_access_to_private_category(current_user.user_id,
-                                                                                            category.category_id):
+                                                                                                category.category_id):
             raise HTTPException(
                 status_code=SC.Forbidden,
                 detail=f'You do not have permission to access this private category'
             )
-    
-    replies, pagination_info, links = replies_services.get_all(topic_id=topic.topic_id, request=request, page=page, size=size)
+
+    replies, pagination_info, links = replies_services.get_all(topic_id=topic.topic_id, request=request, page=page,
+                                                               size=size)
 
     result = TopicRepliesPaginate(
         topic=topic, replies=replies, pagination_info=pagination_info, links=links)
@@ -134,11 +145,10 @@ def get_topic_by_id(
 
 @topics_router.post('/')
 def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
-
     """
     - User can create a Topic, if the User has write access to the designated Category
     """
-        
+
     category = categories_services.get_by_id(new_topic.category_id)
 
     if not category:
@@ -162,7 +172,6 @@ def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
 
 @topics_router.patch('/{topic_id}/bestReply')
 def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_update: TopicUpdate = Body(...)):
-    
     """
     - User can choose a best Reply to a Topic, if the User owns the Topic
     """
@@ -188,7 +197,6 @@ def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_upda
 
 @topics_router.patch('/{topic_id}/locking')
 def switch_topic_locking(topic_id: int, existing_user: UserAuthDep):
-    
     """
     - User can lock or unlock a Topic, if the User owns the Topic
     """

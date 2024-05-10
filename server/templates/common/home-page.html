@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block content %}
+HI
+<!--    <div class="grid-sm-big">-->
+
+<!--        <div class="container">-->
+<!--            {% include 'partials/category-side-bar.html' %}-->
+<!--        </div>-->
+
+
+<!--        <div class="container">-->
+
+<!--            {% include 'partials/search-form.html' %}-->
+
+<!--            <h3 class="text-center mb-3 result-message">Recently added items</h3>-->
+
+<!--            <div class="row">-->
+<!--                {% if items %}-->
+<!--                    {% for item in items %}-->
+
+
+<!--                    <div class="col-md-6 col-lg-3 mb-4">-->
+
+<!--                        <div class="card-->
+<!--                            {% if request.user.is_authenticated and request.user == item.user %}-->
+<!--                            mark-mine{% endif %}">-->
+<!--                            <img class="card-img-top" src="{{ item.image_main.url }}" alt="age">-->
+<!--                            <div class="card-img-overlay">-->
+<!--                                <h2>-->
+<!--                                    <span class="badge badge-secondary text-white">{{ item.price|intcomma }} BGN</span>-->
+<!--                                </h2>-->
+<!--                            </div>-->
+<!--                            <div class="card-body">-->
+<!--                                <div class="text-center">-->
+<!--                                    <h4 class="text-primary">{{ item.title }}</h4>-->
+
+<!--                                    {% if item.location %}-->
+<!--                                        <p>-->
+<!--                                            <i class="fas fa-map-marker text-secondary"></i> {{ item.location }}-->
+<!--                                        </p>-->
+<!--                                    {% endif %}-->
+<!--                                </div>-->
+<!--                                <hr>-->
+<!--                                <div class="row py-2 text-secondary">-->
+<!--                                    <div class="form-check">-->
+<!--                                        <input class="form-check-input my-isnew" type="checkbox" value=""-->
+<!--                                               id="flexCheckChecked" {% if item.is_new %}checked{% endif %}>-->
+<!--                                        <label class="form-check-label" for="flexCheckChecked">-->
+<!--                                            new-->
+<!--                                        </label>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                <div class="row py-2 text-secondary">-->
+<!--                                    <div class="col-8">-->
+<!--                                        <i class="fas fa-th-large"></i> Category:{{ item.category }}-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                <div class="row py-2 text-secondary">-->
+<!--                                    <div class="col-8">-->
+<!--                                        <i class="fas fa-user"></i> Owner:{{ item.user }}-->
+<!--                                    </div>-->
+<!--                                </div>-->
+
+<!--                                {% if item.user.phone %}-->
+<!--                                    <div class="row py-2 text-secondary">-->
+<!--                                        <div class="col-8">-->
+<!--                                            <i class="fas fa-phone"></i> Phone:{{ item.user.phone }}-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                {% endif %}-->
+<!--                                <div class="row py-2 text-secondary">-->
+<!--                                    <div class="col-10">-->
+<!--                                        <i class="fas fa-envelope"></i> Email:{{ item.user.email }}-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            <hr>-->
+<!--                            <div class="row text-secondary pb-2">-->
+<!--                                <div class="col-6">-->
+<!--                                    <i class="fas fa-clock"></i> {{ item.date_added | timesince }}</div>-->
+<!--                            </div>-->
+<!--                            <hr>-->
+<!--                            <a href="{% url 'item details' username=item.user.username slug=item.slug %}"-->
+<!--                               class="btn stretched-link">Details</a>-->
+<!--                        </div>-->
+
+<!--                    </div>-->
+<!--                    {% endfor %}-->
+
+<!--                    {% include 'partials/page-navigation.html' %}-->
+
+<!--                {% else %}-->
+<!--                    <div class="col-md-12">-->
+<!--                        <h3 style="text-align: center">Currently there are no items Available</h3>-->
+<!--                    </div>-->
+<!--                {% endif %}-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+
+{% endblock %}

@@ -1,0 +1,18 @@
+<html lang="en">
+<head>
+    <title>Forum</title>
+    <link href="{{ url_for('static', path='/css/all-styles.css') }}" rel="stylesheet">
+</head>
+<body>
+<main>
+    <a class="navbar-brand" href="{{ url_for('home_page_view') }}">
+
+        <img src='static/images/sg-logo.svg' alt="logo" class="d-inline-block align-text-center"
+             height="50" width="50">
+        Forum
+    </a>
+    {% block content %}
+    {% endblock %}
+</main>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends 'base2.html' %}
+{% block content %}
+    <h2>Categories</h2>
+    <table class="table table-striped">
+        <tr>
+            <th>id</th>
+            <th>title</th>
+            <th>user id</th>
+            <th>locked</th>
+        </tr>
+
+        {% for topic in topics %}
+            <tr>
+                <td>{{ topic.topic_id }}</td>
+                <td>{{ topic.title }}</td>
+                <td>{{ topic.user_id }}</td>
+                <td>{{ topic.is_locked }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

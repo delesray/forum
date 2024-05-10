@@ -1,0 +1,29 @@
+.btn {
+    background-color: var(--my_body_color);
+    color: black;
+    padding: 7px 14px;
+    font-size: 16px;
+    cursor: pointer;
+    border-color: black;
+}
+
+.btn:hover {
+    background-color: black;
+    color: var(--my_body_color);
+}
+
+.bin-img, .edit-img {
+    width: 25px;
+    margin-left: -5px;
+    margin-top: 8px;
+}
+
+.btn-edit, .btn-add {
+    padding-left: 6rem;
+    padding-right: 6rem;
+    margin-bottom: 1rem;
+}
+
+.btn-register {
+    margin-top: 15px;
+}

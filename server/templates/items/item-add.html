@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load custom_filters %}
+
+    <form id="c-itemadd" method="post" action="{% url 'item add' %}" enctype="multipart/form-data">
+        <div class="container container-fluid form-group">
+        <h1 >ADD ITEM</h1>
+            <div class="row">
+
+                <div class="col-lg-6 item-add">
+                    <div class="box box-itemadd">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        <p>
+                            Title:
+                            {{ form.title.errors }}
+                            {{ form.title|placeholder:'Title'}}
+                        </p>
+                        <p>
+                            Category:
+                            {{ form.category}}
+                        </p>
+                        <p>
+                            Price:
+                            {{ form.price.errors }}
+                            {{ form.price|placeholder:'BGN'}}
+                        </p>
+                        <p>
+                            New:
+                            {{ form.is_new}}
+                        </p>
+                        <p>
+                            Location:
+                            {{ form.location.errors }}
+                            {{ form.location|placeholder:'City, Street'}}
+                        </p>
+                        <p>
+                            Phone:
+                            {{ form.phone.errors }}
+                            {{ form.phone|placeholder:'08........'}}
+                        </p>
+                        <p>
+                            Email:
+                            {{ form.email.errors }}
+                            {{ form.email|placeholder:'some@email.com'}}
+                        </p>
+
+                    </div>
+                </div>
+
+                <div class="col-lg-6 item-add" >
+                    <div class="box box-itemadd">
+                        <p style="font-weight: bold;">Select Main photo</p>
+                        {{ form.image_main }}
+
+                        <p>Select others</p>
+                        <input type="file" name="images" multiple>
+                        <p>
+                            {{ form.description|placeholder:'Description...'}}
+                        </p>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button type="submit" class="btn btn-add">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </form>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+    <br>
+    <div class="item-edit-container container border border-dark rounded box">
+        <img width="300" height="300"
+                src="{{ object.personal_photo.url }}" alt="user-image">
+        <h1>You want to delete your account {{ object.username }}?</h1>
+        <form style="padding-bottom: 1rem" method='post' action="{% url "user delete" pk=request.user.pk %}">
+            {% csrf_token %}
+            <button class="btn">Yes</button>
+            <a class="btn" href="javascript:history.back()">Go Back</a>
+        </form>
+    </div>
+
+{% endblock %}

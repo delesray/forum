@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+    <br>
+    <div class="item-edit-container container border border-dark rounded box">
+        <img width="300" height="300"
+                src="{{ current_item.image_main.url }}" alt="item-img">
+        <h1>Delete {{ current_item.title }}?</h1>
+        <form  style="padding-bottom: 1rem" method='post' action="{% url "item delete" username=current_item.user.username slug=current_item.slug %}">
+            {% csrf_token %}
+            <button class="btn ">Yes</button>
+            <a class="btn" href="javascript:history.back()">Go Back</a>
+        </form>
+    </div>
+
+{% endblock %}

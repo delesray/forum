@@ -1,0 +1,116 @@
+.my-isnew{
+    pointer-events: none;
+}
+
+.my-arrows{
+    background-color: #888888;
+    border-radius: 1rem;
+}
+
+.result-message{
+    margin-top: 1rem;
+    background-color: white!important;
+    box-shadow: 1px 2px 3px #888888;
+    border: 1px solid rgb(156, 152, 152);
+    border-radius: 3px;
+}
+
+.c-t {
+    color: #0a53be;
+    font-weight: bold;
+}
+
+
+.mark-mine {
+    background: var(--my_color_markmine);
+}
+
+.carousel-item {
+    background: var(--my_body_color);
+    background-position: center;
+    background-size: cover;
+    position: relative;
+}
+
+.img-carousel {
+    object-fit: contain;
+}
+
+
+#user-details-grid {
+    display: grid;
+    grid-template-columns: 0.25fr 0.75fr;
+
+}
+
+#item-details-grid {
+    display: grid;
+    grid-template-columns: 0.5fr 0.5fr;
+}
+
+.grid-sm-big {
+    display: grid;
+    grid-template-columns: 0.5fr 3fr;
+}
+
+[type=file] {
+    padding-bottom: 1rem;
+}
+
+
+.box {
+    background-color: white;
+    display: block;
+    box-shadow: 1px 2px 3px #888888;
+    border: 1px solid rgb(156, 152, 152);
+    border-radius: 3px;
+}
+
+.box-itemedit {
+    position: center;
+    width: 500px;
+}
+
+.box-logreg {
+    margin-bottom: 15px;
+    padding: 40px;
+    width: 280px;
+}
+
+.box-itemadd {
+    padding: 40px;
+    margin-bottom: 15px;
+}
+
+.item-add {
+    width: 500px !important;
+}
+
+
+.dropdown-item:hover {
+    background-color: #C9C9C9;
+    color: black !important;
+}
+
+.next-padding {
+    padding-left: 5rem;
+    margin-right: 3rem;
+}
+
+.category-li {
+    color: black !important;
+}
+
+.category-li:hover {
+    color: #0D6EFD !important;
+    font-weight: bold;
+}
+
+.item-edit-container {
+    width: 600px !important;
+    padding-top: 1rem;
+}
+
+.user-edit-container {
+    width: 600px !important;
+}
