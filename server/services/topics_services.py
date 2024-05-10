@@ -5,7 +5,7 @@ from data.models.topic import Status, TopicResponse, TopicCreate
 from data.models.user import User
 from data.database import read_query, update_query, insert_query, query_count
 from mariadb import IntegrityError
-from common.responses import NotFound, Forbidden
+from common.responses import HTTPNotFound, HTTPForbidden 
 from common.utils import get_pagination_info, create_links
 from starlette.requests import Request
 
@@ -120,7 +120,7 @@ def update_best_reply(topic_id, best_reply_id):
         ''',
         (best_reply_id, topic_id))
 
-    return f"Project Best Reply Id updated to {best_reply_id}"
+    return f"Best Reply Id updated to {best_reply_id}"
 
 
 def custom_sort(topics: list[TopicResponse], attribute, reverse=False):
@@ -162,13 +162,13 @@ def validate_topic_access(topic_id: int, user: User):
     existing_topic = get_by_id(topic_id)
 
     if not existing_topic:
-        return NotFound(f"Topic #ID:{topic_id} does not exist")
-
-    if existing_topic.status == Status.LOCKED:
-        return Forbidden(f"Topic #ID:{existing_topic.topic_id} is locked")
+        return HTTPNotFound(f"Topic #ID:{topic_id} does not exist")
 
     if existing_topic.user_id != user.user_id:
-        return Forbidden('You are not allowed to edit topics created by other users')
+        return HTTPForbidden('You are not allowed to edit topics created by other users')
+    
+    if existing_topic.status == Status.LOCKED:
+        return HTTPForbidden(f"Topic #ID:{existing_topic.topic_id} is locked")
 
     return None
 

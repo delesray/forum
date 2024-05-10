@@ -45,7 +45,7 @@ class TopicResponse(BaseModel):
 
 class TopicCreate(BaseModel):
     title: str = Field(..., min_length=1)
-    category_id: int = UNCATEGORIZED_ID
+    category_id: int | None = UNCATEGORIZED_ID
 
 
 class TopicsPaginate(BaseModel):

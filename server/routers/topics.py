@@ -144,14 +144,15 @@ def create_topic(new_topic: TopicCreate, current_user: UserAuthDep):
     if not category:
         raise HTTPException(SC.NotFound, f'Category #ID:{new_topic.category_id} does not exist')
 
+    if category.is_private:
+        if current_user.is_admin or categories_services.has_write_access(current_user.user_id, category.category_id):
+            result = topics_services.create(new_topic, current_user.user_id)
+        else:
+            raise HTTPException(SC.Forbidden, f"You do not have permission to post in this private category")
+        
     if category.is_locked:
         raise HTTPException(SC.Forbidden, f'Category #ID:{category.category_id}, Name: {category.name} is locked')
 
-    if category.is_private:
-        if categories_services.has_write_access(current_user.user_id, category.category_id):
-            result = topics_services.create(new_topic, current_user)
-        else:
-            raise HTTPException(SC.Forbidden, f"You do not have permission to post in this private category")
 
     result = topics_services.create(new_topic, current_user.user_id)
 
@@ -172,7 +173,7 @@ def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_upda
 
     error_response = topics_services.validate_topic_access(topic_id, current_user)
     if error_response:
-        return error_response
+        raise HTTPException(status_code=error_response.status_code, detail=error_response.detail)
 
     topic_replies_ids = topics_services.get_topic_replies(topic_id)
 
