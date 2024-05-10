@@ -5,7 +5,7 @@ from common.responses import SC
 from data.models.user import AnonymousUser
 from data.models.category import Category, CategoryTopicsPaginate
 from services import categories_services, topics_services
-from common.utils import get_pagination_info, create_links, Page
+from common.utils import Page
 
 categories_router = APIRouter(prefix='/categories', tags=['categories'])
 
@@ -29,9 +29,17 @@ def get_category_by_id(
         sort_by: str | None = 'topic_id',
 ) -> CategoryTopicsPaginate:
     """
-    1. Returns Category with a list of Topics, if Category is public
-    2. If Category is private requires authentication
-    3. Topics in a Category can be searched by title or sorted by title in alphabetical order (asc / desc)
+    - Returns Category with a list of Topics, if Category is public
+    - If Category is private requires authentication
+    - Topics can be sorted in asc or desc order according to:
+        - topic_id
+        - title
+        - user_id of the author
+        - status (open or locked)
+        - best_reply_id
+    - Topics can be searched by:
+        - title
+    - User can choose number of pages displayed (1 by default) and number of items per page (1 by default, maximum 15)
     """
 
     category = categories_services.get_by_id(category_id)

@@ -39,8 +39,8 @@ def create(category: Category) -> Category | IntegrityError:
     """
     try:
         generated_id = insert_query(
-            'INSERT INTO categories(name) VALUES(?)',
-            (category.name,)
+            'INSERT INTO categories(name, is_locked, is_private) VALUES(?,?,?)',
+            (category.name, category.is_locked, category.is_private)
         )
         category.category_id = generated_id
         return category
@@ -112,8 +112,10 @@ def has_write_access(user_id: int, category_id: int) -> bool:
 def get_privileged_users(category_id) -> list:
     data = read_query(
         '''SELECT ucp.user_id, u.username, ucp.write_access
-        FROM users_categories_permissions as ucp JOIN users as u
-        WHERE ucp.category_id = ?''', (category_id,)
+            FROM users_categories_permissions as ucp 
+            JOIN users as u 
+            ON ucp.user_id=u.user_id
+            WHERE ucp.category_id = ?''', (category_id,)
     )
     if data:
         return data
