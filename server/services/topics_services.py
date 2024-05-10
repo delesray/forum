@@ -157,19 +157,19 @@ def get_usernames():
     return usernames
 
 
-def validate_topic_access(topic_id: int, user: User):
+def validate_topic_access(topic_id: int, user: User)-> tuple[bool, str]:
     existing_topic = get_by_id(topic_id)
 
     if not existing_topic:
-        return HTTPNotFound(f"Topic #ID:{topic_id} does not exist")
+        return False, f"Topic #ID:{topic_id} does not exist"
 
     if existing_topic.user_id != user.user_id:
-        return HTTPForbidden('You are not allowed to edit topics created by other users')
+        return False, 'You are not allowed to edit topics created by other users'
     
     if existing_topic.status == Status.LOCKED:
-        return HTTPForbidden(f"Topic #ID:{existing_topic.topic_id} is locked")
+        return False, f"Topic #ID:{existing_topic.topic_id} is locked"
 
-    return None
+    return True, "OK"
 
 
 def update_locking(locking: bool, topic_id: int):

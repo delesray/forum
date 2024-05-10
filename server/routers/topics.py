@@ -167,9 +167,12 @@ def update_topic_best_reply(topic_id: int, current_user: UserAuthDep, topic_upda
     if not topic_update.best_reply_id:
         raise HTTPException(SC.BadRequest, f"Data not provided to make changes")
 
-    error_response = topics_services.validate_topic_access(topic_id, current_user)
-    if error_response:
-        raise HTTPException(status_code=error_response.status_code, detail=error_response.detail)
+    user_has_access, msg = topics_services.validate_topic_access(topic_id, current_user)
+    if not user_has_access:
+        raise HTTPException(
+            status_code=SC.Forbidden,
+            detail=msg
+        )
 
     topic_replies_ids = topics_services.get_topic_replies(topic_id)
 
