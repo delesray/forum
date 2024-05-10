@@ -54,5 +54,5 @@ def update_message(message_id: int, message: MessageText, current_user: UserAuth
     - Edits message, if it exists
     """
     if not messages_services.exists(message_id):
-        raise HTTPException(404, 'No such message')
+        raise HTTPException(status_code=404, detail='No such message')
     messages_services.update_text(message_id, message.text)

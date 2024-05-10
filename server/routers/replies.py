@@ -56,7 +56,7 @@ def edit_reply(topic_id: int, reply_id: int, update: ReplyCreateUpdate, current_
     reply_to_update = get_reply_by_id(reply_id)
 
     if not reply_to_update:
-        raise HTTPException(status_code=SC.NotFound)
+        raise HTTPException(status_code=SC.NotFound, detail='No such reply in this topic')
 
     user_modify_reply, msg = can_user_access_topic_content(
         topic_id=topic_id, user_id=current_user.user_id)
@@ -90,7 +90,7 @@ def delete_reply(topic_id: int, reply_id: int, current_user: UserAuthDep):
     reply_to_delete = get_reply_by_id(reply_id)
 
     if not reply_to_delete:
-        raise HTTPException(status_code=SC.NotFound)
+        raise HTTPException(status_code=SC.NotFound, detail='No such reply in this topic')
 
     user_modify_reply, msg = can_user_access_topic_content(
         topic_id=topic_id, user_id=current_user.user_id)
