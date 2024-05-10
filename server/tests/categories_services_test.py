@@ -118,7 +118,7 @@ class CategoriesServices_Should(TestCase):
 
     @patch(read_query_path)
     def test_is_user_in_returns_False(self, mock_read_query):
-        mock_read_query.return_value = [[COUNT_0, ]]
+        mock_read_query.return_value = [[]]
         result = s.is_user_in(USER_ID, CAT1_ID)
         self.assertFalse(result)
 
