@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Forum</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/all-styles.css') }}">
-    <link rel="icon" href="{{ url_for('static', path='images/sg-logo.svg') }}">
+    <link rel="icon" href="{{ url_for('static', path='images/forumlogo.svg') }}">
 </head>
 
 <body style="background-color: #F2F4F5">
@@ -13,8 +13,9 @@
 <nav class="navbar bg-black navbar-expand-lg">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('home_page_view') }}">
-            <img src=static/images/sg-logo.svg alt="logo" class="d-inline-block align-text-center"
-            height="50" width="50">
+            <img src="{{ url_for('static', path='images/forumlogo.svg') }}" alt="logo"
+                 class="d-inline-block align-text-center"
+                 height="50" width="50">
             Forum
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll"
@@ -27,39 +28,42 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('categories_demo_view') }}">Categories</a>
                 </li>
-
-                {% if not request.user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'user register' %}">Register</a>
+                    <a class="nav-link" href="{{ url_for('get_all_topics') }}">Topics</a>
+                </li>
+
+                {#                {% if not request.user.is_authenticated %}#}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('register') }}">Register</a>{# register #}
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'user login' %}">Login</a>
+                    <a class="nav-link" href="{{ url_for('home_page_view') }}">Login</a>{# login #}
                 </li>
                 <li class="nav-item welcome position-absolute top-50 start-50 translate-middle">
                     Welcome!
                 </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'user details' pk=request.user.pk %}">Profile</a>
-                </li>
-
-                <li class="nav-item welcome position-absolute top-50 start-50 translate-middle">
-                    Welcome, {{ request.user.username }}!
-                </li>
-                {% endif %}
+                {#                {% else %}#}
+                {#                    <li class="nav-item">#}
+                {#                        <a class="nav-link" href="{% url 'user info' user_id=request.user.user_id %}">Profile</a>#}
+                {#                    </li>#}
+                {##}
+                {#                    <li class="nav-item welcome position-absolute top-50 start-50 translate-middle">#}
+                {#                        Welcome, {{ request.user.username }}!#}
+                {#                    </li>#}
+                {#                {% endif %}#}
             </ul>
-            {% if request.user.is_authenticated %}
-            <ul class="nav justify-content-end">
-                <li class="nav-item float-left">
-                    <a class="nav-link" href="{% url 'list favourite items' username=request.user.username %}">
-                        Favorites {{ request.user.favourite_set.all.count }}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'user logout' %}">Logout</a>
-                </li>
-            </ul>
-            {% endif %}
+            {#            {% if request.user.is_authenticated %}#}
+            {#                <ul class="nav justify-content-end">#}
+            {#                    <li class="nav-item float-left">#}
+            {#                        <a class="nav-link" href="{% url 'list favourite items' username=request.user.username %}">#}
+            {#                            Favorites {{ request.user.favourite_set.all.count }}#}
+            {#                        </a>#}
+            {#                    </li>#}
+            {#                    <li class="nav-item">#}
+            {#                        <a class="nav-link" href="{% url 'user logout' %}">Logout</a>#}
+            {#                    </li>#}
+            {#                </ul>#}
+            {#            {% endif %}#}
         </div>
     </div>
 </nav>
@@ -76,7 +80,7 @@
     <span style="float: right">email: forum@forum.com </span>
 </footer>
 
-<!--<script src="{% static 'js/bootstrap.bundle.js' %}"></script>-->
+<script src="{{ url_for('static', path='js/bootstrap.bundle.js') }}"></script>
 </body>
 </html>
 

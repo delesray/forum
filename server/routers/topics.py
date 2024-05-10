@@ -7,7 +7,7 @@ from data.models.user import AnonymousUser
 from common.utils import Page
 from starlette.requests import Request
 
-from routers.main_router import templates
+from routers.common_router import templates
 from fastapi.responses import HTMLResponse
 
 topics_router = APIRouter(prefix='/topics', tags=['topics'])
@@ -78,13 +78,14 @@ def get_all_topics(
     )
 
     if not topics:
-        context = {'topics': None}
+        context = {'topics': None, 'asd': 'asd'}
     else:
         context = {
-            'topics ': topics,
-            'pagination_info ': pagination_info,
-            'links ': links,
-
+            'topics': topics,
+            'first':topics[0]
+            # 'pagination_info ': pagination_info,
+            # 'links ': links,
+            # 'asd2': 'asd2,'
         }
         # context = TopicsPaginate(
         #     topics=topics,
@@ -92,7 +93,7 @@ def get_all_topics(
         #     links=links
         # )
     return templates.TemplateResponse(
-        request=request, name="topics_demo.html", context=context
+        request=request, name="topics_demo.html", context=context,
     )
 
 

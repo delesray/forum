@@ -1,4 +1,4 @@
-{% extends 'base2.html' %}
+{% extends 'base.html' %}
 {% block content %}
 <h2>Categories</h2>
 <table class="table table-striped">
@@ -8,6 +8,7 @@
         <th>locked</th>
         <th>private</th>
     </tr>
+
     {% for cat in categories %}
         <tr>
             <td>{{ cat.category_id }}</td>

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from common.responses import SC
 from data.models.user import UserRegister, UserUpdate, UserChangePassword, UserDelete, TokenData
@@ -7,11 +7,13 @@ from common.oauth import create_access_token, UserAuthDep
 from common.utils import verify_password
 from typing import Annotated
 from common import utils
+from fastapi.responses import HTMLResponse, RedirectResponse
+from routers.common_router import templates, common_router
 
 users_router = APIRouter(prefix='/users', tags=['users'])
 
 
-@users_router.post('/register', status_code=SC.Created)
+@users_router.post('/register', status_code=SC.Created, name='register')
 def register_user(user: UserRegister):
     """
     - Register the user, if:
@@ -25,10 +27,10 @@ def register_user(user: UserRegister):
     if not isinstance(result, int):
         raise HTTPException(status_code=SC.BadRequest, detail=result.msg)
 
-    return f"User with ID: {result} registered"
+    return RedirectResponse(url=f"{users_router.url_path_for('login')}", status_code=status.HTTP_302_FOUND)
 
 
-@users_router.post('/login')
+@users_router.post('/login', name='login')
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     """
     - Logs the user, if username and password are correct
@@ -43,9 +45,10 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # todo OAuth2 more complex token transfer
     token = create_access_token(
         TokenData(username=user.username, is_admin=user.is_admin))
-    return token
+    return RedirectResponse(url=f"{common_router.url_path_for('home')}", status_code=status.HTTP_302_FOUND)
 
 
 @users_router.get('/')
@@ -54,16 +57,16 @@ def get_all_users():
     return users
 
 
-@users_router.get('/{user_id}')
-def get_user_by_id(user_id: int):
-    """
-    - Returns a user by ID, if the user exists
-    """
-    user = users_services.get_by_id(user_id)
-
-    if not user:
-        raise HTTPException(status_code=SC.NotFound, detail=f"User with ID: {user_id} does\'t exist!")
-    return user
+# @users_router.get('/{user_id}')
+# def get_user_by_id(user_id: int):
+#     """
+#     - Returns a user by ID, if the user exists
+#     """
+#     user = users_services.get_by_id(user_id)
+#
+#     if not user:
+#         raise HTTPException(status_code=SC.NotFound, detail=f"User with ID: {user_id} does\'t exist!")
+#     return user
 
 
 @users_router.put('/')

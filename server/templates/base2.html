@@ -1,16 +1,20 @@
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Forum</title>
-    <link href="{{ url_for('static', path='/css/all-styles.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/all-styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', path='images/forumlogo.svg') }}">
 </head>
 <body>
-<main>
     <a class="navbar-brand" href="{{ url_for('home_page_view') }}">
 
-        <img src='static/images/sg-logo.svg' alt="logo" class="d-inline-block align-text-center"
+        <img src='static/images/forumlogo.svg' alt="logo" class="d-inline-block align-text-center"
              height="50" width="50">
         Forum
     </a>
+<main>
+
     {% block content %}
     {% endblock %}
 </main>

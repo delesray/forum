@@ -6,7 +6,7 @@ from data.models.user import AnonymousUser
 from data.models.category import Category, CategoryTopicsPaginate
 from services import categories_services, topics_services
 from common.utils import Page
-from routers.main_router import templates
+from routers.common_router import templates
 from fastapi.responses import HTMLResponse
 
 categories_router = APIRouter(prefix='/categories', tags=['categories'])
