@@ -104,7 +104,7 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `forum`.`replies` (
   `reply_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `text` TINYTEXT NOT NULL,
+  `text` TEXT NOT NULL,
   `user_id` INT(11) NOT NULL,
   `topic_id` INT(11) NOT NULL,
   `edited` TINYINT(2) NOT NULL DEFAULT 0,
@@ -171,16 +171,19 @@ DELIMITER $$
 USE `forum`$$
 CREATE
 DEFINER=`root`@`localhost`
-TRIGGER `forum`.`after_user_deleted_delete_his_messages`
+TRIGGER `forum`.`after_user_deleted_delete_his_messages_and_permissions`
 AFTER UPDATE ON `forum`.`users`
 FOR EACH ROW
 BEGIN
   IF NEW.is_deleted = 1 THEN
     DELETE FROM messages
     WHERE sender_id = OLD.user_id OR receiver_id = OLD.user_id;
+    DELETE FROM users_categories_permissions
+    WHERE user_id = OLD.user_id;
   END IF;
 END$$
 DELIMITER ;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

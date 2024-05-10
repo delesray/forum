@@ -84,10 +84,10 @@ def update_user_access_level(user_id: int, category_id: int, access: bool) -> No
 
 def is_user_in(user_id: int, category_id: int) -> bool:
     data = read_query(
-        '''SELECT COUNT_1(*) FROM users_categories_permissions 
+        '''SELECT 1 FROM users_categories_permissions 
         WHERE user_id = ? AND category_id = ?''', (user_id, category_id,)
     )
-    return data[0][0] > 0
+    return any(data)
 
 
 def add_user(user_id: int, category_id: int) -> None:
