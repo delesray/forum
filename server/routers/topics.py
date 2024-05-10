@@ -203,4 +203,4 @@ def switch_topic_locking_helper(topic_id, user):
         raise HTTPException(SC.BadRequest, 'You must be admin or owner to switch locking')
 
     topics_services.update_locking(not Status.str_int[topic.status], topic_id)
-    return f'Topic {topic.title} is {Status.opposite[topic.status]} now'
+    return f'Topic <{topic.title}> is {Status.opposite[topic.status]} now'
