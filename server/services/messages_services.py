@@ -15,13 +15,13 @@ def create(message_text, sender_id, receiver_id):
 
 
 def get_all_conversations(user_id: int):
-    data = read_query('''SELECT DISTINCT u.username, u.email, u.first_name, u.last_name
+    data = read_query('''SELECT u.username, u.email, u.first_name, u.last_name
                         FROM users u
                         JOIN messages m
                         ON u.user_id = m.receiver_id
                         WHERE m.sender_id = ?
                         UNION
-                        SELECT DISTINCT u.username, u.email, u.first_name, u.last_name
+                        SELECT u.username, u.email, u.first_name, u.last_name
                         FROM users u
                         JOIN messages m
                         ON u.user_id = m.sender_id
