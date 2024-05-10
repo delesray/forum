@@ -20,7 +20,7 @@ def create_category(category: Category, current_admin: AdminAuthDep):
     if isinstance(result, categories_services.IntegrityError):
         raise HTTPBadRequest(result.msg)
 
-    raise result
+    return result
 
 
 @admin_router.patch('/categories/{category_id}/privacy', status_code=202)

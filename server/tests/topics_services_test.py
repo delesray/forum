@@ -211,7 +211,7 @@ class TopicsServices_Should(TestCase):
         with patch('services.topics_services.update_query') as mock_update_query:
             best_reply_id = 1
         
-            expected = f"Project Best Reply Id updated to {best_reply_id}"
+            expected = f"Best Reply Id updated to {best_reply_id}"
             result = topics.update_best_reply(TOPIC_ID, best_reply_id)
             
             self.assertEqual(expected, result)

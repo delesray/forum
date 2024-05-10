@@ -35,13 +35,12 @@ def get_all(
 ):
     params, filters = (), []
     sql = (
-'SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name ' 
-'FROM topics t ' 
-'JOIN users u ON t.user_id = u.user_id ' 
-'JOIN categories c ON t.category_id = c.category_id '
-) 
-
-
+        'SELECT t.topic_id, t.title, t.user_id, u.username, t.is_locked, t.best_reply_id, t.category_id, c.name '
+        'FROM topics t '
+        'JOIN users u ON t.user_id = u.user_id '
+        'JOIN categories c ON t.category_id = c.category_id '
+    )
+ 
     if search:
         filters.append('t.title LIKE ?')
         params += (f'%{search}%',)
