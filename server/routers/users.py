@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
+
+import data.models.user
 from common.responses import SC
 from data.models.user import UserRegister, UserUpdate, UserChangePassword, UserDelete, TokenData
 from services import users_services
@@ -13,8 +15,8 @@ from routers.common_router import templates, common_router
 users_router = APIRouter(prefix='/users', tags=['users'])
 
 
-@users_router.post('/register', status_code=SC.Created, name='register')
-def register_user(user: UserRegister):
+@users_router.get('/register', status_code=SC.Created, name='register')
+def register_user(request: Request,):  # user: UserRegister
     """
     - Register the user, if:
         - username is at least 4 chars and is not already taken
@@ -22,12 +24,17 @@ def register_user(user: UserRegister):
         - email follows the example
     - First name and last name are not required upon registration
     """
-    result = users_services.register(user)
+    # dummy_user = data.models.user.UserRegister(
+    #     username='dummy', email='dummy@email.com',
+    #     password1='dummy', password2='dummy')
+    #
+    # result = users_services.register(dummy_user)
 
-    if not isinstance(result, int):
-        raise HTTPException(status_code=SC.BadRequest, detail=result.msg)
+    # if not isinstance(result, int):
+    #     raise HTTPException(status_code=SC.BadRequest, detail=result.msg)
 
-    return RedirectResponse(url=f"{users_router.url_path_for('login')}", status_code=status.HTTP_302_FOUND)
+    return templates.TemplateResponse(request=request, name="users/user-register.html")
+    # return RedirectResponse(url=f"{users_router.url_path_for('login')}", status_code=status.HTTP_302_FOUND)
 
 
 @users_router.post('/login', name='login')
