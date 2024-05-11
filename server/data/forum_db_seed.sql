@@ -45,3 +45,10 @@ INSERT INTO users_categories_permissions(user_id,category_id,write_access) VALUE
 INSERT INTO replies(text,user_id,topic_id) VALUES('By the river',4, 10); -- 1
 INSERT INTO replies(text,user_id,topic_id) VALUES('Ok that is a good idea',2, 10);-- 2
 INSERT INTO replies(text,user_id,topic_id) VALUES('I caught some big fish there!!!',4, 10);-- 3
+
+INSERT INTO replies(text,user_id,topic_id) VALUES('Good luck!',2, 3);
+INSERT INTO replies(text,user_id,topic_id) VALUES('Do you like it!',2, 3);
+INSERT INTO replies(text,user_id,topic_id) VALUES('The best!',2, 3);
+
+-- INSERT INTO messages(text,sender_id,receiver_id) VALUES('Done',1, 2);
+-- INSERT INTO users_categories_permissions(user_id,category_id,write_access) VALUES(2, 6,1);
