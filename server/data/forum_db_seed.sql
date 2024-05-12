@@ -39,7 +39,7 @@ INSERT INTO topics(title,user_id,category_id) VALUES('Where to go fishing?', 2,6
 
 -- INSERTING PERMISSIONS
 INSERT INTO users_categories_permissions(user_id,category_id) VALUES(3,6); -- readonly
-INSERT INTO users_categories_permissions(user_id,category_id,write_access) VALUES(4, 6, 1);-- write
+INSERT INTO users_categories_permissions(user_id,category_id,wcrite_access) VALUES(4, 6, 1);-- write
 
 -- INSERTING REPLIES
 INSERT INTO replies(text,user_id,topic_id) VALUES('By the river',4, 10); -- 1
@@ -50,5 +50,5 @@ INSERT INTO replies(text,user_id,topic_id) VALUES('Good luck!',2, 3);
 INSERT INTO replies(text,user_id,topic_id) VALUES('Do you like it!',2, 3);
 INSERT INTO replies(text,user_id,topic_id) VALUES('The best!',2, 3);
 
--- INSERT INTO messages(text,sender_id,receiver_id) VALUES('Done',1, 2);
+-- INSERT INTO messages(text,sender_id,receiver_id) VALUES('done',1, 2);
 -- INSERT INTO users_categories_permissions(user_id,category_id,write_access) VALUES(2, 6,1);

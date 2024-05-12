@@ -58,7 +58,7 @@ def get_all(
     # get count of filtered topics for pagination info
     total_count = get_total_count(sql, params)
 
-    if sort:
+    if sort and sort != 'topic_id':
         if sort_by == 'user_id':
             sort_by ='t.user_id'
             
