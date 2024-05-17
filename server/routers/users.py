@@ -16,7 +16,7 @@ users_router = APIRouter(prefix='/users', tags=['users'])
 
 
 @users_router.get('/register', status_code=SC.Created, name='register')
-def register_user(request: Request,):  # user: UserRegister
+def register_user(request: Request, ):  # user: UserRegister
     """
     - Register the user, if:
         - username is at least 4 chars and is not already taken
