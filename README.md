@@ -100,4 +100,4 @@ Available when you run the server (step 3).
 
 ## Database
 
-![Database Schema](db_schema.png)
+![Database Schema](server/db_schema.png)
