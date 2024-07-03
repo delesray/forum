@@ -3,6 +3,17 @@
 
 Back-end web application, programmed in Python and designed to implement a Forum System and provide RESTful API.
 
+---
+
+## Table of contents
+
+* [Technologies](#technologies-used)
+* [Setup](#installation-and-setup)
+* [Features](#features)
+* [Database](#database)
+
+---
+
 ## Technologies Used
 
 **Database**: MariaDB
@@ -15,7 +26,9 @@ Back-end web application, programmed in Python and designed to implement a Forum
 
 **Testing**: Unittest
 
-## Installion and setup
+
+---
+## Installation and setup
 
 ### 1. Clone the project using HTTPS
 
@@ -31,7 +44,7 @@ git clone git@github.com:ForumTelerik/forum.git
 
 ### 2. Navigate to `forum/server` directory and install the packages listed in the **requirements.txt** file
 
-(Optional) **Inctructions on creating and activating a virtual environment:** [Link](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/)
+(Optional) **Instructions on creating and activating a virtual environment:** [Link](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/)
 
 ```
 pip install -r requirements.txt
@@ -46,6 +59,8 @@ uvicorn main:app --reload
 ### 4. Swagger docs: [Link](http://127.0.0.1:8000/docs)
 
 Available when you run the server (step 3).
+
+---
 
 ## Features
 
@@ -97,6 +112,8 @@ Available when you run the server (step 3).
   * View all messages with another user
   * View all users you've exchanged messages with
   * Edit a message
+
+---
 
 ## Database
 
